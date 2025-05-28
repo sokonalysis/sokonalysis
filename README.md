@@ -3,7 +3,6 @@
 
 ## About
 sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key.
-![Image](https://github.com/user-attachments/assets/7947e6a8-7484-4921-adb9-9cbbc4899900)
 
 ## Table of Content
 - [Installation](#Installation)
