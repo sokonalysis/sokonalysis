@@ -9,4 +9,15 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 
 ## Installation
 ### Windows
+1. Click on Code → Download ZIP
+2. Go to your downloads and unzip sokonalysis-main.zip
+3. Open the unzipped folder and double click on sokonalysis.exe
+4. Enjoy!!!
+   
 ### Linux
+1. Open your Linux Terminal
+2. Enter the command `git clone https://github.com/SokoJames/sokonalysis.git` to download sokonalysis
+3. Change the directory with the command `cd sokonalysis`
+4. Give the tool executable permissions with the command `chmod +x sokonalysis`
+5. Run the tool with the command `./sokonalysis`
+6. Enjoy!!!
