@@ -69,6 +69,11 @@ Utilize option 8 to check the help menu and try to understand the RSA algorithm.
 
 <img width="371" alt="Image" src="https://github.com/user-attachments/assets/179df9b0-22d6-4f3e-8bf0-0d8eb71318f2" />
 
+`STEP 2` 
+Based on the encryption key given (33,7), we can conclude to say that the Public Key (n,e) is n = 33 and e = 7. Now, we compute n we get the product of p and q, for which they are two large prime numbers such as 11 and 3 which gives us 33. Let's now proceed to the RSA algorithm by selecting option 2.
+
+<img width="368" alt="Image" src="https://github.com/user-attachments/assets/01fc4a88-1900-4f21-805f-764b0af520ed" />
+
 3. ## CTF Level
 4. ## Advanced Level 
 
