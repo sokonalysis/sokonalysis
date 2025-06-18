@@ -54,7 +54,7 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 6. Enjoy!!!
 
 ## Usage
-1. **University Level**– Basic cryptographic algorithms
-2. **CTF Level** –Common cryptographic tools plus framework
-3. **Advanced Level** – For professionals or enterprise services 
+1. ## University Level
+2. ## CTF Level
+3. ## Advanced Level 
 
