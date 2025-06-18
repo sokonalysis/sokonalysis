@@ -59,9 +59,9 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 1. ## University Level
    University students taking Cryptography as a course can utilize option 1 – 4 to automate their work. You don’t need internet connection (except options involving APIs or external websites) to perform these tasks but just some questions you can utilize. This tool will act as an offline calculator to verify the answers after a student 
 solves a question manually.
-Lets take an RSA example from Kapasa Makasa University CYS110 2025 Test 1;
-
-  a) You have received a message UTLAIKNP encrypted with the key (33,7). Find the private keys that should be used to decrypt the message and work out the clear text.
+   Lets take an RSA example from Kapasa Makasa University CYS110 2025 Test 1;
+   
+   a) You have received a message UTLAIKNP encrypted with the key (33,7). Find the private keys that should be used to decrypt the message and work out the clear text.
 
   `STEP 1` <br>
   Utilize option 8 to check the help menu and try to understand the RSA algorithm.
