@@ -84,6 +84,7 @@ There we go, we've obtained the Private Key (33,3). Restart the program, welcome
 
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/761da374-b013-4234-afac-c101fac6015a" />
 
+<br>
 
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/415199e6-7473-4e17-94c6-8af600d24d31" />
 
