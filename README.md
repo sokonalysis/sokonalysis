@@ -74,6 +74,17 @@ Based on the encryption key given (33,7), we can conclude to say that the Public
 
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/01fc4a88-1900-4f21-805f-764b0af520ed" />
 
+`STEP 3`
+Now, let's assume as if we are encrypting a message with the given Public Key (33,7) so that we can retrive the Private Key (n,d).
+
+<img width="364" alt="Image" src="https://github.com/user-attachments/assets/63aebc57-f8ed-4911-a08e-4a6ceb2bb131" />
+
+`STEP 4`
+There we go, we've obtained the Private Key (33,3). Restart the program, welcome back!!! Let's utilize option 4 to convert the cipher text letters to numbers because the program can only decryp numerical values.
+
+<img width="368" alt="Image" src="https://github.com/user-attachments/assets/761da374-b013-4234-afac-c101fac6015a" />
+<img width="368" alt="Image" src="https://github.com/user-attachments/assets/415199e6-7473-4e17-94c6-8af600d24d31" />
+
 3. ## CTF Level
 4. ## Advanced Level 
 
