@@ -1,4 +1,4 @@
-<img width="390" alt="image" src="https://github.com/user-attachments/assets/e420c2b3-f643-4bc3-bb70-3e74385a0d0f" /># sokonalysis v2.2
+# sokonalysis v2.2
 
 <p align="left">
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
