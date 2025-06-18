@@ -42,19 +42,22 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 ### Windows
 1. Click on **Code** → **Download ZIP**
 2. Go to your downloads and unzip **sokonalysis-main.zip**
-3. Open the unzipped folder and double click on **sokonalysis.exe**
+3. Open the unzipped folder, change the directory to **sokonalysis-windows** and double click on **sokonalysis.exe**
 4. Enjoy!!!
    
 ### Linux
 1. Open your Linux Terminal
 2. Enter the command `git clone https://github.com/SokoJames/sokonalysis.git` to download sokonalysis
 3. Change the directory with the command `cd sokonalysis`
-4. Give the tool executable permissions with the command `chmod +x sokonalysis`
-5. Run the tool with the command `./sokonalysis`
-6. Enjoy!!!
+4. Again, change the directory with the command `cd sokonalysis-linux`
+5. Give the tool executable permissions with the command `chmod +x sokonalysis`
+6. Run the tool with the command `./sokonalysis`
+7. Enjoy!!!
 
 ## Usage
 <img width="373" alt="Image" src="https://github.com/user-attachments/assets/25293170-ed1f-473c-9a4a-ef03d4664221" />
+
+[Official sokonalysis YouTube Guide Playlist](https://youtube.com/playlist?list=PLbkdoTM3A8aOFijcnaxCZGhZklM5RsbaL&si=Yoo6r6xL3Y5DtohM)
 
 1. ## University Level
    University students taking Cryptography as a course can utilize option 1 – 4 to automate their work. You don’t need internet connection (except options involving APIs or external websites) to perform these tasks but just some questions you can utilize. This tool will act as an offline calculator to verify the answers after a student 
