@@ -94,7 +94,14 @@ At this point we can decode the given cipher text by following the previsious st
 <img width="465" alt="Image" src="https://github.com/user-attachments/assets/f9d3c389-3d6d-4be0-a072-a42c4f67f7aa" />
 
 3. ## CTF Level
-   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc..
+   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
+
+   <img width="369" alt="Image" src="https://github.com/user-attachments/assets/b8214bc3-b6eb-4ac7-b791-fe7b1bc60b79" />
+
+    Let’s jump into these challenges!!!
+
+   `[No Padding, no problem](https://play.picoctf.org/practice/challenge/154?category=2&page=3&search=)` <br>
+   
    
 5. ## Advanced Level 
 
