@@ -83,6 +83,7 @@ Now, let's assume as if we are encrypting a message with the given Public Key (3
 There we go, we've obtained the Private Key (33,3). Restart the program, welcome back!!! Let's utilize option 4 to convert the cipher text letters to numbers because the program can only decryp numerical values.
 
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/761da374-b013-4234-afac-c101fac6015a" />
+
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/415199e6-7473-4e17-94c6-8af600d24d31" />
 
 3. ## CTF Level
