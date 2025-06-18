@@ -1,10 +1,10 @@
 # sokonalysis v2.2
 
-<p align="center">
+<p align="left">
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
 </p>
 
-                  ###### The Cipher Toolkit Build For All Skill Levels 
+###### The Cipher Toolkit Build For All Skill Levels 
 
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/a91e399b-b996-45ef-a06b-7a20954ae239" />
 
