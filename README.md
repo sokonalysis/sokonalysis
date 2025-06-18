@@ -4,6 +4,8 @@
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
 </p>
 
+###### The Cipher Toolkit Build For All Skill Levels 
+
 <img width="368" alt="Image" src="https://github.com/user-attachments/assets/a91e399b-b996-45ef-a06b-7a20954ae239" />
 
 ## About
@@ -12,6 +14,7 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 ## Table of Content
 - [Dependencies](#Dependencies)
 - [Installation](#Installation)
+- [Usage](#Usage)
 
 ## Dependencies
 **NOTE:** Keep all the files in the same folder sokonalysis-main for it to execute without any issues, failure to that you will need to install the dependancies on your machine, that includes;
@@ -51,3 +54,5 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 4. Give the tool executable permissions with the command `chmod +x sokonalysis`
 5. Run the tool with the command `./sokonalysis`
 6. Enjoy!!!
+
+## Usage
