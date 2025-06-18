@@ -94,5 +94,7 @@ At this point we can decode the given cipher text by following the previsious st
 <img width="465" alt="Image" src="https://github.com/user-attachments/assets/f9d3c389-3d6d-4be0-a072-a42c4f67f7aa" />
 
 3. ## CTF Level
-4. ## Advanced Level 
+   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc..
+   
+5. ## Advanced Level 
 
