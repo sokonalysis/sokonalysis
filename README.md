@@ -1,4 +1,4 @@
-# sokonalysis v2.2
+<img width="390" alt="image" src="https://github.com/user-attachments/assets/e420c2b3-f643-4bc3-bb70-3e74385a0d0f" /># sokonalysis v2.2
 
 <p align="left">
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
@@ -100,7 +100,30 @@ solves a question manually.
     Let’s jump into these challenges!!!
 
    ### [No Padding, no problem](https://play.picoctf.org/practice/challenge/154?category=2&page=3&search=) <br>
+   `STEP 1` <br>
+   Connect to the challenge server with the command nc mercury.picoctf.net 42248 in Linux or ncat mercury.picoctf.net 42248 on Windows CMD if you have Nmap - Zenmap GUI installed.
+
+   <img width="675" alt="Image" src="https://github.com/user-attachments/assets/5768dd50-c1cb-455a-8281-68ce342dd36f" />
+
+   `STEP 2` <br>
+   Select option 1 to view RSA options.
    
+   <img width="375" alt="Image" src="https://github.com/user-attachments/assets/179b2571-d930-4c71-816e-69fb9eaad423" />
+
+   `STEP 3` <br>
+   Select option 13 and enter the given values for n, e and c.
+
+   <img width="664" alt="Image" src="https://github.com/user-attachments/assets/9fd35805-6f93-4d88-a89a-d8e614f4a074" />
+
+   `STEP 4` <br>
+   Give the server the modified cipher text to decrypt.
+
+   <img width="674" alt="Image" src="https://github.com/user-attachments/assets/151e94dd-2e12-4784-a936-b4d7f594ce80" />
+
+   `STEP 5` <br>
+   Finally, decrypt the cipher to get the flag with the new cipher text from the server.
+
+   <img width="664" alt="Image" src="https://github.com/user-attachments/assets/18aadd49-b817-4f7c-bfca-b1a3e229169c" />
    
 5. ## Advanced Level 
 
