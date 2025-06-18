@@ -63,34 +63,34 @@ solves a question manually.
    
    a) You have received a message UTLAIKNP encrypted with the key (33,7). Find the private keys that should be used to decrypt the message and work out the clear text.
 
-  `STEP 1` <br>
-  Utilize option 8 to check the help menu and try to understand the RSA algorithm.
+   `STEP 1` <br>
+   Utilize option 8 to check the help menu and try to understand the RSA algorithm.
 
-  <img width="371" alt="Image" src="https://github.com/user-attachments/assets/179df9b0-22d6-4f3e-8bf0-0d8eb71318f2" />
+   <img width="371" alt="Image" src="https://github.com/user-attachments/assets/179df9b0-22d6-4f3e-8bf0-0d8eb71318f2" />
 
-  `STEP 2` <br>
-  Based on the encryption key given (33,7), we can conclude to say that the Public Key (n,e) is n = 33 and e = 7. Now, we compute n we get the product of p and q, for which they are two large prime numbers such as 11 and 3 which gives us 33. Let's now proceed to the RSA algorithm by selecting option 2.
+   `STEP 2` <br>
+   Based on the encryption key given (33,7), we can conclude to say that the Public Key (n,e) is n = 33 and e = 7. Now, we compute n we get the product of p and q, for which they are two large prime numbers such as 11 and 3 which gives us 33. Let's now proceed to the RSA algorithm by selecting option 2.
 
-  <img width="368" alt="Image" src="https://github.com/user-attachments/assets/01fc4a88-1900-4f21-805f-764b0af520ed" />
+   <img width="368" alt="Image" src="https://github.com/user-attachments/assets/01fc4a88-1900-4f21-805f-764b0af520ed" />
 
-  `STEP 3` <br>
-  Now, let's assume as if we are encrypting a message with the given Public Key (33,7) so that we can retrive the Private Key (n,d).
+   `STEP 3` <br>
+   Now, let's assume as if we are encrypting a message with the given Public Key (33,7) so that we can retrive the Private Key (n,d).
 
-  <img width="364" alt="Image" src="https://github.com/user-attachments/assets/63aebc57-f8ed-4911-a08e-4a6ceb2bb131" />
+   <img width="364" alt="Image" src="https://github.com/user-attachments/assets/63aebc57-f8ed-4911-a08e-4a6ceb2bb131" />
 
-  `STEP 4` <br>
-  There we go, we've obtained the Private Key (33,3). Restart the program, welcome back!!! Let's utilize option 4 to convert the cipher text letters to numbers because the program can only decryp numerical values.
+   `STEP 4` <br>
+   There we go, we've obtained the Private Key (33,3). Restart the program, welcome back!!! Let's utilize option 4 to convert the cipher text letters to numbers because the program can only decryp numerical values.
 
-  <img width="368" alt="Image" src="https://github.com/user-attachments/assets/761da374-b013-4234-afac-c101fac6015a" />
+   <img width="368" alt="Image" src="https://github.com/user-attachments/assets/761da374-b013-4234-afac-c101fac6015a" />
 
-  <br>
+   <br>
+   
+   <img width="368" alt="Image" src="https://github.com/user-attachments/assets/415199e6-7473-4e17-94c6-8af600d24d31" />
 
-  <img width="368" alt="Image" src="https://github.com/user-attachments/assets/415199e6-7473-4e17-94c6-8af600d24d31" />
+   `STEP 5` <br>
+   At this point we can decode the given cipher text by following the previsious steps but selecting the decryption option.
 
-  `STEP 5` <br>
-  At this point we can decode the given cipher text by following the previsious steps but selecting the decryption option.
-
-  <img width="465" alt="Image" src="https://github.com/user-attachments/assets/f9d3c389-3d6d-4be0-a072-a42c4f67f7aa" />
+   <img width="465" alt="Image" src="https://github.com/user-attachments/assets/f9d3c389-3d6d-4be0-a072-a42c4f67f7aa" />
 
 3. ## CTF Level
    Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
