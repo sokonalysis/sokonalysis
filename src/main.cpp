@@ -82,9 +82,9 @@
 #include "hastad.h"
 #include "pollard.h"
 #include "PollardSolver.h"
+#include "hash_utils.h"
 
 #include <sstream>   // for stringstream
-#include <windows.h>
 
 using namespace std;
 using CryptoPP::Integer;
@@ -93,8 +93,7 @@ namespace fs = std::filesystem;
 
 void check_required_files() {
     std::vector<std::string> required = {
-        "wordlists/md5wordlist.txt",
-        "wordlists/hashpasswordlist.txt"
+        "wordlists/wordlist.txt",
     };
 
     for (const auto& path : required) {
@@ -106,6 +105,8 @@ void check_required_files() {
     }
 }
 
+#ifdef _WIN32
+#include <windows.h>
 void EnableVirtualTerminalProcessing() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) return;
@@ -116,7 +117,10 @@ void EnableVirtualTerminalProcessing() {
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
 }
-
+#else
+// On Linux / WSL, this is a no-op
+void EnableVirtualTerminalProcessing() {}
+#endif
 
 void displayLogo() {
     cout << RED;
@@ -426,7 +430,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 14 June 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 08 July 2025                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1137,7 +1141,7 @@ int main() {
                     string md5_hash = generateMD5(input); // Call generateMD5 function
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
-                    cout << RED << "[+] " << RESET <<"MD5 Hash: " << md5_hash << endl;
+                    cout << RED << "[+] " << RESET <<"MD5 Hash: " << RED <<  md5_hash << RESET << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                 }
                 
@@ -1165,12 +1169,12 @@ int main() {
                     } 
                     
                     else if (method == "2") {
-                        std::string wordlistPath = "md5wordlist.txt";
+                        std::string wordlistPath = "wordlist.txt";
                         std::cout << ORANGE << "[?] " << RESET << "Searching local wordlist..." << std::endl;
                         std::string result = searchWordlist(inputHash, wordlistPath);
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
                         cout << endl;
-                        std::cout << GREEN << "[-] " << RESET << "Result: " << result << std::endl;
+                        std::cout << GREEN << "[-] " << RESET << "Result: " << GREEN <<  result << RESET << std::endl;
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
                     } 
 
@@ -1223,7 +1227,7 @@ int main() {
                             string sha1_hash = sha1(input); // Call SHA-1 generator
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                             cout << endl;
-                            cout << RED << "[+] " << RESET <<"SHA-1 Hash: " << sha1_hash << endl;
+                            cout << RED << "[+] " << RESET <<"SHA-1 Hash: " << RED << sha1_hash << RESET << endl;
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                         }
                     
@@ -1250,12 +1254,12 @@ int main() {
                             } 
                             
                             else if (method == "2") {
-                                std::string wordlistPath = "md5wordlist.txt"; // Reuse same wordlist
+                                std::string wordlistPath = "wordlist.txt"; // Reuse same wordlist
                                 std::cout << ORANGE << "[?] " << RESET << "Searching local wordlist..." << std::endl;
                                 std::string result = searchSHA1Wordlist(inputHash, wordlistPath);
                                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                                 cout << endl;
-                                std::cout << GREEN << "[-] " << RESET << "Result: " << result << std::endl;
+                                std::cout << GREEN << "[-] " << RESET << "Result: " << GREEN << result << RESET << std::endl;
                                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                             } 
                             
@@ -1287,7 +1291,7 @@ int main() {
                             string sha_hash = sha256(input);
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                             cout << endl;
-                            cout << RED << "[+] " << RESET << "SHA-256 Hash: " << sha_hash << endl;
+                            cout << RED << "[+] " << RESET << "SHA-256 Hash: " << RED << sha_hash << RESET << endl;
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                         }
                     
@@ -1311,15 +1315,19 @@ int main() {
                             if (method == "1") {
                                 cout << GREEN << "[-] " << RESET << "Opening your browser..." << endl;
                                 openSHA256OnlineLookup(inputHash);
-                            } else if (method == "2") {
-                                string wordlistPath = "md5wordlist.txt";
+                            } 
+                            
+                            else if (method == "2") {
+                                string wordlistPath = "wordlist.txt";
                                 cout << ORANGE << "[?] " << RESET << "Searching local wordlist..." << endl;
                                 string result = searchSHA256Wordlist(inputHash, wordlistPath);
                                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                                 cout << endl;
-                                cout << GREEN << "[-] " << RESET << "Result: " << result << endl;
+                                cout << GREEN << "[-] " << RESET << "Result: " << GREEN << result << RESET << endl;
                                 cout << BLUE << "_________________________________________________________________\n" << RESET;
-                            } else {
+                            } 
+                            
+                            else {
                                 cout << RED << "[!] Invalid method choice." << RESET << endl;
                             }
                         }
@@ -2228,16 +2236,15 @@ int main() {
             }                
 
             else if (sub_choice == "2" || sub_choice == "02" || sub_choice == "FactorDB" || sub_choice == "factordb") {
-                cout << endl;
-                std::string n;
+                        std::string n;
 
-                cout << YELLOW << "[>] " << RESET << "Enter modulus (n): ";
-                cin.ignore(); // Clear leftover newline from previous input
-                getline(cin, n);
+                        cout << YELLOW << "[>] " << RESET << "Enter modulus (n): ";
+                        getline(cin >> std::ws, n);  // Skip leading whitespace safely
 
-                cout << BLUE << "\n[+] Querying FactorDB...\n" << RESET;
-                queryFactorDB(n);
+                        cout << BLUE << "\n[+] Querying FactorDB...\n" << RESET;
+                        queryFactorDB(n);
             }
+
 
             else if (sub_choice == "3" || sub_choice == "03" || sub_choice == "Substitution" || sub_choice == "substitution") {
                 cout << BLUE << "_________________" << RESET<< GREEN << " Substitution Cipher Options "<< RESET << BLUE << "___________________" << RESET << endl;

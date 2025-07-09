@@ -5,5 +5,6 @@
 
 void openDCodeWithHash(const std::string& hash);
 std::string searchWordlist(const std::string& hash, const std::string& wordlistPath);
+std::string md5(const std::string& input);
 
 #endif
