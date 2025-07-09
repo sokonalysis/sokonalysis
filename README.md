@@ -20,67 +20,67 @@ The file named **wordlist.txt** is needed for local wordlist for the hashing alg
 
 ## Windows
 ### Dependencies
-1. MSYS2
-   Download [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe)
-   Install MSYS2 and run the following command:
-   ````bash
-   pacman -Syu
-   ````
-   ```bash
-   pacman -Su
-   ````
-   ````bash
-   pacman -S base-devel mingw-w64-x86_64-toolchain git
-   ````
+#### MSYS2
+Download [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe)
+Install MSYS2 and run the following command:
+````bash
+pacman -Syu
+````
+```bash
+pacman -Su
+````
+````bash
+pacman -S base-devel mingw-w64-x86_64-toolchain git
+````
    
-   #### Requirements
-   ````bash
-   pacman -S mingw-w64-x86_64-gcc
-   ````
-   ```bash
-   pacman -S mingw-w64-x86_64-nlohmann-json
-   ````
-   ````bash
-   pacman -S mingw-w64-x86_64-gmp
-   ````
-   ````bash
-   pacman -S mingw-w64-x86_64-curl
-   ````
-   ````bash
-   pacman -S mingw-w64-x86_64-openssl
-   ````
-   ```bash
-   git clone https://github.com/SokoJames/sokonalysis.git
-   ```
-   ```bash
-   cd sokonalysis
-   ````
-   ````bash
-    cd src
-   ````
-   ````bash
-   pacman -S --needed make git
-   ````
-   ````bash
-   git clone https://github.com/weidai11/cryptopp.git
-   ````
-   ````bash
-   cd cryptopp
-   ````
-   ````bash
-   make CXX=g++ -j$(nproc)
-   ````
-   ````bash
-   cd ..
-   ````
+#### MSYS2 MINGW64 Terminal
+````bash
+pacman -S mingw-w64-x86_64-gcc
+````
+```bash
+pacman -S mingw-w64-x86_64-nlohmann-json
+````
+````bash
+pacman -S mingw-w64-x86_64-gmp
+````
+````bash
+pacman -S mingw-w64-x86_64-curl
+````
+````bash
+pacman -S mingw-w64-x86_64-openssl
+````
+```bash
+git clone https://github.com/SokoJames/sokonalysis.git
+```
+```bash
+cd sokonalysis
+````
+````bash
+cd src
+````
+````bash
+pacman -S --needed make git
+````
+````bash
+git clone https://github.com/weidai11/cryptopp.git
+````
+````bash
+cd cryptopp
+````
+````bash
+make CXX=g++ -j$(nproc)
+````
+````bash
+cd ..
+````
 
-   ## Build & Run
-   ````bash
-   g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
-   ````
-   ````bash
-   ./sokonalysis
-   ````
+### Build & Run
+````bash
+g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+````
+````bash
+./sokonalysis
+````
    
 ## Linux   
 ### Download
@@ -94,7 +94,7 @@ cd sokonalysis
 cd src
 ````
 
-## Requirements
+### Requirements
 ````bash
 sudo apt update
 ````
@@ -110,7 +110,7 @@ mkdir -p external/nlohmann
 ````bash
 wget -O external/nlohmann/json.hpp https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
 ````
-## Build & Run
+### Build & Run
 ````bash
 g++ -I/usr/include/cryptopp -Iexternal -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
 ````
