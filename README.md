@@ -194,3 +194,19 @@ solves a question manually.
    
 5. ## Advanced Level 
 
+# Supported Algorithms
+
+| **Symmetric**                         | **Asymmetric**     | **Hashing**           | **Capture The Flag (CTF)**| **Advanced Cryptography** |
+|---------------------------------------|--------------------|-----------------------|---------------------------|---------------------------|
+| Caesar Cipher                         | RSA                | MD5                   | RSA                       |                           |
+| Transposition Cipher                  |                    | SHA                   | FactorDB                  |                           |
+| Hill Cipher                           |                    |                       | Substitution Cipher       |                           |
+|                                       |                    |                       | Morse Code                |                           |
+|                                       |                    |                       | Base64 Decoder            |                           |                               |                                       |                    |                       | ROT13                     |                           |   
+|                                       |                    |                       |                           |                           |
+|
+
+## Contributors
+Thanks to everyone who has contributed!
+[![](https://contrib.rocks/image?repo=SokoJames/sokonalysis)](https://github.com/SokoJames/sokonalysis/graphs/contributors)
+
