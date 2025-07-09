@@ -1,4 +1,4 @@
-# sokonalysis v2.2
+![image](https://github.com/user-attachments/assets/9a001872-9534-43a8-92f0-57cd0a832001)![image](https://github.com/user-attachments/assets/963cf283-4235-4f2c-9d56-208b8e9039c1)# sokonalysis v2.2
 
 <p align="left">
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
@@ -20,28 +20,68 @@ The file named **wordlist.txt** is needed for local wordlist for the hashing alg
 
 ## Windows
 ### Dependencies
-**NOTE:** Keep all the files in the same folder sokonalysis-main for it to execute without any issues, failure to that you will need to install the dependancies on your machine, that includes;
-1. `libgcc_s_seh-1.dll`
-2. `libstdc++-6.dll`
-3. `libwinpthread-1.dll`
-4. `libbrotlicommon.dll`
-5. `libbrotlidec.dll`
-6. `libcrypto-3-x64.dll`
-7. `libcurl-4.dll`
-8. `libgmp-10.dll`
-9. `libgmpxx-4.dll`
-10. `libiconv-2.dll`
-11. `libidn2-0.dll`
-12. `libintl-8.dll`
-13. `libnghttp2-14.dll`
-14. `libnghttp3-9.dll`
-15. `libpsl-5.dll`
-16. `libssh2-1.dll`
-17. `libssl-3-x64.dll`
-18. `libunistring-5.dll`
-19. `libzstd.dll`
-20. `zlib1.dll`
+1. MSYS2
+   Download [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe)
+   Install MSYS2 and run the following command:
+   ````bash
+   pacman -Syu
+   ````
+   ```bash
+   pacman -Su
+   ````
+   ````bash
+   pacman -S base-devel mingw-w64-x86_64-toolchain git
+   ````
+   
+   #### Requirements
+   ````bash
+   pacman -S mingw-w64-x86_64-gcc
+   ````
+   ```bash
+   pacman -S mingw-w64-x86_64-nlohmann-json
+   ````
+   ````bash
+   pacman -S mingw-w64-x86_64-gmp
+   ````
+   ````bash
+   pacman -S mingw-w64-x86_64-curl
+   ````
+   ````bash
+   pacman -S mingw-w64-x86_64-openssl
+   ````
+   ```bash
+   git clone https://github.com/SokoJames/sokonalysis.git
+   ```
+   ```bash
+   cd sokonalysis
+   ````
+   ````bash
+    cd src
+   ````
+   ````bash
+   pacman -S --needed make git
+   ````
+   ````bash
+   git clone https://github.com/weidai11/cryptopp.git
+   ````
+   ````bash
+   cd cryptopp
+   ````
+   ````bash
+   make CXX=g++ -j$(nproc)
+   ````
+   ````bash
+   cd ..
+   ````
 
+   ## Build & Run
+   ````bash
+   g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+   ````
+   ````bash
+   ./sokonalysis
+   ````
+   
 ## Linux   
 ### Download
 ```bash
