@@ -204,7 +204,6 @@ solves a question manually.
 |                                       |                    |                       | Morse Code                |                           |
 |                                       |                    |                       | Base64 Decoder            |                           |                               |                                       |                    |                       | ROT13                     |                           |   
 |                                       |                    |                       |                           |                           |
-|
 
 ## Contributors
 Thanks to everyone who has contributed!
