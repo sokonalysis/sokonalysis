@@ -10,11 +10,16 @@
 sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key.
 
 ## Table of Content
-- [Dependencies](#Dependencies)
-- [Installation](#Installation)
+- [Requirements](#Requirements)
+- [Windows](#Windows)
+- [Linux](#Linux)
 - [Usage](#Usage)
 
-## Dependencies
+## Requirements
+The file named **wordlist.txt** is needed for local wordlist for the hashing algorithms md5, sha1 and sha256 but if you wish to customize it, add your own text in the same text file and keep it in the same folder as the tool.
+
+## Windows
+### Dependencies
 **NOTE:** Keep all the files in the same folder sokonalysis-main for it to execute without any issues, failure to that you will need to install the dependancies on your machine, that includes;
 1. `libgcc_s_seh-1.dll`
 2. `libstdc++-6.dll`
@@ -36,23 +41,42 @@ sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Sok
 18. `libunistring-5.dll`
 19. `libzstd.dll`
 20. `zlib1.dll`
-21. Lastly, the file named **md5wordlist.txt** is needed for local wordlist for the hashing algorithms md5, sha1 and sha256 but if you wish to customize it, add your own wordlist and name it md5wordlist.txt in the same folder as the tool.
 
-## Installation
-### Windows
-1. Click on **Code** → **Download ZIP**
-2. Go to your downloads and unzip **sokonalysis-main.zip**
-3. Open the unzipped folder, change the directory to **sokonalysis-windows** and double click on **sokonalysis.exe**
-4. Enjoy!!!
-   
-### Linux
-1. Open your Linux Terminal
-2. Enter the command `git clone https://github.com/SokoJames/sokonalysis.git` to download sokonalysis
-3. Change the directory with the command `cd sokonalysis`
-4. Again, change the directory with the command `cd sokonalysis-linux`
-5. Give the tool executable permissions with the command `chmod +x sokonalysis`
-6. Run the tool with the command `./sokonalysis`
-7. Enjoy!!!
+## Linux   
+### Download
+```bash
+git clone https://github.com/SokoJames/sokonalysis.git
+```
+```bash
+cd sokonalysis
+````
+````bash
+cd src
+````
+
+## Requirements
+````bash
+sudo apt update
+````
+````bash
+sudo apt install libcrypto++-dev libcrypto++-doc libcrypto++-utils
+````
+````bash
+sudo apt install libcrypto++-dev libssl-dev libcurl4-openssl-dev libgmp-dev libgmpxx4ldbl g++
+````
+````bash
+mkdir -p external/nlohmann
+````
+````bash
+wget -O external/nlohmann/json.hpp https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
+````
+## Build & Run
+````bash
+g++ -I/usr/include/cryptopp -Iexternal -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+````
+````bash
+./sokonalysis
+````
 
 ## Usage
 <img width="373" alt="Image" src="https://github.com/user-attachments/assets/25293170-ed1f-473c-9a4a-ef03d4664221" />
