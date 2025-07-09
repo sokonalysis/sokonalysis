@@ -1,4 +1,4 @@
-# sokonalysis v2.2
+# sokonalysis
 
 <p align="left">
   <img src="logo.png" alt="sokonalysis logo" width="200"/>
@@ -7,7 +7,7 @@
 ###### The Cipher Toolkit Build For All Skill Levels 
 
 ## About
-sokonalysis from the word Cryptanalysis is a Cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key.
+sokonalysis from the word cryptanalysis is a cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key. Meant for University Students, Capture The Flag (CTF) competitions and Organizations to apply cryptography as a field.
 
 ## Table of Content
 - [Requirements](#Requirements)
