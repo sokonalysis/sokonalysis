@@ -24,6 +24,8 @@
 #include "hash_reverseAPI.h"
 #include "hill_cipher.h"
 #include "filedialog.h"
+#include "DiffieHellman.h"
+#include "diffieHellmanMITM.h"
 #include <string>
 #include <filesystem>
 
@@ -958,6 +960,7 @@ int main() {
             cout << BLUE << "_____________________" << RESET<< GREEN << " Asymmetric Algorithms "<< RESET << BLUE << "_____________________" << RESET << endl;
             cout << endl;
             cout << YELLOW << "[1]" << RESET << " Rivest Shamir Adleman (RSA)" << endl;
+            cout << YELLOW << "[2]" << RESET << " Diffie Hellman" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -1110,6 +1113,97 @@ int main() {
                     cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
                     cout << endl;
                 }
+            }
+
+            else if (asym_choice == "02" || asym_choice == "2"){
+                string diffie_choice;
+                cout << endl;
+
+                cout << BLUE << "____________________" << RESET<< GREEN << " Diffie Hellman Options "<< RESET << BLUE << "_____________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " Basic Operation" << endl;
+                cout << YELLOW << "[2]" << RESET << " Man-In-The-Middle (MITM) Attack" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                cin >> diffie_choice;
+
+                if (diffie_choice == "01" || diffie_choice == "1"){
+                int p, g; // public values
+                int a, b; // private secrets
+
+                // Input public parameters
+                std::cout << std::endl;
+                std::cout << YELLOW << "[>]" << RESET << " Enter prime modulus (p): ";
+                std::cin >> p;
+
+                std::cout << YELLOW << "[>]" << RESET << " Enter primitive root modulo p (g): ";
+                std::cin >> g;
+
+                // Input secret values
+                std::cout << YELLOW << "[>]" << RESET << " Enter private value a: ";
+                std::cin >> a;
+
+                std::cout << YELLOW << "[>]" << RESET << " Enter private value b: ";
+                std::cin >> b;
+
+                // Generate participants
+                DiffieHellman userA(g, p, a);
+                DiffieHellman userB(g, p, b);
+
+                // Generate public keys
+                int A = userA.generatePublicKey(); // A = g^a mod p
+                int B = userB.generatePublicKey(); // B = g^b mod p
+
+                // Exchange public keys and compute shared keys
+                int sharedKeyA = userA.computeSharedKey(B); // s = B^a mod p
+                int sharedKeyB = userB.computeSharedKey(A); // s = A^b mod p
+
+                // Output results
+                cout << endl;
+                cout << RED << "Public Values"<< RESET << endl;
+                std::cout << RED << "p" << RESET << " (modulus): " << RED << p << RESET << endl;
+                std::cout << RED << "g" << RESET << " (base): " << RED << g << RESET << endl;
+
+                cout << endl;
+                cout << BLUE << ORANGE << "Public Keys"<< RESET << endl;
+                std::cout << ORANGE << "A" << RESET << " = g^a mod p = " << ORANGE << A << RESET << endl;
+                std::cout << ORANGE << "B" << RESET << " = g^b mod p = " << ORANGE << B << RESET << endl;
+                
+                cout << endl;
+                cout << BLUE << GREEN << "Shared Key"<< RESET << endl;
+                std::cout << "computed with " << ORANGE << "B" << RESET << "^a mod " << RED << "p" << RESET << ": " << GREEN << sharedKeyA << RESET << endl;
+                std::cout << "computed with " << ORANGE << "A" << RESET << "^b mod " << RED << "p" << RESET << ": " << GREEN << sharedKeyB << RESET << endl;
+
+                if (sharedKeyA == sharedKeyB) {
+                        cout << BLUE << "_________________________________________________________________\n" << RESET;
+                        cout << endl;
+                        std::cout << GREEN << "[-]" << RESET << " Shared symmetric key is " << GREEN << sharedKeyA << RESET << endl;
+                        cout << BLUE << "_________________________________________________________________\n" << RESET;
+                } 
+                
+                else {
+                        std::cout << RED << "[x]" << RESET << " Keys do not match" << endl;
+                }
+            }
+
+            else if (diffie_choice == "02" || diffie_choice == "2"){
+                long long p, g, A_pub, B_pub;
+
+                cout << endl;
+                cout << YELLOW << "[>]" << RESET << " Enter prime number (p): ";
+                cin >> p;
+                cout << YELLOW << "[>]" << RESET << " Enter primitive root (g): ";
+                cin >> g;
+
+                cout << YELLOW << "[>]" << RESET << " Enter intercepted public key from A: ";
+                cin >> A_pub;
+                cout << YELLOW << "[>]" << RESET << " Enter intercepted public key from B: ";
+                cin >> B_pub;
+
+                DiffieHellmanMITM mitm;
+                mitm.simulate(g, p, A_pub, B_pub);
+            }
             }
             
             else {
