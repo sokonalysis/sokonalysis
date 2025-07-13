@@ -194,16 +194,13 @@ void displayLogo3() {
 }
 
 void pauseConsole() {
-    cout << "Press Enter to continue...";
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    cin.get();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.get();
 }
 
 void displayHelp() {
     // Stage 1: Show RSA Algorithm
     cout << BLUE << "\n___________________________ " << GREEN << "Help Menu" << RESET << BLUE << " ___________________________\n"<< RESET;
-    cout << endl;
-    pauseConsole();
     cout << endl;
     cout << "     " << GREEN << "RSA (Rivest Shamir Adleman) Algorithm" << RESET << "\n";
     cout << endl;
@@ -220,9 +217,7 @@ void displayHelp() {
     cout << "               = (3 - 1) * (11 - 1)\n";
     cout << "               = 2 * 10\n";
     cout << "               = 20\n";
-    cout << endl;
     pauseConsole();
-    cout << endl;
     cout << "     Prime numbers < n (33) = 2,3,5,7,11,13,17,19,23,29,31\n";
     cout << "     Valid prime numbers to represent e = 3,7,11,13,17,19,23,31\n";
     cout << endl;
@@ -238,9 +233,7 @@ void displayHelp() {
     cout << "       cipher (c) = message (m) ^ e mod n\n";
     cout << endl;
     cout << "       message = 2\n";
-    cout << endl;
     pauseConsole();
-    cout << endl;
     cout << "       c = m ^ e mod n\n";
     cout << "         = 2 ^ 7 mod 33\n";
     cout << "         = 128 mod 33\n";
@@ -260,9 +253,7 @@ void displayHelp() {
     cout << "         = 24387\n";
     cout << "         = 24389 - 24387\n";
     cout << "         = 2\n";
-    cout << endl;
     pauseConsole();
-    cout << endl;
 
     // Stage 2: Show Caesar Cipher
     cout << "     " GREEN << "Caesar Cipher" RESET << "\n";
@@ -275,7 +266,6 @@ void displayHelp() {
     cout << "     D E F G H I J K L M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z  A  B  C\n";
     cout << endl;
     cout << "     Example: Plaintext = HELLO, Shift = 3, Ciphertext = KHOOR\n";
-    cout << endl;
 
     pauseConsole();
 
@@ -308,7 +298,6 @@ void displayHelp() {
     cout << "     Shift 23: X Y Z A B C D E F G H I J K L M N O P Q R S T U V W\n";
     cout << "     Shift 24: Y Z A B C D E F G H I J K L M N O P Q R S T U V W X\n";
     cout << "     Shift 25: Z A B C D E F G H I J K L M N O P Q R S T U V W X Y\n";
-    cout << endl;
 
     pauseConsole();
 
@@ -323,7 +312,6 @@ void displayHelp() {
     cout << "     Keyword   : M E C M E C M E C M E C M E C M E C M E C M\n";
     cout << "     Plaintext : W E N E E D M O R E S U P P L I E S F A S T\n";
     cout << "     Ciphertext: I I P Q I F Y S T Q W W B T N U I U R E U F\n";
-    cout << endl;
     
     pauseConsole();
 
@@ -338,7 +326,6 @@ void displayHelp() {
     cout << "     Plaintext : ATTACKATDAWN\n";
     cout << "     Key       : LEMONLEMONLE\n";
     cout << "     Ciphertext: LXFOPVEFRNHR\n";
-    cout << endl;
 
     pauseConsole();
 
@@ -349,7 +336,6 @@ void displayHelp() {
     cout << "    A transposition cipher rearranges the letters of the plaintext.\n";
     cout << endl;
     cout << "    Example: Plaintext = HELLO, Rearranged = LOHEL\n";
-    cout << endl;
 
     pauseConsole();
 
@@ -370,7 +356,6 @@ void displayHelp() {
     cout << "     E Q K J E U\n";
     cout << endl;
     cout << "     Ciphertext: EVLNEACDTKESEAQROFOJDEECUWIREE\n";
-    cout << endl;
 
     pauseConsole();
 
@@ -386,43 +371,20 @@ void displayHelp() {
     cout << "     . E . R . D . S . O . E . E . F . E . A . O . C .\n";
     cout << "     . . A . . . I . . . V . . . D . . . E . . . N . .\n";
     cout << endl;
-    cout << "     Cipher = WECRLTEERDSOEEFEAOCAIVDEN\n \n";
-    cout << endl;
-
-    pauseConsole();
-    cout << endl;
+    cout << "     Cipher = WECRLTEERDSOEEFEAOCAIVDEN\n";
     cout << BLUE << "_________________________________________________________________\n" << RESET;
+    pauseConsole();
 }
 
 void about(){
     cout << BLUE << "\n_____________________________ " << GREEN << "About" << RESET << BLUE << " _____________________________\n"<< RESET;
     cout << endl;
-    cout << "sokonalysis from the word Cryptanalysis is a Cryptographic tool\n"; 
-    cout << "developed by Soko James and it seeks to decrypt encrypted\n"; 
-    cout << "messages or break cryptographic systems without knowing the\n";
-    cout << "secret key.\n";
+    cout << "         The Cipher Toolkit Built For All Skill Levels\n"; 
+    cout << "                        By Soko James\n"; 
     cout << endl;
-    pauseConsole();
-    cout << endl;
-    cout << GREEN << "Follow us on:\n" << RESET;
-    cout << BLUE << "Facebook" << RESET ": https://web.facebook.com/kceey.dc.5\n";
-    cout << "GitHub  : https://github.com/SokoJames\n";
-    cout << WHITE << "You" << RESET << RED << "Tube" << RESET << " : https://www.youtube.com/@s0k0j4m3s\n";
-    cout << "Medium  : https://medium.com/@s0k0j4m3s\n";
-    cout << endl;
-    pauseConsole();
-    cout << endl;
-    cout << GREEN << "Download the latest sokonalysis version here\n" << RESET;
-    cout << "https://github.com/SokoJames/sokonalysis\n";
-    cout << endl;
-    pauseConsole();
-    cout << endl;
-    cout << GREEN << "Contact us on \n" RESET;
-    cout << GREEN << "WhatsApp   " << RESET << ": +260969209404\n";
-    cout << "Direct call: +260774713037\n";
-    cout << RED << "E" << RESET << ORANGE << "m" << RESET << YELLOW << "a" << RESET << GREEN << "i" << RESET << BLUE << "l" << RESET << "      : s0k0j4m3s@gmail.com\n";
+    cout << "    Copyright (C) 2024-2026 Kapasa Makasa University (KMU)\n";
+    cout << "               Version 3.0 Linux & Windows CLI\n";
     cout << BLUE << "_________________________________________________________________\n" << RESET;
-    cout << endl;
     pauseConsole();
 }
 
@@ -444,7 +406,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 08 July 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 13 July 2025                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -584,15 +546,11 @@ int main() {
                     cout << endl;
 
                     for (int i = 0; i < decrypted_messages.size(); i++) {
-                        cout << endl;
-                        pauseConsole();
-                        cout << endl;
-
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
                         cout << endl;
                         cout << GREEN << "[-] " << RESET << "Shift " << i + 1 << " Decrypted Results: " << GREEN << decrypted_messages[i] << RESET << endl;
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
-                        cout << endl;
+                        pauseConsole();
                     }
                 }
 
@@ -2327,10 +2285,6 @@ int main() {
                                                 std::cout << RED << "[!]" << RESET << " Could not compute p or q. Are they missing or factoring required?\n";
                                                 std::cout << BLUE << "_________________________________________________________________\n" << RESET;
                                             }
-
-                                            std::cout << "\nPress Enter to continue...";
-                                            std::cin.ignore();
-                                            std::cin.get();
                                         }
 
                                         else {
