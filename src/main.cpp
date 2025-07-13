@@ -26,6 +26,7 @@
 #include "filedialog.h"
 #include "DiffieHellman.h"
 #include "diffieHellmanMITM.h"
+#include "UserAgreement.h"
 #include <string>
 #include <filesystem>
 
@@ -434,6 +435,10 @@ int main() {
     cout << endl;
 
     while (running) {
+        if (!UserAgreement::checkAgreement()) {
+        UserAgreement::displayAgreement();
+        }
+
         cout << endl;
         displayLogo3();
 
