@@ -105,10 +105,7 @@ sudo apt install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 sudo apt install libcrypto++-dev libssl-dev libcurl4-openssl-dev libgmp-dev libgmpxx4ldbl g++
 ````
 ````bash
-mkdir -p external/nlohmann
-````
-````bash
-wget -O external/nlohmann/json.hpp https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp
+sudo apt install nlohmann-json3-dev
 ````
 ### Build & Run
 ````bash
