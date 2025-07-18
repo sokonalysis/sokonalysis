@@ -156,7 +156,7 @@ solves a question manually.
    <img width="801" height="309" alt="Image" src="https://github.com/user-attachments/assets/d0bb4f2e-0253-44d8-9094-17384e5a9b66" />
 
 3. ## CTF Level
-   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
+   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberTalents](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
 
    <img width="800" height="425" alt="Image" src="https://github.com/user-attachments/assets/9423dd1c-03d8-4ecd-8ecc-2de091b61ecf" />
 
