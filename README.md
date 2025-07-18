@@ -158,7 +158,7 @@ solves a question manually.
 3. ## CTF Level
    Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberChef](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
 
-   <img width="369" alt="Image" src="https://github.com/user-attachments/assets/b8214bc3-b6eb-4ac7-b791-fe7b1bc60b79" />
+   <img width="800" height="425" alt="Image" src="https://github.com/user-attachments/assets/9423dd1c-03d8-4ecd-8ecc-2de091b61ecf" />
 
     Let’s jump into these challenges!!!
 
@@ -166,27 +166,27 @@ solves a question manually.
    `STEP 1` <br>
    Connect to the challenge server with the command nc mercury.picoctf.net 42248 in Linux or ncat mercury.picoctf.net 42248 on Windows CMD if you have Nmap - Zenmap GUI installed.
 
-   <img width="675" alt="Image" src="https://github.com/user-attachments/assets/5768dd50-c1cb-455a-8281-68ce342dd36f" />
+   <img width="805" height="487" alt="Image" src="https://github.com/user-attachments/assets/fa4d0b0c-8ec0-42d2-948d-d57802dd2c77" />
 
    `STEP 2` <br>
    Select option 1 to view RSA options.
    
-   <img width="375" alt="Image" src="https://github.com/user-attachments/assets/179b2571-d930-4c71-816e-69fb9eaad423" />
+   <img width="798" height="646" alt="Image" src="https://github.com/user-attachments/assets/91190808-578a-40e2-83c1-1958e0fe03ae" />
 
    `STEP 3` <br>
    Select option 13 and enter the given values for n, e and c.
 
-   <img width="664" alt="Image" src="https://github.com/user-attachments/assets/9fd35805-6f93-4d88-a89a-d8e614f4a074" />
+   <img width="801" height="639" alt="Image" src="https://github.com/user-attachments/assets/8de9aa23-db27-432a-aff8-962cf44cdb40" />
 
    `STEP 4` <br>
    Give the server the modified cipher text to decrypt.
 
-   <img width="674" alt="Image" src="https://github.com/user-attachments/assets/151e94dd-2e12-4784-a936-b4d7f594ce80" />
+   <img width="802" height="177" alt="Image" src="https://github.com/user-attachments/assets/8cedc9ad-826d-4dcd-89e5-f1d4c4ea022a" />
 
    `STEP 5` <br>
    Finally, decrypt the cipher to get the flag with the new cipher text from the server.
 
-   <img width="664" alt="Image" src="https://github.com/user-attachments/assets/18aadd49-b817-4f7c-bfca-b1a3e229169c" />
+   <img width="801" height="227" alt="Image" src="https://github.com/user-attachments/assets/cb763413-c696-43e1-94e0-11c6703ea639" />
    
 5. ## Advanced Level 
 
