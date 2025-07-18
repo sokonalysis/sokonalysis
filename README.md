@@ -202,5 +202,6 @@ solves a question manually.
 
 ## Contributors
 Thanks to everyone who has contributed!
+![Contributors](https://img.shields.io/github/contributors/SokoJames/sokonalysis)
 [![](https://contrib.rocks/image?repo=SokoJames/sokonalysis)](https://github.com/SokoJames/sokonalysis/graphs/contributors)
 
