@@ -114,9 +114,10 @@ g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -l
 ````bash
 ./sokonalysis
 ````
+<img width="801" height="369" alt="Image" src="https://github.com/user-attachments/assets/e820ae6f-bb1a-47c4-aa63-d9f53d1b77b3" />
+<img width="802" height="537" alt="Image" src="https://github.com/user-attachments/assets/0e85c138-0a19-44d5-a13d-043db89b34a0" />
 
 ## Usage
-<img width="373" alt="Image" src="https://github.com/user-attachments/assets/25293170-ed1f-473c-9a4a-ef03d4664221" />
 
 [Official sokonalysis YouTube Guide Playlist](https://youtube.com/playlist?list=PLbkdoTM3A8aOFijcnaxCZGhZklM5RsbaL&si=Yoo6r6xL3Y5DtohM)
 
