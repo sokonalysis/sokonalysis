@@ -109,7 +109,7 @@ sudo apt install nlohmann-json3-dev
 ````
 ### Build & Run
 ````bash
-g++ -I/usr/include/cryptopp -Iexternal -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
 ````
 ````bash
 ./sokonalysis
