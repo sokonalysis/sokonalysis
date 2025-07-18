@@ -388,6 +388,14 @@ void about(){
     pauseConsole();
 }
 
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");  // Windows
+#else
+    system("clear"); // Linux and macOS
+#endif
+}
+
 
 int main() {
     EnableVirtualTerminalProcessing();
@@ -402,6 +410,7 @@ int main() {
         }
 
         cout << endl;
+        clearScreen();
         displayLogo3();
 
         cout << endl;
