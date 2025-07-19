@@ -88,6 +88,7 @@
 #include "PollardSolver.h"
 #include "hash_utils.h"
 
+
 #include <sstream>   // for stringstream
 
 using namespace std;
@@ -125,6 +126,29 @@ void EnableVirtualTerminalProcessing() {
 // On Linux / WSL, this is a no-op
 void EnableVirtualTerminalProcessing() {}
 #endif
+
+// For AES Python
+std::string runPythonDecrypt(const std::string& hexInput) {
+    std::string command = "python3 aes_decrypt.py " + hexInput;
+    std::array<char, 128> buffer;
+    std::string result;
+
+    // Open pipe to file
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+
+    // read till end of process:
+    while (fgets(buffer.data(), 128, pipe) != nullptr) {
+        result += buffer.data();
+    }
+
+    auto returnCode = pclose(pipe);
+    if (returnCode != 0) {
+        throw std::runtime_error("Python decryption failed or returned error");
+    }
+
+    return result;
+}
 
 void displayLogo() {
     cout << RED;
@@ -1739,10 +1763,11 @@ int main() {
 
             cout << BLUE << "________________________" << RESET<< GREEN << " CTF Algorithms "<< RESET << BLUE << "_________________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[1]" << RESET << " RSA                              " << RESET << YELLOW << "[5]" << RESET << " Base64 Decoder" << endl;
-            cout << YELLOW << "[2]" << RESET << " FactorDB                         " << RESET << YELLOW << "[6]" << RESET << " ROT13" << endl;
-            cout << YELLOW << "[3]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[7]" << RESET << " Convertion" << endl;
-            cout << YELLOW << "[4]" << RESET << " Morse Code                       " << RESET << YELLOW << "[8]" << RESET << " Framework" << endl;
+            cout << YELLOW << "[1]" << RESET << " RSA                              " << RESET << YELLOW << "[6]" << RESET << " ROT13" << endl;
+            cout << YELLOW << "[2]" << RESET << " FactorDB                         " << RESET << YELLOW << "[7]" << RESET << " Convertion" << endl;
+            cout << YELLOW << "[3]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[8]" << RESET << " Framework" << endl;
+            cout << YELLOW << "[4]" << RESET << " Morse Code                       " << RESET << YELLOW << "[9]" << RESET << " AES" << endl;
+            cout << YELLOW << "[5]" << RESET << " Base64 Decoder                   " << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2476,6 +2501,44 @@ int main() {
                     else {
                             cout << RED << "[!] Invalid option selected." << RESET << endl;
                     }
+            }
+
+            else if (sub_choice == "09" || sub_choice == "9" || sub_choice == "aes" || sub_choice == "AES"){
+                string aes_choice;
+                cout << endl;
+
+                cout << BLUE << "_________________________" << RESET<< GREEN << " AES Attacks "<< RESET << BLUE << "___________________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " Weak Key Derivation Attack            " << RESET << YELLOW << "[2]" << RESET << " ?" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
+                std::cin >> aes_choice;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
+                std::cout << std::endl;
+                
+                if (aes_choice == "01" || aes_choice == "1"){
+
+                    std::cout << YELLOW << "[>]" << RESET << " Enter AES-encrypted message in hex: ";
+
+                    std::string hexInput;
+                    std::getline(std::cin, hexInput);
+
+                    try {
+                            std::string decrypted = runPythonDecrypt(hexInput);
+                            cout << BLUE << "_________________________________________________________________\n" << RESET;
+                            cout << endl;
+                            std::cout << GREEN << "[-]" << RESET << " Decrypted message: " << GREEN << decrypted << RESET;
+                            cout << BLUE << "_________________________________________________________________\n" << RESET;
+                        } 
+                    
+                            catch (const std::exception& e) {
+                            cout << BLUE << "_________________________________________________________________\n" << RESET;
+                            cout << endl;    
+                            std::cerr << RED << "[x]" << RESET << " Error: " << RED << e.what() << RESET << endl;
+                            cout << BLUE << "_________________________________________________________________\n" << RESET;
+                        }
+                }
             }
 
             else {
