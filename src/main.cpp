@@ -88,6 +88,7 @@
 #include "PollardSolver.h"
 #include "hash_utils.h"
 #include "rsa_solver_common_n.h"
+#include "mod_solver.h"
 
 
 #include <sstream>   // for stringstream
@@ -1801,7 +1802,8 @@ int main() {
                     cout << YELLOW << "[18]" << RESET << GREEN << " Pollard's p - 1  " << RESET << "Decrypt c with n" << endl;
                     cout << YELLOW << "[19]" << RESET << GREEN << " Pollard's attack " << RESET << "Decrypt c with n, e & x" << endl;
                     cout << YELLOW << "[20]" << RESET << GREEN << " Common modulus   " << RESET << "Decrypt c with d where n is identical using multiple e's" << endl;
-                    cout << YELLOW << "[21]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
+                    cout << YELLOW << "[21]" << RESET << GREEN << " Modulus Solver   " << RESET << "Find the Flag with just modular inverse" << endl;
+                    cout << YELLOW << "[22]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2261,7 +2263,18 @@ int main() {
 
                             }
 
-                            else if (rsa_choice == "21") {
+                            else if (rsa_choice == "21"){
+                                ModSolver solver;
+                                solver.read_user_input();
+                                solver.solve();
+                                std::cout << BLUE << "_________________________________________________________________\n" << RESET;
+                                std::cout << std::endl;
+                                std::cout << GREEN << "[-]" << RESET << " Recovered flag: " << GREEN << solver.get_flag() << RESET << endl;
+                                std::cout << BLUE << "_________________________________________________________________\n" << RESET;
+                                return 0;
+                            }
+
+                            else if (rsa_choice == "22") {
                                         RSASolver solver;
                                         int choice;
                                         mpz_class val1, val2;
