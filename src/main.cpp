@@ -87,6 +87,7 @@
 #include "pollard.h"
 #include "PollardSolver.h"
 #include "hash_utils.h"
+#include "rsa_solver_common_n.h"
 
 
 #include <sstream>   // for stringstream
@@ -1799,7 +1800,8 @@ int main() {
                     cout << YELLOW << "[17]" << RESET << GREEN << " Hastad Broadcast " << RESET << "Decrypt c1, c2 & c3 with n1, n2, n3 & e" << endl;
                     cout << YELLOW << "[18]" << RESET << GREEN << " Pollard's p - 1  " << RESET << "Decrypt c with n" << endl;
                     cout << YELLOW << "[19]" << RESET << GREEN << " Pollard's attack " << RESET << "Decrypt c with n, e & x" << endl;
-                    cout << YELLOW << "[20]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
+                    cout << YELLOW << "[20]" << RESET << GREEN << " Common modulus   " << RESET << "Decrypt c with d where n is identical using multiple e's" << endl;
+                    cout << YELLOW << "[21]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2243,7 +2245,23 @@ int main() {
                                     }
                             }
 
-                            else if (rsa_choice == "20") {
+                            else if (rsa_choice == "20"){
+                                RSASolverCommonN solver;
+                                solver.read_user_input();
+
+                                if (!solver.compute_phi()) {
+                                return 1;
+                            }
+
+                            solver.decrypt_message();
+                            std::cout << BLUE << "_________________________________________________________________\n" << RESET;
+                            std::cout << endl;
+                            std::cout << GREEN << "[-]" << RESET << " Decrypted flag: " << GREEN << solver.get_flag() << RESET << endl;
+                            std::cout << BLUE << "_________________________________________________________________\n" << RESET;
+
+                            }
+
+                            else if (rsa_choice == "21") {
                                         RSASolver solver;
                                         int choice;
                                         mpz_class val1, val2;
