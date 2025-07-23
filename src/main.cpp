@@ -1765,11 +1765,12 @@ int main() {
 
             cout << BLUE << "________________________" << RESET<< GREEN << " CTF Algorithms "<< RESET << BLUE << "_________________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[1]" << RESET << " RSA                              " << RESET << YELLOW << "[6]" << RESET << " ROT13" << endl;
-            cout << YELLOW << "[2]" << RESET << " FactorDB                         " << RESET << YELLOW << "[7]" << RESET << " Convertion" << endl;
-            cout << YELLOW << "[3]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[8]" << RESET << " Framework" << endl;
-            cout << YELLOW << "[4]" << RESET << " Morse Code                       " << RESET << YELLOW << "[9]" << RESET << " AES" << endl;
-            cout << YELLOW << "[5]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
+            cout << YELLOW << "[01]" << RESET << " RSA                              " << RESET << YELLOW << "[07]" << RESET << " Convertion" << endl;
+            cout << YELLOW << "[02]" << RESET << " FactorDB                         " << RESET << YELLOW << "[08]" << RESET << " Framework" << endl;
+            cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[09]" << RESET << " AES" << endl;
+            cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
+            cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
+            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[12]" << RESET << " ?" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2578,6 +2579,30 @@ int main() {
                 #else
                         system("python3 ChaCha20.py");
                 #endif
+            }
+
+            else if (sub_choice == "11" || sub_choice == "Diffie-Hellman") {
+                    string diffie_choice;
+
+                    cout << BLUE << "__________________" << RESET<< GREEN << " Diffie-Hellman Options "<< RESET << BLUE << "_______________________" << RESET << endl;
+                    cout << endl;
+                    cout << YELLOW << "[01]" << RESET << GREEN << " Small Subgroup Attack     " << RESET << "Decrypt c using p, g, A & B" << endl;
+                    cout << BLUE << "_________________________________________________________________\n" << RESET;
+                    cout << endl;
+                    cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                    cin >> diffie_choice;
+                    std::cin.ignore();
+                    cout << endl;
+
+                    if (diffie_choice == "1" || diffie_choice == "01"){
+                        cout << "Please wait..." << endl;
+                        
+                        #ifdef _WIN32
+                                system("py -3 SmallSubgroupAttack.py");
+                        #else
+                                system("python3 SmallSubgroupAttack.py");
+                        #endif
+                    }
             }
 
             else {
