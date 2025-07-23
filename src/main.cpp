@@ -1769,7 +1769,7 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " FactorDB                         " << RESET << YELLOW << "[7]" << RESET << " Convertion" << endl;
             cout << YELLOW << "[3]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[8]" << RESET << " Framework" << endl;
             cout << YELLOW << "[4]" << RESET << " Morse Code                       " << RESET << YELLOW << "[9]" << RESET << " AES" << endl;
-            cout << YELLOW << "[5]" << RESET << " Base64 Decoder                   " << endl;
+            cout << YELLOW << "[5]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2570,6 +2570,14 @@ int main() {
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                         }
                 }
+            }
+
+            else if (sub_choice == "10" || sub_choice == "chacha20" || sub_choice == "ChaCha20"){
+                #ifdef _WIN32
+                        system("py -3 ChaCha20.py");
+                #else
+                        system("python3 ChaCha20.py");
+                #endif
             }
 
             else {
