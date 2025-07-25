@@ -94,6 +94,17 @@ cd sokonalysis
 cd src
 ````
 
+### Virtual Environment 
+```bash
+python3 -m venv pythonvenv
+```
+```bash
+source pythonvenv/bin/activate
+````
+````bash
+pip install -r requirements.txt
+````
+
 ### Requirements
 ````bash
 sudo apt update
