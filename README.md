@@ -196,9 +196,12 @@ solves a question manually.
 |---------------------------------------|--------------------|-----------------------|---------------------------|---------------------------|
 | Caesar Cipher                         | RSA                | MD5                   | RSA                       |                           |
 | Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |                           |
-| Hill Cipher                           |                    |                       | Substitution Cipher       |                           |
-|                                       |                    |                       | Morse Code                |                           |
-|                                       |                    |                       | Base64 Decoder            |                           |                               |                                       |                    |                       | ROT13                     |                           |   
+| Hill Cipher                           |                    | lm                    | Substitution Cipher       |                           |
+|                                       |                    | ntlm                  | Morse Code                |                           |
+|                                       |                    | mysql                 | Base64 Decoder            |                           |                               |                                       |                    | ripemd160             | ROT13                     |                           |   
+|                                       |                    | whirlpool             | ChaCha20                  |                           |
+|                                       |                    |                       | Diffie-Hellman            |                           |
+|                                       |                    |                       | AES                       |                           |
 
 ## Contributors
 Thanks to everyone who has contributed!
