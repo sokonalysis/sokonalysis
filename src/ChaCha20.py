@@ -1,44 +1,41 @@
-# attack.py
 # Run this script from main.cpp when the user selects the attack option
+
+from colorama import Fore, Style, init
+init(autoreset=True)
 
 def hex_to_bytes(hex_str):
     try:
         return bytes.fromhex(hex_str)
     except ValueError:
-        print("[x] Invalid hex input.")
+        print(Fore.RED + "[x] " + Style.RESET_ALL + "Invalid hex input.")
         exit(1)
 
 def xor_bytes(a, b):
     return bytes(x ^ y for x, y in zip(a, b))
 
 def main():
-    print("[>] Enter the IV (hex): ")
-    iv_hex = input().strip()
-
-    print("[>] Enter the ciphertext of the known message (hex):")
-    ciphertext1_hex = input().strip()
-
-    print("[>] Enter the ciphertext of the FLAG (hex):")
-    ciphertext2_hex = input().strip()
+    iv_hex = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter the IV (hex): ")
+    ciphertext1_hex = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter the ciphertext of the known message (hex): ")
+    ciphertext2_hex = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter the ciphertext of the FLAG (hex): ")
 
     ciphertext1 = hex_to_bytes(ciphertext1_hex)
     ciphertext2 = hex_to_bytes(ciphertext2_hex)
 
-    print("\n[>] Enter the known plaintext message (as text):")
-    user_input = input().encode()
+    user_input = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter the known plaintext message (as text): ").encode()
 
     if len(user_input) != len(ciphertext1):
-        print(f"[x] Your input must be {len(ciphertext1)} bytes to match ciphertext length.")
+        print(Fore.RED + "[x] " + Style.RESET_ALL + "Your input must be" + Fore.GREEN + f" {len(ciphertext1)} " + Style.RESET_ALL + "bytes to match ciphertext length.")
         return
 
     keystream = xor_bytes(ciphertext1, user_input)
     recovered_flag = xor_bytes(ciphertext2, keystream[:len(ciphertext2)])
 
-    print("\n[-] Recovered FLAG:")
+    print(Fore.BLUE + "_________________________________________________________________\n" + Style.RESET_ALL)
     try:
-        print(recovered_flag.decode())
+        print(Fore.GREEN + "[-] " + Style.RESET_ALL + "Recovered FLAG: " + Fore.GREEN + recovered_flag.decode() + Style.RESET_ALL)
     except UnicodeDecodeError:
-        print("[*] FLAG (raw bytes):", recovered_flag)
+        print(Fore.GREEN + "[-] " + Style.RESET_ALL + "Recovered FLAG: " + Fore.GREEN + str(recovered_flag) + Style.RESET_ALL)
+    print(Fore.BLUE + "_________________________________________________________________" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
