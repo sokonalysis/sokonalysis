@@ -1804,7 +1804,8 @@ int main() {
                     cout << YELLOW << "[19]" << RESET << GREEN << " Pollard's attack " << RESET << "Decrypt c with n, e & x" << endl;
                     cout << YELLOW << "[20]" << RESET << GREEN << " Common modulus   " << RESET << "Decrypt c with d where n is identical using multiple e's" << endl;
                     cout << YELLOW << "[21]" << RESET << GREEN << " Modulus Solver   " << RESET << "Find the Flag with just modular inverse" << endl;
-                    cout << YELLOW << "[22]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
+                    cout << YELLOW << "[22]" << RESET << GREEN << " Fermat's Factors " << RESET << "Decrypt c with n and e" << endl;
+                    cout << YELLOW << "[23]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2275,7 +2276,15 @@ int main() {
                                 return 0;
                             }
 
-                            else if (rsa_choice == "22") {
+                            else if (rsa_choice == "22"){
+                                #ifdef _WIN32
+                                            system("py -3 FermatsFactorizationAttack.py");
+                                #else
+                                            system("python3 FermatsFactorizationAttack.py");
+                                #endif
+                            }
+
+                            else if (rsa_choice == "23") {
                                         RSASolver solver;
                                         int choice;
                                         mpz_class val1, val2;
@@ -2596,6 +2605,7 @@ int main() {
 
                     if (diffie_choice == "1" || diffie_choice == "01"){
                         cout << "Please wait..." << endl;
+                        cout << endl;
                         
                         #ifdef _WIN32
                                 system("py -3 SmallSubgroupAttack.py");
