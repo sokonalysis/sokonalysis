@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard - sokonalysis</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1 class="responsive-title">User Dashboard</h1>
+    <div class="login-icon" id="logoutBtn" title="Log out">
+      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png" alt="Logout" />
+    </div>
+  </header>
+
+  <!-- Menu Toggle -->
+  <div id="menuToggle" onclick="toggleSidebar()">☰ Menu</div>
+
+  <!-- Sidebar -->
+  <div id="mySidebar" class="sidebar">
+    <a href="#" onclick="showTab('overview')">Overview</a>
+    <a href="#" onclick="showTab('analysis')">My Analysis</a>
+    <a href="#" onclick="showTab('reports')">Reports</a>
+    <a href="#" onclick="showTab('profile')">Profile</a>
+    <a href="#" onclick="showTab('settings')">Settings</a>
+  </div>
+
+  <!-- Main content -->
+  <div id="mainContent" class="main-content">
+    <div id="overview" class="tab-content active">
+      <h2>Welcome to Your Dashboard</h2>
+      <p>Here you can access your analysis tools and view your reports.</p>
+      
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <h3>Total Analyses</h3>
+          <p class="stat-number">12</p>
+        </div>
+        <div class="stat-card">
+          <h3>Reports Generated</h3>
+          <p class="stat-number">8</p>
+        </div>
+        <div class="stat-card">
+          <h3>Last Activity</h3>
+          <p class="stat-number">2 days ago</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="analysis" class="tab-content">
+      <h2>My Analysis</h2>
+      <p>Start a new analysis or view your existing ones.</p>
+      <button class="primary-btn">Start New Analysis</button>
+      
+      <div class="analysis-list">
+        <h3>Recent Analyses</h3>
+        <div class="analysis-item">
+          <h4>Data Analysis #1</h4>
+          <p>Created: 2024-01-15</p>
+          <button class="primary-btn">View</button>
+        </div>
+        <div class="analysis-item">
+          <h4>Performance Report</h4>
+          <p>Created: 2024-01-10</p>
+          <button class="primary-btn">View</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reports" class="tab-content">
+      <h2>Reports</h2>
+      <p>Download and view your generated reports.</p>
+      
+      <div class="report-list">
+        <div class="report-item">
+          <h4>Monthly Summary</h4>
+          <p>Generated: 2024-01-20</p>
+          <button class="primary-btn">Download PDF</button>
+        </div>
+        <div class="report-item">
+          <h4>Analysis Results</h4>
+          <p>Generated: 2024-01-18</p>
+          <button class="primary-btn">Download PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile" class="tab-content">
+      <h2>User Profile</h2>
+      <div class="profile-info">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" value="user123" readonly />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" value="user@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <input type="text" value="User" readonly />
+        </div>
+        <button class="primary-btn">Update Profile</button>
+      </div>
+    </div>
+
+    <div id="settings" class="tab-content">
+      <h2>Settings</h2>
+      <div class="settings-section">
+        <h3>Appearance</h3>
+        <button id="themeToggle">Toggle Theme</button>
+        
+        <h3>Notifications</h3>
+        <label>
+          <input type="checkbox" checked /> Email notifications
+        </label>
+        <br>
+        <label>
+          <input type="checkbox" /> SMS notifications
+        </label>
+        
+        <h3>Privacy</h3>
+        <button class="primary-btn">Change Password</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme preference
+    const userPref = localStorage.getItem('theme');
+    const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const theme = userPref || systemPref;
+    document.documentElement.setAttribute('data-theme', theme);
+
+    const toggleBtn = document.getElementById('themeToggle');
+    function updateThemeText(t) {
+      toggleBtn.textContent = t === 'dark' ? 'Light Mode' : 'Dark Mode';
+    }
+    updateThemeText(theme);
+
+    toggleBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeText(newTheme);
+    });
+
+    function toggleSidebar() {
+      document.getElementById("mySidebar").classList.toggle("show");
+      document.getElementById("mainContent").classList.toggle("shifted");
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      document.getElementById("mySidebar").classList.remove("show");
+      document.getElementById("mainContent").classList.remove("shifted");
+    }
+
+    // Logout functionality
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      if (confirm("Are you sure you want to log out?")) {
+        localStorage.removeItem('user_session');
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>
