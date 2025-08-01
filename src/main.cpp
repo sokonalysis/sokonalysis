@@ -2550,7 +2550,7 @@ int main() {
 
                 cout << BLUE << "_________________________" << RESET<< GREEN << " AES Attacks "<< RESET << BLUE << "___________________________" << RESET << endl;
                 cout << endl;
-                cout << YELLOW << "[1]" << RESET << " Weak Key Derivation Attack            " << RESET << YELLOW << "[2]" << RESET << " ?" << endl;
+                cout << YELLOW << "[1]" << RESET << " Weak Key Derivation Attack            " << RESET << YELLOW << "[2]" << RESET << " CBC Mode" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2579,6 +2579,18 @@ int main() {
                             std::cerr << RED << "[x]" << RESET << " Error: " << RED << e.what() << RESET << endl;
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
                         }
+                }
+
+                else if (aes_choice == "02" || aes_choice == "2") {
+                    #ifdef _WIN32
+                        system("py -3 aes_cbc.py");
+                    #else
+                        system("python3 aes_cbc.py");
+                    #endif
+                }
+
+                else {
+                    cout << RED << "[x] " << RESET << "Invalid choice, please try again." << endl;
                 }
             }
 
