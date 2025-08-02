@@ -1770,7 +1770,7 @@ int main() {
             cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[09]" << RESET << " AES" << endl;
             cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
             cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
-            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[12]" << RESET << " ?" << endl;
+            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2625,6 +2625,29 @@ int main() {
                                 system("python3 SmallSubgroupAttack.py");
                         #endif
                     }
+            }
+
+            else if (sub_choice == "12" || sub_choice == "xor" || sub_choice == "XOR") {
+                string xor_choice;
+
+                cout << BLUE << "________________________" << RESET<< GREEN << " XOR Options "<< RESET << BLUE << "____________________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " XOR Decrypt with known key" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                cin >> xor_choice;
+                std::cin.ignore();
+                cout << endl;
+
+                if (xor_choice == "1" || xor_choice == "01") {
+                    #ifdef _WIN32
+                        system("py -3 xor_decrypt.py");
+                    #else
+                        system("python3 xor_decrypt.py");
+                    #endif
+                }
+
             }
 
             else {
