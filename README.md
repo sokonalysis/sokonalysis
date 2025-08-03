@@ -18,6 +18,29 @@ sokonalysis from the word cryptanalysis is a cryptographic tool developed by Sok
 ## Requirements
 The file named **wordlist.txt** is needed for local wordlist for the hashing algorithms md5, sha1 and sha256 but if you wish to customize it, add your own text in the same text file and keep it in the same folder as the tool.
 
+## Collaborator 
+For every git clone command on the download option, use these commands below if you have access to the repository.
+
+````bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+````
+````bash
+cat ~/.ssh/id_ed25519.pub
+````
+1. Copy the full output (starts with ssh-ed25519).
+2. Go to GitHub → Settings → SSH and GPG keys
+3. Click “New SSH key”
+4. Paste the public key
+5. Give it a title (e.g., "sokonalysis SSH")
+6. Click “Add SSH key”
+
+````bash
+ssh -T git@github.com
+````
+````bash
+git clone git@github.com:sokonalysis/sokonalysis.git
+````
+
 ## Windows
 ### Dependencies
 #### MSYS2
@@ -50,7 +73,7 @@ pacman -S mingw-w64-x86_64-curl
 pacman -S mingw-w64-x86_64-openssl
 ````
 ```bash
-git clone https://github.com/SokoJames/sokonalysis.git
+git clone https://github.com/sokonalysis/sokonalysis.git
 ```
 ```bash
 cd sokonalysis
@@ -85,7 +108,7 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 ## Linux   
 ### Download
 ```bash
-git clone https://github.com/SokoJames/sokonalysis.git
+git clone https://github.com/sokonalysis/sokonalysis.git
 ```
 ```bash
 cd sokonalysis
