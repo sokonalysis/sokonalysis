@@ -1771,7 +1771,7 @@ int main() {
             cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
             cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
             cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
-            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[14]" << RESET << " ?" << endl;
+            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2681,6 +2681,14 @@ int main() {
                     #endif
                 }
 
+            }
+
+            else if (sub_choice == "14" || sub_choice == "Zlib" || sub_choice == "zlib"){
+                        #ifdef _WIN32
+                                    system("py -3 zlib_decompression.py");
+                        #else
+                                    system("python3 zlib_decompression.py");
+                        #endif
             }
 
             else {
