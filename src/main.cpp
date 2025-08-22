@@ -1765,13 +1765,14 @@ int main() {
 
             cout << BLUE << "________________________" << RESET<< GREEN << " CTF Algorithms "<< RESET << BLUE << "_________________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " RSA                              " << RESET << YELLOW << "[08]" << RESET << " Framework" << endl;
-            cout << YELLOW << "[02]" << RESET << " FactorDB                         " << RESET << YELLOW << "[09]" << RESET << " AES" << endl;
-            cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
-            cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
-            cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
-            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
-            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
+            cout << YELLOW << "[01]" << RESET << " RSA                              " << RESET << YELLOW << "[09]" << RESET << " AES" << endl;
+            cout << YELLOW << "[02]" << RESET << " FactorDB                         " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
+            cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
+            cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
+            cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
+            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
+            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[15]" << RESET << " Zipped File Password Crack" << endl;
+            cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[16]" << RESET << " ?" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2688,6 +2689,14 @@ int main() {
                                     system("py -3 zlib_decompression.py");
                         #else
                                     system("python3 zlib_decompression.py");
+                        #endif
+            }
+
+            else if (sub_choice == "15"){
+                        #ifdef _WIN32
+                                    system("py -3 john_zip_crack.py");
+                        #else
+                                    system("python3 john_zip_crack.py");
                         #endif
             }
 
