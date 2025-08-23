@@ -2398,6 +2398,7 @@ int main() {
                 std::cout << YELLOW << "[1]" << RESET << " Encrypt with known key\n";
                 std::cout << YELLOW << "[2]" << RESET << " Decrypt with known key\n";
                 std::cout << YELLOW << "[3]" << RESET << " Decrypt using frequency analysis (unknown key)\n";
+                std::cout << YELLOW << "[4]" << RESET << " Know Header Attack\n";
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 std::cout << YELLOW << "[>] " RESET << "Choose an option: ";
@@ -2458,6 +2459,14 @@ int main() {
                         case 3: {
                                     SubstitutionSolver::openSolverInBrowser();
                                     break;
+                        }
+
+                        case 4: {
+                                    #ifdef _WIN32
+                                                system("py -3 substitution_known_header_attack.py");
+                                    #else
+                                                system("python3 substitution_known_header_attack.py");
+                                    #endif
                         }
 
                         default:
