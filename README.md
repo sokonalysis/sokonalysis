@@ -7,7 +7,7 @@
 ###### The Cipher Toolkit Build For All Skill Levels 
 
 ## About
-sokonalysis from the word cryptanalysis is a cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key. Meant for University Students, Capture The Flag (CTF) competitions and Organizations to apply cryptography as a field.
+sokonalysis from the word cryptanalysis is a cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key. Meant for University Students, Capture The Flag (CTF) competitions and Organizations to apply cryptography as a field. Officially released on 8th September, 2025 and copyrighted under Kapasa Makasa University till 1st September, 2026.
 
 ## Table of Content
 - [Requirements](#Requirements)
