@@ -408,7 +408,7 @@ void about(){
     cout << "         The Cipher Toolkit Built For All Skill Levels\n"; 
     cout << "                        By Soko James\n"; 
     cout << endl;
-    cout << "    Copyright (C) 2025-2026 Kapasa Makasa University (KMU)\n";
+    cout << "    Copyright (C) 2024-2026 Kapasa Makasa University (KMU)\n";
     cout << "               Version 3.0 Linux & Windows CLI\n";
     cout << BLUE << "_________________________________________________________________\n" << RESET;
     pauseConsole();
@@ -441,7 +441,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 08 September 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 13 July 2025                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1772,7 +1772,7 @@ int main() {
             cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
             cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
             cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[15]" << RESET << " Zipped File Password Crack" << endl;
-            cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[16]" << RESET << " ?" << endl;
+            cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[16]" << RESET << " Steganography" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2707,6 +2707,30 @@ int main() {
                         #else
                                     system("python3 john_zip_crack.py");
                         #endif
+            }
+
+            else if (sub_choice == "16"){
+                string steg_choice;
+
+                cout << BLUE << "___________________" << RESET<< GREEN << " Steganography Options "<< RESET << BLUE << "_______________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " LSB (PNG)" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                cin >> steg_choice;
+                std::cin.ignore();
+                cout << endl;
+
+                if (steg_choice == "1" || steg_choice == "01") {
+                    cout << "Please wait..." << endl;
+                    cout << endl;
+                        #ifdef _WIN32
+                                    system("py -3 LSB.py");
+                        #else
+                                    system("python3 LSB.py");
+                        #endif
+                }
             }
 
             else {
