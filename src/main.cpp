@@ -1809,7 +1809,8 @@ int main() {
                     cout << YELLOW << "[21]" << RESET << GREEN << " Modulus Solver   " << RESET << "Find the Flag with just modular inverse" << endl;
                     cout << YELLOW << "[22]" << RESET << GREEN << " Fermat's Factors " << RESET << "Decrypt c with n and e" << endl;
                     cout << YELLOW << "[23]" << RESET << GREEN << " Multi-layer      " << RESET << "Decrypt c with n and multiple e's +1" << endl;
-                    cout << YELLOW << "[24]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
+                    cout << YELLOW << "[24]" << RESET << GREEN << " PEM Keys         " << RESET << "Decrypt c with a .pem key" << endl;
+                    cout << YELLOW << "[25]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2296,7 +2297,15 @@ int main() {
                                         #endif
                             }
 
-                            else if (rsa_choice == "24") {
+                            else if (rsa_choice == "24"){
+                                #ifdef _WIN32
+                                            system("py -3 rsa_pem_keys.py");
+                                #else
+                                            system("python3 rsa_pem_keys.py");
+                                #endif
+                            }
+
+                            else if (rsa_choice == "25") {
                                         RSASolver solver;
                                         int choice;
                                         mpz_class val1, val2;
