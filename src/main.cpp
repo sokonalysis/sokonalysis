@@ -2489,12 +2489,38 @@ int main() {
             }
             
             else if (sub_choice == "5" || sub_choice == "05" || sub_choice == "base64"){
-                std::string input;
+                string base64_choice;
 
-                std::cout << YELLOW << "[>]" << RESET << " Enter Base64-encoded input: ";
-                std::getline(std::cin, input);
+                cout << BLUE << "________________________" << RESET<< GREEN << " Base64 Options "<< RESET << BLUE << "_________________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " Decode Base64 String" << endl;
+                cout << YELLOW << "[2]" << RESET << " Decode Corrupted Base64 String" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                cin >> base64_choice;
+                std::cin.ignore();
+                cout << endl;
 
-                decodeAndPrintBase64(input);
+                if (base64_choice == "1"){
+                        std::string input;
+                        std::cout << YELLOW << "[>]" << RESET << " Enter Base64-encoded input: ";
+                        std::getline(std::cin, input);
+
+                        decodeAndPrintBase64(input);
+                }
+
+                else if (base64_choice == "2"){
+                        #ifdef _WIN32
+                                    system("py -3 corrupted_base64.py");
+                        #else
+                                    system("python3 corrupted_base64.py");
+                        #endif
+                }
+
+                else {
+                        cout << RED << "[!] Invalid option selected." << RESET << endl;
+                }
             }
             
             else if (sub_choice == "6" || sub_choice == "06" || sub_choice == "ROT13" || sub_choice == "rot13") {
