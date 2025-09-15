@@ -2751,6 +2751,7 @@ int main() {
                 cout << BLUE << "___________________" << RESET<< GREEN << " Steganography Options "<< RESET << BLUE << "_______________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " LSB (PNG)" << endl;
+                cout << YELLOW << "[2]" << RESET << " Whitespace Cipher (Invisible)" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2767,6 +2768,16 @@ int main() {
                                     system("python3 LSB.py");
                         #endif
                 }
+
+                else if (steg_choice == "2" || steg_choice == "02") {
+                    cout << endl;
+                        #ifdef _WIN32
+                                    system("py -3 zero_width.py");
+                        #else
+                                    system("python3 zero_width.py");
+                        #endif
+                }
+
             }
 
              else if (sub_choice == "17"){
