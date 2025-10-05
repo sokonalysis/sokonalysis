@@ -4,4 +4,5 @@ colorama
 gmpy2==2.1.5
 pillow
 cryptography
-
+msoffcrypto-tool
+tqdm
