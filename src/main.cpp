@@ -441,7 +441,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 13 July 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 05 October 2025                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1755,8 +1755,32 @@ int main() {
         }
 
         else if (choice == "5" || choice == "05" || choice == "Advanced" || choice == "advanced"){
+            string adv_choice;
             cout << endl;
-            cout << RED<< "[!]" << RESET << " Currently not available" << endl;
+
+            cout << BLUE << "______________________" << RESET<< GREEN << " Corporate Services "<< RESET << BLUE << "______________________" << RESET << endl;
+            cout << endl;
+            cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
+            cout << BLUE << "_________________________________________________________________\n" << RESET;
+            cout << endl;
+            cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+            std::cin >> adv_choice;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
+            std::cout << std::endl;
+
+            if (adv_choice == "01" || adv_choice == "1"){
+                #ifdef _WIN32
+                                    system("py -3 ms_password_cracker.py");
+                        #else
+                                    system("python3 ms_password_cracker.py");
+                        #endif
+            }
+
+            else {
+                cout << endl;
+                cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
+                cout << endl;
+            }
         }
 
         else if (choice == "6" || choice == "06" || choice == "CTF" || choice == "ctf") {
@@ -2752,6 +2776,7 @@ int main() {
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " LSB (PNG)" << endl;
                 cout << YELLOW << "[2]" << RESET << " Whitespace Cipher (Invisible)" << endl;
+                cout << YELLOW << "[3]" << RESET << " Hidden Content (Excel)" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2775,6 +2800,15 @@ int main() {
                                     system("py -3 zero_width.py");
                         #else
                                     system("python3 zero_width.py");
+                        #endif
+                }
+
+                else if (steg_choice == "3" || steg_choice == "03") {
+                    cout << endl;
+                        #ifdef _WIN32
+                                    system("py -3 excel_hidden_info_crack.py");
+                        #else
+                                    system("python3 excel_hidden_info_crack.py");
                         #endif
                 }
 
