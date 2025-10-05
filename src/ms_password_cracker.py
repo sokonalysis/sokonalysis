@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Interactive, colorful Office (Word) brute-force script for authorized CTF use.
+Interactive, colorful Office brute-force script for authorized CTF use.
+
+Works with common MS Office file types (old binary + modern zipped formats):
+  .doc, .docx, .docm, .xls, .xlsx, .xlsm, .ppt, .pptx, .pptm, etc.
 
 Prompts the user for:
- - protected Word file (e.g., secret.docx)
+ - protected Office file (e.g., secret.docx / secret.xls)
  - wordlist path (e.g., rockyou.txt)
 
 Requirements:
     pip install msoffcrypto-tool colorama tqdm
-
-Author: ChatGPT (for authorized/CTF use only)
 """
 
 import os
 import io
-import sys
 from pathlib import Path
 import msoffcrypto
 from colorama import Fore, Style, init
@@ -22,6 +22,12 @@ from tqdm import tqdm
 
 # initialize colorama
 init(autoreset=True)
+
+SUPPORTED_EXTS = {
+    ".doc", ".docx", ".docm",
+    ".xls", ".xlsx", ".xlsm",
+    ".ppt", ".pptx", ".pptm",
+}
 
 def info(msg):    print(Fore.CYAN + "[*] " + Style.RESET_ALL + msg)
 def ok(msg):      print(Fore.GREEN + "[+] " + Style.RESET_ALL + msg)
@@ -36,6 +42,7 @@ def try_password_bytes(file_bytes, password, write_output_path=None):
     bio = io.BytesIO(file_bytes)
     try:
         office = msoffcrypto.OfficeFile(bio)
+        # msoffcrypto accepts str passwords
         office.load_key(password=password)
         dec = io.BytesIO()
         office.decrypt(dec)
@@ -53,9 +60,10 @@ def count_lines(path):
         return sum(1 for _ in f)
 
 def main():
-    print(Fore.BLUE + "\nOffice Word Bruteforce (CTF / authorized use only)\n" + Style.RESET_ALL)
+    print(Fore.BLUE + "\nOffice Document Password Cracker for PowerPoint, Word & Excel\n" + Style.RESET_ALL)
 
-    doc_path = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter protected Word file name or path (e.g., secret.docx): ").strip()
+    doc_path = input(Fore.YELLOW + "[>] " + Style.RESET_ALL +
+                     "Enter protected Office file name or path (e.g., secret.docx): ").strip()
     if not doc_path:
         err("No file provided. Exiting.")
         return
@@ -63,7 +71,12 @@ def main():
         err(f"File not found: {doc_path}")
         return
 
-    wordlist_path = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Enter wordlist file name (if in this current dir) or path (e.g., rockyou.txt) OR type 'wordlist.txt' for the local wordlist: ").strip()
+    ext = Path(doc_path).suffix.lower()
+    if ext and ext not in SUPPORTED_EXTS:
+        warn(f"Extension '{ext}' is not one of the common Office types. The script will still try to open it.")
+
+    wordlist_path = input(Fore.YELLOW + "[>] " + Style.RESET_ALL +
+                          "Enter wordlist file name or path (e.g., rockyou.txt) OR type 'wordlist.txt' for the local wordlist: ").strip()
     if not wordlist_path:
         err("No wordlist provided. Exiting.")
         return
@@ -71,7 +84,8 @@ def main():
         err(f"Wordlist not found: {wordlist_path}")
         return
 
-    save_dir = input(Fore.YELLOW + "[>] " + Style.RESET_ALL + "Optional: output directory to save decrypted file (press Enter to use current dir): \n").strip()
+    save_dir = input(Fore.YELLOW + "[>] " + Style.RESET_ALL +
+                     "Optional: output directory to save decrypted file (press Enter to use current dir): \n").strip()
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
     else:
@@ -95,7 +109,6 @@ def main():
 
     info("Starting brute-force (will try each password in the provided wordlist)...")
     found = None
-    output_path = None
     try:
         with open(wordlist_path, "r", errors="ignore") as wl:
             iterator = (line.rstrip("\n\r") for line in wl)
@@ -105,8 +118,7 @@ def main():
                     continue
                 password = raw_pw
                 # attempt
-                ok_try = try_password_bytes(file_bytes, password, write_output_path=None)
-                if ok_try:
+                if try_password_bytes(file_bytes, password, write_output_path=None):
                     found = password
                     pbar.close()
                     break
@@ -118,7 +130,9 @@ def main():
         return
 
     if found:
-        ok(f"Password found: {found}")
+        print(Fore.BLUE + "_____________________________________________________________\n" + Style.RESET_ALL)
+        ok(f"Password found: {Fore.GREEN}{found}{Style.RESET_ALL}")
+        print(Fore.BLUE + "_____________________________________________________________\n" + Style.RESET_ALL)
         # write decrypted file
         out_name = f"{Path(doc_path).stem}_decrypted{Path(doc_path).suffix}"
         output_path = os.path.join(save_dir, out_name)
