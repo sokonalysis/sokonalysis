@@ -181,38 +181,8 @@ void displayLogo3() {
         " ______|____||__|__|____||_| |_||____/|____/ ___|______|__/______|"
     };
 
-    const std::string glitchChars = ".";
-
-    auto glitchLine = [&](const std::string& line, double glitchChance = 0.1) -> std::string {
-        static std::random_device rd;
-        static std::mt19937 rng(rd());
-        static std::uniform_real_distribution<> chance(0.0, 1.0);
-        static std::uniform_int_distribution<> glitchChar(0, glitchChars.size() - 1);
-
-        std::string glitched = line;
-        for (char& c : glitched) {
-            if (c != ' ' && chance(rng) < glitchChance) {
-                c = glitchChars[glitchChar(rng)];
-            }
-        }
-        return glitched;
-    };
-
-    // Glitch animation
-    const int frames = 20;
-    const int delay_ms = 100;
-
-    for (int i = 0; i < frames; ++i) {
-        std::cout << CLEAR << GREEN;
-        for (const auto& line : logo) {
-            std::cout << glitchLine(line, 0.1 + 0.05 * (frames - i) / frames) << std::endl;
-        }
-        std::cout << RESET;
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
-    }
-
-    // Final clean logo
-    std::cout << CLEAR << GREEN;
+    // Just display the static logo without animation
+    std::cout << GREEN;
     for (const auto& line : logo) {
         std::cout << line << std::endl;
     }
@@ -441,7 +411,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 05 October 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 22 November 2025                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
