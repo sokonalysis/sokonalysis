@@ -162,6 +162,7 @@ g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -l
 ````bash
 python3 sokonalysis_gui.py
 ````
+<img width="403" height="316" alt="Image" src="https://github.com/user-attachments/assets/75378425-eea7-4a1d-8a0e-cbfffd5750d0" />
 
 ## Usage
 
