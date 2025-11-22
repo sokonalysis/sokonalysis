@@ -166,6 +166,8 @@ python3 sokonalysis_gui.py
 
 <img width="402" height="314" alt="Image" src="https://github.com/user-attachments/assets/bb4c0440-b63e-48bf-85d4-20700fc5884d" />
 
+<img width="404" height="314" alt="Image" src="https://github.com/user-attachments/assets/33349e08-6bde-4b2d-8c5c-bcdc6964dc6d" />
+
 ## Usage
 
 [Official sokonalysis YouTube Guide Playlist](https://youtube.com/playlist?list=PLbkdoTM3A8aOFijcnaxCZGhZklM5RsbaL&si=Yoo6r6xL3Y5DtohM)
