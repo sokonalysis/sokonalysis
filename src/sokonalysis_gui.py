@@ -160,7 +160,7 @@ class SimpleCLIGUI(QMainWindow):
         top_controls.addStretch()
         
         # System controls
-        clear_btn = QPushButton("Clear Screen")
+        clear_btn = QPushButton("Clear")
         clear_btn.clicked.connect(self.clear_screen)
         top_controls.addWidget(clear_btn)
         
@@ -168,7 +168,7 @@ class SimpleCLIGUI(QMainWindow):
         self.restart_btn.clicked.connect(self.restart_sokonalysis)
         top_controls.addWidget(self.restart_btn)
         
-        system_btn = QPushButton("System Commands")
+        system_btn = QPushButton("Commands")
         system_btn.clicked.connect(self.show_system_commands)
         top_controls.addWidget(system_btn)
         
