@@ -6,3 +6,5 @@ pillow
 cryptography
 msoffcrypto-tool
 tqdm
+PyQt5>=5.15.0
+pyinstaller>=5.0.0
