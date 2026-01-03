@@ -243,16 +243,16 @@ solves a question manually.
 
 # Supported Algorithms
 
-| **Symmetric**                         | **Asymmetric**     | **Hashing**           | **Capture The Flag (CTF)**| **Advanced Cryptography** |
-|---------------------------------------|--------------------|-----------------------|---------------------------|---------------------------|
-| Caesar Cipher                         | RSA                | MD5                   | RSA                       |                           |
-| Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |                           |
-| Hill Cipher                           |                    | lm                    | Substitution Cipher       |                           |
-|                                       |                    | ntlm                  | Morse Code                |                           |
-|                                       |                    | mysql                 | Base64 Decoder            |                           |                               |                                       |                    | ripemd160             | ROT13                     |                           |   
-|                                       |                    | whirlpool             | ChaCha20                  |                           |
-|                                       |                    |                       | Diffie-Hellman            |                           |
-|                                       |                    |                       | AES                       |                           |
+| **Symmetric**                         | **Asymmetric**     | **Hashing**           | **Capture The Flag (CTF)**| **Advanced Cryptography**                                       |
+|---------------------------------------|--------------------|-----------------------|---------------------------|-----------------------------------------------------------------|
+| Caesar Cipher                         | RSA                | MD5                   | RSA                       |  Recover Microsoft Office forgotten passwords on protected docs |
+| Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |                                                                 |
+| Hill Cipher                           |                    | lm                    | Substitution Cipher       |                                                                 |
+|                                       |                    | ntlm                  | Morse Code                |                                                                 |
+|                                       |                    | mysql                 | Base64 Decoder            |                                                                 |                 |                                       |                    | ripemd160             | ROT13                     |                                                                 |   
+|                                       |                    | whirlpool             | ChaCha20                  |                                                                 |
+|                                       |                    |                       | Diffie-Hellman            |                                                                 |
+|                                       |                    |                       | AES                       |                                                                 |
 
 ## Contributors
 Thanks to everyone who has contributed!
