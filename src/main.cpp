@@ -1732,6 +1732,7 @@ int main() {
             cout << endl;
             cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
             cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
+            cout << YELLOW << "[03]" << RESET << " RAR Archive File Password Remover" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1752,6 +1753,14 @@ int main() {
                                     system("py -3 zip2john.py");
                         #else
                                     system("python3 zip2john.py");
+                        #endif
+            }
+
+            else if (adv_choice == "03" || adv_choice == "3"){
+                #ifdef _WIN32
+                                    system("py -3 rar2john.py");
+                        #else
+                                    system("python3 rar2john.py");
                         #endif
             }
 
