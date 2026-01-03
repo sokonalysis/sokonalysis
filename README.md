@@ -239,7 +239,11 @@ solves a question manually.
 
    <img width="801" height="227" alt="Image" src="https://github.com/user-attachments/assets/cb763413-c696-43e1-94e0-11c6703ea639" />
    
-5. ## Advanced Level 
+5. ## Advanced Level
+   # Cracking Protected Microsoft Office Documents
+   Select option [5] Advanced Cryptography and then [1] Microsoft Office Document Password Remover
+
+   <img width="796" height="623" alt="Image" src="https://github.com/user-attachments/assets/e3a105eb-39a2-48a3-ac3a-92f9e4cb7a73" />
 
 # Supported Algorithms
 
