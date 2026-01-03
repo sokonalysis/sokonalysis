@@ -411,7 +411,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 03 January 2026                           " << RESET << endl;
+        cout << WHITE << "                     Last update 03 January 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
