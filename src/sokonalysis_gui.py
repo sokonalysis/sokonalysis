@@ -69,7 +69,7 @@ class SimpleCLIGUI(QMainWindow):
         self.process = None
         self.system_process = None
         self.font_size = 12
-        self.setWindowTitle('Sokonalysis')
+        self.setWindowTitle('sokonalysis')
         self.setFixedSize(800, 600)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowMaximizeButtonHint)
         
