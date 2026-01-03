@@ -379,7 +379,7 @@ void about(){
     cout << "                        By Soko James\n"; 
     cout << endl;
     cout << "    Copyright (C) 2024-2026 Kapasa Makasa University (KMU)\n";
-    cout << "               Version 3.0 Linux & Windows CLI\n";
+    cout << "               Version 3.5 Linux & Windows CLI/GUI\n";
     cout << BLUE << "_________________________________________________________________\n" << RESET;
     pauseConsole();
 }
@@ -411,7 +411,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                       Last update 22 November 2025                           " << RESET << endl;
+        cout << WHITE << "                       Last update 03 January 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1730,10 +1730,8 @@ int main() {
 
             cout << BLUE << "______________________" << RESET<< GREEN << " Corporate Services "<< RESET << BLUE << "______________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
-            cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
-            cout << YELLOW << "[03]" << RESET << " RAR Archive File Password Remover" << endl;
-            cout << YELLOW << "[04]" << RESET << " 7z File Password Remover" << endl;
+            cout << YELLOW << "[01]" << RESET << " Crack Passwords On Protected Files/Documents" << endl;
+            cout << YELLOW << "[02]" << RESET << " Crack Operating Systems User Passwords" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1741,7 +1739,25 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
             std::cout << std::endl;
 
+            
             if (adv_choice == "01" || adv_choice == "1"){
+            string sub_adv_choice;
+            cout << endl;
+
+            cout << BLUE << "_____________________" << RESET<< GREEN << " Protected Files/Docs "<< RESET << BLUE << "______________________" << RESET << endl;
+            cout << endl;
+            cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
+            cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
+            cout << YELLOW << "[03]" << RESET << " RAR Archive File Password Remover" << endl;
+            cout << YELLOW << "[04]" << RESET << " 7z File Password Remover" << endl;
+            cout << BLUE << "_________________________________________________________________\n" << RESET;
+            cout << endl;
+            cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+            std::cin >> sub_adv_choice;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
+            std::cout << std::endl;
+
+            if (sub_adv_choice == "01" || sub_adv_choice == "1"){
                 #ifdef _WIN32
                                     system("py -3 office2john.py");
                         #else
@@ -1749,7 +1765,7 @@ int main() {
                         #endif
             }
 
-            else if (adv_choice == "02" || adv_choice == "2"){
+            else if (sub_adv_choice == "02" || sub_adv_choice == "2"){
                 #ifdef _WIN32
                                     system("py -3 zip2john.py");
                         #else
@@ -1757,7 +1773,7 @@ int main() {
                         #endif
             }
 
-            else if (adv_choice == "03" || adv_choice == "3"){
+            else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
                 #ifdef _WIN32
                                     system("py -3 rar2john.py");
                         #else
@@ -1765,12 +1781,60 @@ int main() {
                         #endif
             }
 
-            else if (adv_choice == "04" || adv_choice == "4"){
+            else if (sub_adv_choice == "04" || sub_adv_choice == "4"){
                 #ifdef _WIN32
                                     system("py -3 7z2john.py");
                         #else
                                     system("python3 7z2john.py");
                         #endif
+            }
+
+            else {
+                cout << endl;
+                cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
+                cout << endl;
+            }
+ 
+            }
+
+            else if (adv_choice == "02" || adv_choice == "2"){
+            string sub_adv_choice;
+            cout << endl;
+
+            cout << BLUE << "_____________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "______________________" << RESET << endl;
+            cout << endl;
+            cout << YELLOW << "[01]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
+            cout << YELLOW << "[02]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
+            cout << BLUE << "_________________________________________________________________\n" << RESET;
+            cout << endl;
+            cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+            std::cin >> sub_adv_choice;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
+            std::cout << std::endl;
+
+            if (sub_adv_choice == "01" || sub_adv_choice == "1"){
+                #ifdef _WIN32
+                                    system("py -3 linux_pass.py");
+                        #else
+                                    system("python3 linux_pass.py");
+                        #endif
+            }
+
+            else if (sub_adv_choice == "02" || sub_adv_choice == "2"){
+                #ifdef _WIN32
+                                    system("py -3 windows_pass.py");
+                        #else
+                                    system("python3 windows_pass.py");
+                        #endif
+            }
+
+
+            else {
+                cout << endl;
+                cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
+                cout << endl;
+            }
+ 
             }
 
             else {
