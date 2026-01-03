@@ -1740,9 +1740,9 @@ int main() {
 
             if (adv_choice == "01" || adv_choice == "1"){
                 #ifdef _WIN32
-                                    system("py -3 ms_password_cracker.py");
+                                    system("py -3 office2john.py");
                         #else
-                                    system("python3 ms_password_cracker.py");
+                                    system("python3 office2john.py");
                         #endif
             }
 
