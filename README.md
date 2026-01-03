@@ -250,9 +250,9 @@ solves a question manually.
 | **Symmetric**                         | **Asymmetric**     | **Hashing**           | **Capture The Flag (CTF)**| **Advanced Cryptography**                                       |
 |---------------------------------------|--------------------|-----------------------|---------------------------|-----------------------------------------------------------------|
 | Caesar Cipher                         | RSA                | MD5                   | RSA                       |  Recover Microsoft Office forgotten passwords on protected docs |
-| Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |                                                                 |
-| Hill Cipher                           |                    | lm                    | Substitution Cipher       |                                                                 |
-|                                       |                    | ntlm                  | Morse Code                |                                                                 |
+| Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |  Recover forgotten passwords on protected zip, 7z and RAR files |
+| Hill Cipher                           |                    | lm                    | Substitution Cipher       |  Crack user account password (s) on both Linux and Windows      |
+|                                       |                    | ntlm                  | Morse Code                |  Crack a Wi-Fi password using a captured handshake file         |
 |                                       |                    | mysql                 | Base64 Decoder            |                                                                 |                 |                                       |                    | ripemd160             | ROT13                     |                                                                 |   
 |                                       |                    | whirlpool             | ChaCha20                  |                                                                 |
 |                                       |                    |                       | Diffie-Hellman            |                                                                 |
