@@ -1733,6 +1733,7 @@ int main() {
             cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
             cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
             cout << YELLOW << "[03]" << RESET << " RAR Archive File Password Remover" << endl;
+            cout << YELLOW << "[04]" << RESET << " 7z File Password Remover" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
