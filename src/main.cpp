@@ -1764,6 +1764,14 @@ int main() {
                         #endif
             }
 
+            else if (adv_choice == "04" || adv_choice == "4"){
+                #ifdef _WIN32
+                                    system("py -3 7z2john.py");
+                        #else
+                                    system("python3 7z2john.py");
+                        #endif
+            }
+
             else {
                 cout << endl;
                 cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
