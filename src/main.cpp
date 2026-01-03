@@ -1732,6 +1732,7 @@ int main() {
             cout << endl;
             cout << YELLOW << "[01]" << RESET << " Crack Passwords On Protected Files/Documents" << endl;
             cout << YELLOW << "[02]" << RESET << " Crack Operating Systems User Passwords" << endl;
+            cout << YELLOW << "[03]" << RESET << " Crack Wi-Fi Passwords Using a Handshake File" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1836,6 +1837,15 @@ int main() {
             }
  
             }
+
+            else if (adv_choice == "03"  || adv_choice == "3"){
+                #ifdef _WIN32
+                                    system("py -3 wifi2john.py");
+                        #else
+                                    system("python3 wifi2john.py");
+                        #endif
+            }
+
 
             else {
                 cout << endl;
