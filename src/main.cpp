@@ -1731,6 +1731,7 @@ int main() {
             cout << BLUE << "______________________" << RESET<< GREEN << " Corporate Services "<< RESET << BLUE << "______________________" << RESET << endl;
             cout << endl;
             cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
+            cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1743,6 +1744,14 @@ int main() {
                                     system("py -3 office2john.py");
                         #else
                                     system("python3 office2john.py");
+                        #endif
+            }
+
+            else if (adv_choice == "02" || adv_choice == "2"){
+                #ifdef _WIN32
+                                    system("py -3 zip2john.py");
+                        #else
+                                    system("python3 zip2john.py");
                         #endif
             }
 
