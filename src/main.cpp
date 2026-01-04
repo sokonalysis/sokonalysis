@@ -194,182 +194,9 @@ void pauseConsole() {
     std::cin.get();
 }
 
-void displayHelp() {
-    // Stage 1: Show RSA Algorithm
-    cout << BLUE << "\n___________________________ " << GREEN << "Help Menu" << RESET << BLUE << " ___________________________\n"<< RESET;
-    cout << endl;
-    cout << "     " << GREEN << "RSA (Rivest Shamir Adleman) Algorithm" << RESET << "\n";
-    cout << endl;
-    cout << "     RSA is a public-key encryption algorithm that uses two keys\n";
-    cout << "     A public key for encryption and a private key for decryption.\n";
-    cout << endl; 
-    cout << "     Choose p = 3 and q = 11\n";
-    cout << endl;
-    cout << "     Compute n = p * q\n";
-    cout << "               = 3 * 11\n"; 
-    cout << "               = 33\n";
-    cout << endl;
-    cout << "     Compute m = (p - 1) * (q - 1)\n";
-    cout << "               = (3 - 1) * (11 - 1)\n";
-    cout << "               = 2 * 10\n";
-    cout << "               = 20\n";
-    pauseConsole();
-    cout << "     Prime numbers < n (33) = 2,3,5,7,11,13,17,19,23,29,31\n";
-    cout << "     Valid prime numbers to represent e = 3,7,11,13,17,19,23,31\n";
-    cout << endl;
-    cout << "     d = ed-1/m, reminder =0\n";
-    cout << "       = (7)(3)-1/20\n";
-    cout << "       = 21-1/20\n";
-    cout << "       = 20/20\n";
-    cout << "       = 1\n";
-    cout << endl;
-    cout << "       Therefore d = 3\n";
-    cout << endl;
-    cout << "       message (m) = cipher (c) ^ d mod n\n";
-    cout << "       cipher (c) = message (m) ^ e mod n\n";
-    cout << endl;
-    cout << "       message = 2\n";
-    pauseConsole();
-    cout << "       c = m ^ e mod n\n";
-    cout << "         = 2 ^ 7 mod 33\n";
-    cout << "         = 128 mod 33\n";
-    cout << "         = 128/33\n";
-    cout << "         = 3.87\n";
-    cout << "         = 3 * 33\n";
-    cout << "         = 99\n";
-    cout << "         = 128 - 99\n";
-    cout << "         = 29\n";
-    cout << endl;
-    cout << "       m = c ^ d mod n\n";
-    cout << "         = 29 ^ 3 mod 33\n";
-    cout << "         = 24389 mod 33\n";
-    cout << "         = 24389/33\n";
-    cout << "         = 739.06\n";
-    cout << "         = 739 * 33\n";
-    cout << "         = 24387\n";
-    cout << "         = 24389 - 24387\n";
-    cout << "         = 2\n";
-    pauseConsole();
+void Exit() {
 
-    // Stage 2: Show Caesar Cipher
-    cout << "     " GREEN << "Caesar Cipher" RESET << "\n";
-    cout << endl;
-    cout << "     A substitution cipher where each letter of the plaintext is shifted by\n";
-    cout << "     a fixed number.\n";
-    cout << endl;
-    cout << "     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26\n";
-    cout << "     A B C D E F G H I J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z\n";
-    cout << "     D E F G H I J K L M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z  A  B  C\n";
-    cout << endl;
-    cout << "     Example: Plaintext = HELLO, Shift = 3, Ciphertext = KHOOR\n";
-
-    pauseConsole();
-
-    // Stage 2.1: Show Caesar Brute Force
-    cout << endl;
-    cout << "     " << GREEN << "Caesar Brute Force" << RESET << "\n";
-    cout << endl;
-    cout << "     Shift 01: B C D E F G H I J K L M N O P Q R S T U V W X Y Z A\n";
-    cout << "     Shift 02: C D E F G H I J K L M N O P Q R S T U V W X Y Z A B\n";
-    cout << "     Shift 03: D E F G H I J K L M N O P Q R S T U V W X Y Z A B C\n";
-    cout << "     Shift 04: E F G H I J K L M N O P Q R S T U V W X Y Z A B C D\n";
-    cout << "     Shift 05: F G H I J K L M N O P Q R S T U V W X Y Z A B C D E\n";
-    cout << "     Shift 06: G H I J K L M N O P Q R S T U V W X Y Z A B C D E F\n";
-    cout << "     Shift 07: H I J K L M N O P Q R S T U V W X Y Z A B C D E F G\n";
-    cout << "     Shift 08: I J K L M N O P Q R S T U V W X Y Z A B C D E F G H\n";
-    cout << "     Shift 09: J K L M N O P Q R S T U V W X Y Z A B C D E F G H I\n";
-    cout << "     Shift 10: K L M N O P Q R S T U V W X Y Z A B C D E F G H I J\n";
-    cout << "     Shift 11: L M N O P Q R S T U V W X Y Z A B C D E F G H I J K\n";
-    cout << "     Shift 12: M N O P Q R S T U V W X Y Z A B C D E F G H I J K L\n";
-    cout << "     Shift 13: N O P Q R S T U V W X Y Z A B C D E F G H I J K L M\n";
-    cout << "     Shift 14: O P Q R S T U V W X Y Z A B C D E F G H I J K L M N\n";
-    cout << "     Shift 15: P Q R S T U V W X Y Z A B C D E F G H I J K L M N O\n";
-    cout << "     Shift 16: Q R S T U V W X Y Z A B C D E F G H I J K L M N O P\n";
-    cout << "     Shift 17: R S T U V W X Y Z A B C D E F G H I J K L M N O P Q\n";
-    cout << "     Shift 18: S T U V W X Y Z A B C D E F G H I J K L M N O P Q R\n";
-    cout << "     Shift 19: T U V W X Y Z A B C D E F G H I J K L M N O P Q R S\n";
-    cout << "     Shift 20: U V W X Y Z A B C D E F G H I J K L M N O P Q R S T\n";
-    cout << "     Shift 21: V W X Y Z A B C D E F G H I J K L M N O P Q R S T U\n";
-    cout << "     Shift 22: W X Y Z A B C D E F G H I J K L M N O P Q R S T U V\n";
-    cout << "     Shift 23: X Y Z A B C D E F G H I J K L M N O P Q R S T U V W\n";
-    cout << "     Shift 24: Y Z A B C D E F G H I J K L M N O P Q R S T U V W X\n";
-    cout << "     Shift 25: Z A B C D E F G H I J K L M N O P Q R S T U V W X Y\n";
-
-    pauseConsole();
-
-    // Stage 2.2: Show Caesar Polyalphabetic Cipher
-    cout << endl;
-    cout << "     " << GREEN << "Caesar Polyalphabetic Cipher" << RESET << "\n";
-    cout << endl;
-    cout << "     A polyalphabetic cipher using multiple Caesar ciphers based on a keyword.\n";
-    cout << endl;
-    cout << "     Example   : Plaintext = WENEEDMORESUPPLIESFAST, Keyword = MEC\n";
-    cout << endl;
-    cout << "     Keyword   : M E C M E C M E C M E C M E C M E C M E C M\n";
-    cout << "     Plaintext : W E N E E D M O R E S U P P L I E S F A S T\n";
-    cout << "     Ciphertext: I I P Q I F Y S T Q W W B T N U I U R E U F\n";
     
-    pauseConsole();
-
-    // Stage 3: Show Vigenere Cipher
-    cout << endl;
-    cout << "     " << GREEN << "Vigenere Cipher" << RESET << "\n";
-    cout << endl;
-    cout << "     A polyalphabetic cipher that uses a keyword to shift letters.\n";
-    cout << endl;
-    cout << "     Example   : Plaintext = ATTACKATDAWN, Keyword = LEMON\n";
-    cout << endl;
-    cout << "     Plaintext : ATTACKATDAWN\n";
-    cout << "     Key       : LEMONLEMONLE\n";
-    cout << "     Ciphertext: LXFOPVEFRNHR\n";
-
-    pauseConsole();
-
-    // Stage 4: Show Transposition Cipher
-    cout << endl;
-    cout << "    " << GREEN << "Transposition Cipher" << RESET << "\n";
-    cout << endl;
-    cout << "    A transposition cipher rearranges the letters of the plaintext.\n";
-    cout << endl;
-    cout << "    Example: Plaintext = HELLO, Rearranged = LOHEL\n";
-
-    pauseConsole();
-
-    // Stage 4.1: Show Columnar Transposition Cipher
-    cout << endl;
-    cout << "     " << GREEN << "Columnar Transposition Cipher" << RESET << "\n";
-    cout << endl;
-    cout << "     A transposition cipher where the plaintext is written in a grid and\n";
-    cout << "     rearranged by key.\n";
-    cout << endl;
-    cout << "     Example: Plaintext = WEAREDISCOVEREDFLEEATONCE, Key = ZEBRAS\n";
-    cout << endl;
-    cout << "     6 3 2 4 1 5\n";
-    cout << "     W E A R E D\n";
-    cout << "     I S C O V E\n";
-    cout << "     R E D F L E\n";
-    cout << "     E A T O N C\n"; 
-    cout << "     E Q K J E U\n";
-    cout << endl;
-    cout << "     Ciphertext: EVLNEACDTKESEAQROFOJDEECUWIREE\n";
-
-    pauseConsole();
-
-    // Stage 4.2: Show Rail Fence Cipher
-    cout << endl;
-    cout << "     " << GREEN << "Rail Fence Cipher" << RESET << "\n";
-    cout << endl;
-    cout << "     A transposition cipher where the message is written in a zigzag pattern.\n";
-    cout << endl;
-    cout << "     Example: Plaintext = WEAREDISCOVEREDFLEEATONCE, Key = 3\n";
-    cout << endl;
-    cout << "     W . . . E . . . C . . . R . . . L . . . T . . . E\n";
-    cout << "     . E . R . D . S . O . E . E . F . E . A . O . C .\n";
-    cout << "     . . A . . . I . . . V . . . D . . . E . . . N . .\n";
-    cout << endl;
-    cout << "     Cipher = WECRLTEERDSOEEFEAOCAIVDEN\n";
-    cout << BLUE << "_________________________________________________________________\n" << RESET;
-    pauseConsole();
 }
 
 void about(){
@@ -411,14 +238,14 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                     Last update 03 January 2026                           " << RESET << endl;
+        cout << WHITE << "                     Last update 04 January 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
         cout << YELLOW << "[1] " << RESET << "Symmetric Algorithms " << YELLOW << "            [5] " << RESET << "Advanced Cryptography " << endl;
         cout << YELLOW << "[2] " << RESET << "Asymmetric Algorithms" << YELLOW << "            [6] " << RESET << "Capture The Flag (CTF)" << endl;
         cout << YELLOW << "[3] " << RESET << "Hashing Algoritms    " << YELLOW << "            [7] " << RESET << "About"                  << endl;
-        cout << YELLOW << "[4] " << RESET << "Other Algorithms     " << YELLOW << "            [8] " << RESET << "Help"                   << endl;
+        cout << YELLOW << "[4] " << RESET << "Other Algorithms     " << YELLOW << "            [8] " << RESET << "Exit"                   << endl;
         cout << BLUE << "_________________________________________________________________\n" << RESET;
         cout << endl;
         cout << YELLOW << "[>] " << RESET<< "Enter your choice: ";
@@ -426,9 +253,10 @@ int main() {
 
         cout << endl;
 
-        if (choice == "8" || choice == "08" || choice == "Help" || choice == "HELP") {
-            displayHelp();  // Display the help menu when the user selects "9"
-            continue;  // Skip the rest of the loop and show the menu again
+        if (choice == "8" || choice == "08" || choice == "Exit" || choice == "exit" || choice == "EXIT") {
+            Exit();
+            running = false;  // This will break the loop
+            break;            // Exit the loop immediately
         }
 
         else if (choice == "7" || choice == "07" || choice == "About" || choice == "about" || choice == "ABOUT"){
@@ -447,6 +275,7 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Transposition Cipher" << endl;
             cout << YELLOW << "[3]" << RESET << " Hill Cipher" << endl;
             cout << YELLOW << "[4]" << RESET << " Advanced Encryption Standard (AES)" << endl;
+            cout << YELLOW << "[5]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -461,6 +290,7 @@ int main() {
                 cout << YELLOW << "[1]" << RESET << " Basic Shift Caesar" << endl;
                 cout << YELLOW << "[2]" << RESET << " Brute Force Caesar" << endl;
                 cout << YELLOW << "[3]" << RESET << " Polyalphabetic Caesar" << endl;
+                cout << YELLOW << "[4]" << RESET << " Help" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -568,6 +398,7 @@ int main() {
                     cout << YELLOW << "[1]" << RESET << " Polyalphabetic Cipher (keyword-based)" << endl;
                     cout << YELLOW << "[2]" << RESET << " Vigenere Cipher (keyword-based)" << endl;
                     cout << YELLOW << "[3]" << RESET << " Polyaphabetic Cipher (sequence-based)" << endl;
+                    cout << YELLOW << "[4]" << RESET << " Help" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -621,6 +452,10 @@ int main() {
                             cout << endl;
                             cout << GREEN << "[-] " << RESET << "Decrypted message: " << GREEN << caesar_polyalphabetic_decrypt(message, keyword, mapping) << RESET << endl;
                             cout << BLUE << "_________________________________________________________________\n" << RESET;
+                        }
+
+                        else if (sub_choice == "4" || sub_choice == "04" || sub_choice == "Help" || sub_choice == "help"){
+
                         }
 
                         else {
@@ -730,12 +565,91 @@ int main() {
             
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
                     }
+
+                    else if (poly_choice == "04" || poly_choice =="4" || poly_choice == "Help" || poly_choice == "help"){
+
+                                // Stage 2.2: Show Caesar Polyalphabetic Cipher
+                                cout << endl;
+                                cout << "     " << GREEN << "Caesar Polyalphabetic Cipher" << RESET << "\n";
+                                cout << endl;
+                                cout << "     A polyalphabetic cipher using multiple Caesar ciphers based on a keyword.\n";
+                                cout << endl;
+                                cout << "     Example   : Plaintext = WENEEDMORESUPPLIESFAST, Keyword = MEC\n";
+                                cout << endl;
+                                cout << "     Keyword   : M E C M E C M E C M E C M E C M E C M E C M\n";
+                                cout << "     Plaintext : W E N E E D M O R E S U P P L I E S F A S T\n";
+                                cout << "     Ciphertext: I I P Q I F Y S T Q W W B T N U I U R E U F\n";
+                        
+                                pauseConsole();
+
+                                // Stage 3: Show Vigenere Cipher
+                                cout << endl;
+                                cout << "     " << GREEN << "Vigenere Cipher" << RESET << "\n";
+                                cout << endl;
+                                cout << "     A polyalphabetic cipher that uses a keyword to shift letters.\n";
+                                cout << endl;
+                                cout << "     Example   : Plaintext = ATTACKATDAWN, Keyword = LEMON\n";
+                                cout << endl;
+                                cout << "     Plaintext : ATTACKATDAWN\n";
+                                cout << "     Key       : LEMONLEMONLE\n";
+                                cout << "     Ciphertext: LXFOPVEFRNHR\n";
+
+                    }
                     
                     else {
                         cout << endl;
                         cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
                         cout << endl;
                     }
+                }
+
+                else if (sub_choice == "04" || sub_choice == "4" || sub_choice == "Help" || sub_choice == "help"){
+                    // Stage 2: Show Caesar Cipher
+                    cout << "     " GREEN << "Caesar Cipher" RESET << "\n";
+                    cout << endl;
+                    cout << "     A substitution cipher where each letter of the plaintext is shifted by\n";
+                    cout << "     a fixed number.\n";
+                    cout << endl;
+                    cout << "     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26\n";
+                    cout << "     A B C D E F G H I J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z\n";
+                    cout << "     D E F G H I J K L M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z  A  B  C\n";
+                    cout << endl;
+                    cout << "     Example: Plaintext = HELLO, Shift = 3, Ciphertext = KHOOR\n";
+
+                    pauseConsole();
+
+                    // Stage 2.1: Show Caesar Brute Force
+                    cout << endl;
+                    cout << "     " << GREEN << "Caesar Brute Force" << RESET << "\n";
+                    cout << endl;
+                    cout << "     Shift 01: B C D E F G H I J K L M N O P Q R S T U V W X Y Z A\n";
+                    cout << "     Shift 02: C D E F G H I J K L M N O P Q R S T U V W X Y Z A B\n";
+                    cout << "     Shift 03: D E F G H I J K L M N O P Q R S T U V W X Y Z A B C\n";
+                    cout << "     Shift 04: E F G H I J K L M N O P Q R S T U V W X Y Z A B C D\n";
+                    cout << "     Shift 05: F G H I J K L M N O P Q R S T U V W X Y Z A B C D E\n";
+                    cout << "     Shift 06: G H I J K L M N O P Q R S T U V W X Y Z A B C D E F\n";
+                    cout << "     Shift 07: H I J K L M N O P Q R S T U V W X Y Z A B C D E F G\n";
+                    cout << "     Shift 08: I J K L M N O P Q R S T U V W X Y Z A B C D E F G H\n";
+                    cout << "     Shift 09: J K L M N O P Q R S T U V W X Y Z A B C D E F G H I\n";
+                    cout << "     Shift 10: K L M N O P Q R S T U V W X Y Z A B C D E F G H I J\n";
+                    cout << "     Shift 11: L M N O P Q R S T U V W X Y Z A B C D E F G H I J K\n";
+                    cout << "     Shift 12: M N O P Q R S T U V W X Y Z A B C D E F G H I J K L\n";
+                    cout << "     Shift 13: N O P Q R S T U V W X Y Z A B C D E F G H I J K L M\n";
+                    cout << "     Shift 14: O P Q R S T U V W X Y Z A B C D E F G H I J K L M N\n";
+                    cout << "     Shift 15: P Q R S T U V W X Y Z A B C D E F G H I J K L M N O\n";
+                    cout << "     Shift 16: Q R S T U V W X Y Z A B C D E F G H I J K L M N O P\n";
+                    cout << "     Shift 17: R S T U V W X Y Z A B C D E F G H I J K L M N O P Q\n";
+                    cout << "     Shift 18: S T U V W X Y Z A B C D E F G H I J K L M N O P Q R\n";
+                    cout << "     Shift 19: T U V W X Y Z A B C D E F G H I J K L M N O P Q R S\n";
+                    cout << "     Shift 20: U V W X Y Z A B C D E F G H I J K L M N O P Q R S T\n";
+                    cout << "     Shift 21: V W X Y Z A B C D E F G H I J K L M N O P Q R S T U\n";
+                    cout << "     Shift 22: W X Y Z A B C D E F G H I J K L M N O P Q R S T U V\n";
+                    cout << "     Shift 23: X Y Z A B C D E F G H I J K L M N O P Q R S T U V W\n";
+                    cout << "     Shift 24: Y Z A B C D E F G H I J K L M N O P Q R S T U V W X\n";
+                    cout << "     Shift 25: Z A B C D E F G H I J K L M N O P Q R S T U V W X Y\n";
+
+                    pauseConsole();
+
                 }
 
                 else {
@@ -754,6 +668,7 @@ int main() {
                 cout << YELLOW << "[1]" << RESET << " Basic Transposition Cipher" << endl;
                 cout << YELLOW << "[2]" << RESET << " Columnar Transposition Cipher" << endl;
                 cout << YELLOW << "[3]" << RESET << " Rail Fence Cipher" << endl;
+                cout << YELLOW << "[4]" << RESET << " Help" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -896,6 +811,53 @@ int main() {
                             cout << endl;
                     }
                 }
+
+                else if (sub_choice == "04" || sub_choice == "4" || sub_choice == "Help" || sub_choice == "help"){
+                    // Stage 4: Show Transposition Cipher
+                    cout << endl;
+                    cout << "    " << GREEN << "Transposition Cipher" << RESET << "\n";
+                    cout << endl;
+                    cout << "    A transposition cipher rearranges the letters of the plaintext.\n";
+                    cout << endl;
+                    cout << "    Example: Plaintext = HELLO, Rearranged = LOHEL\n";
+
+                    pauseConsole();
+
+                    // Stage 4.1: Show Columnar Transposition Cipher
+                    cout << endl;
+                    cout << "     " << GREEN << "Columnar Transposition Cipher" << RESET << "\n";
+                    cout << endl;
+                    cout << "     A transposition cipher where the plaintext is written in a grid and\n";
+                    cout << "     rearranged by key.\n";
+                    cout << endl;
+                    cout << "     Example: Plaintext = WEAREDISCOVEREDFLEEATONCE, Key = ZEBRAS\n";
+                    cout << endl;
+                    cout << "     6 3 2 4 1 5\n";
+                    cout << "     W E A R E D\n";
+                    cout << "     I S C O V E\n";
+                    cout << "     R E D F L E\n";
+                    cout << "     E A T O N C\n"; 
+                    cout << "     E Q K J E U\n";
+                    cout << endl;
+                    cout << "     Ciphertext: EVLNEACDTKESEAQROFOJDEECUWIREE\n";
+
+                    pauseConsole();
+
+                    // Stage 4.2: Show Rail Fence Cipher
+                    cout << endl;
+                    cout << "     " << GREEN << "Rail Fence Cipher" << RESET << "\n";
+                    cout << endl;
+                    cout << "     A transposition cipher where the message is written in a zigzag pattern.\n";
+                    cout << endl;
+                    cout << "     Example: Plaintext = WEAREDISCOVEREDFLEEATONCE, Key = 3\n";
+                    cout << endl;
+                    cout << "     W . . . E . . . C . . . R . . . L . . . T . . . E\n";
+                    cout << "     . E . R . D . S . O . E . E . F . E . A . O . C .\n";
+                    cout << "     . . A . . . I . . . V . . . D . . . E . . . N . .\n";
+                    cout << endl;
+                    cout << "     Cipher = WECRLTEERDSOEEFEAOCAIVDEN\n";
+      
+                }
                 
                 else {
                     cout << endl;
@@ -914,6 +876,17 @@ int main() {
                 cout << RED<< "[!]" << RESET << " Currently not available" << endl;
             }
 
+            else if (sym_choice == "05" || sym_choice == "5" || sym_choice == "Help" || sym_choice == "help"){
+
+                    cout << endl;
+                    cout << "     " << GREEN << "Symmetric Key Algorithm" << RESET << "\n";
+                    cout << endl;
+                    cout << "     Symmetric-key algorithms are algorithms for cryptography\n";
+                    cout << "     that use the same cryptographic keys for both the\n";
+                    cout << "     encryption of plaintext and the decryption of ciphertext.\n";
+
+            }
+
             else {
                 cout << endl;
                 cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
@@ -929,6 +902,7 @@ int main() {
             cout << endl;
             cout << YELLOW << "[1]" << RESET << " Rivest Shamir Adleman (RSA)" << endl;
             cout << YELLOW << "[2]" << RESET << " Diffie Hellman" << endl;
+            cout << YELLOW << "[3]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -1173,6 +1147,64 @@ int main() {
                 mitm.simulate(g, p, A_pub, B_pub);
             }
             }
+
+            else if (asym_choice == "03" || asym_choice == "3" || asym_choice == "Help" || asym_choice == "help"){
+                // Stage 1: Show RSA Algorithm
+                cout << BLUE << "\n___________________________ " << GREEN << "Help Menu" << RESET << BLUE << " ___________________________\n"<< RESET;
+                cout << endl;
+                cout << "     " << GREEN << "RSA (Rivest Shamir Adleman) Algorithm" << RESET << "\n";
+                cout << endl;
+                cout << "     RSA is a public-key encryption algorithm that uses two keys\n";
+                cout << "     A public key for encryption and a private key for decryption.\n";
+                cout << endl; 
+                cout << "     Choose p = 3 and q = 11\n";
+                cout << endl;
+                cout << "     Compute n = p * q\n";
+                cout << "               = 3 * 11\n"; 
+                cout << "               = 33\n";
+                cout << endl;
+                cout << "     Compute m = (p - 1) * (q - 1)\n";
+                cout << "               = (3 - 1) * (11 - 1)\n";
+                cout << "               = 2 * 10\n";
+                cout << "               = 20\n";
+                pauseConsole();
+                cout << "     Prime numbers < n (33) = 2,3,5,7,11,13,17,19,23,29,31\n";
+                cout << "     Valid prime numbers to represent e = 3,7,11,13,17,19,23,31\n";
+                cout << endl;
+                cout << "     d = ed-1/m, reminder =0\n";
+                cout << "       = (7)(3)-1/20\n";
+                cout << "       = 21-1/20\n";
+                cout << "       = 20/20\n";
+                cout << "       = 1\n";
+                cout << endl;
+                cout << "       Therefore d = 3\n";
+                cout << endl;
+                cout << "       message (m) = cipher (c) ^ d mod n\n";
+                cout << "       cipher (c) = message (m) ^ e mod n\n";
+                cout << endl;
+                cout << "       message = 2\n";
+                pauseConsole();
+                cout << "       c = m ^ e mod n\n";
+                cout << "         = 2 ^ 7 mod 33\n";
+                cout << "         = 128 mod 33\n";
+                cout << "         = 128/33\n";
+                cout << "         = 3.87\n";
+                cout << "         = 3 * 33\n";
+                cout << "         = 99\n";
+                cout << "         = 128 - 99\n";
+                cout << "         = 29\n";
+                cout << endl;
+                cout << "       m = c ^ d mod n\n";
+                cout << "         = 29 ^ 3 mod 33\n";
+                cout << "         = 24389 mod 33\n";
+                cout << "         = 24389/33\n";
+                cout << "         = 739.06\n";
+                cout << "         = 739 * 33\n";
+                cout << "         = 24387\n";
+                cout << "         = 24389 - 24387\n";
+                cout << "         = 2\n";
+    
+            }
             
             else {
                 cout << endl;
@@ -1190,6 +1222,7 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Secure Hash Algorithm (SHA)" << endl;
             cout << YELLOW << "[3]" << RESET << " Hash Identifier" << endl;
             cout << YELLOW << "[4]" << RESET << " Hash Reversor" << endl;
+            cout << YELLOW << "[5]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -1226,6 +1259,7 @@ int main() {
                     std::cout << YELLOW << "[1]" << RESET << " Use online browser\n";
                     std::cout << YELLOW << "[2]" << RESET << " Use local wordlist\n" << RESET;
                     std::cout << YELLOW << "[3]" << RESET << " Use online API\n";
+                    std::cout << YELLOW << "[4]" << RESET << " Help\n";
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     std::cout << YELLOW << "[>] " << RESET << "Enter option: ";
@@ -1257,6 +1291,22 @@ int main() {
                         cout << BLUE << "_________________________________________________________________\n" << RESET;
                     }
 
+                    else if (method == "4"){
+                        cout << "     " << GREEN << "MD5" << RESET << "\n";
+                        cout << endl;
+                        cout << "     The MD5 message-digest algorithm is a widely used hash\n";
+                        cout << "     function producing a 128-bit hash value.\n";
+                        cout << endl; 
+                        cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                        cout << endl;
+                        cout << "     Make sure you have a wordlist in this directory\n";
+                        cout << "     (/sokonalysis/src) named wordlist.txt to use option 2 \n"; 
+                        cout << "     for a local wordlist. You can download it via the GitHub\n"; 
+                        cout << "     installation guide lines or add one and rename it to\n"; 
+                        cout << "     wordlist.txt\n"; 
+
+                    }
+
                     else {
                         std::cout << RED << "[!] Invalid method choice." << RESET << std::endl;
                     }
@@ -1276,6 +1326,7 @@ int main() {
                     cout << endl;
                     cout << YELLOW << "[1]" << RESET << " SHA-1" << endl;
                     cout << YELLOW << "[2]" << RESET << " SHA-256" << endl;
+                    cout << YELLOW << "[3]" << RESET << " Help" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -1407,6 +1458,23 @@ int main() {
                                 cout << endl;
                         }
                     }
+
+                    else if (sha_choice == "03" || sha_choice == "3" || sha_choice == "Help" || sha_choice == "help"){
+                                    cout << endl;
+                                    cout << "     " << GREEN << "SHA" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     SHA1 (160-bit) and SHA256 (256-bit) are cryptographic hash\n";
+                                    cout << "     functions used to verify data integrity.\n";
+                                    cout << endl; 
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the option\n"; 
+                                    cout << "     which requires a local wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+
+                        }
                     
                     else {
                         cout << endl;
@@ -1463,6 +1531,17 @@ int main() {
                         std::cout << GREEN << "[-]" << RESET << " Result: " << GREEN << result << RESET << std::endl;
                         std::cout << BLUE << "_________________________________________________________________\n" << RESET;
                      }
+
+                     else if (hash_choice == "05" || hash_choice == "5" || hash_choice == "Help" || hash_choice == "help"){
+
+                        cout << endl;
+                        cout << "     " << GREEN << "Hashing Algorithm" << RESET << "\n";
+                        cout << endl;
+                        cout << "     A hashing algorithm is a mathematical function that\n";
+                        cout << "     transforms input data of any size into a fixed-length\n";
+                        cout << "     string of characters called a hash value or message digest.\n"; 
+
+                    }
 
                      else {
                             cout << endl;
@@ -1730,9 +1809,10 @@ int main() {
 
             cout << BLUE << "______________________" << RESET<< GREEN << " Corporate Services "<< RESET << BLUE << "______________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " Crack Passwords On Protected Files/Documents" << endl;
-            cout << YELLOW << "[02]" << RESET << " Crack Operating Systems User Passwords" << endl;
-            cout << YELLOW << "[03]" << RESET << " Crack Wi-Fi Passwords Using a Handshake File" << endl;
+            cout << YELLOW << "[1]" << RESET << " Crack Passwords On Protected Files/Documents" << endl;
+            cout << YELLOW << "[2]" << RESET << " Crack Operating Systems User Passwords" << endl;
+            cout << YELLOW << "[3]" << RESET << " Crack Wi-Fi Passwords Using a Handshake File" << endl;
+            cout << YELLOW << "[4]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1747,10 +1827,11 @@ int main() {
 
             cout << BLUE << "_____________________" << RESET<< GREEN << " Protected Files/Docs "<< RESET << BLUE << "______________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " Microsoft Office Document Password Remover" << endl;
-            cout << YELLOW << "[02]" << RESET << " Zipped File Password Remover" << endl;
-            cout << YELLOW << "[03]" << RESET << " RAR Archive File Password Remover" << endl;
-            cout << YELLOW << "[04]" << RESET << " 7z File Password Remover" << endl;
+            cout << YELLOW << "[1]" << RESET << " Microsoft Office Document Password Remover" << endl;
+            cout << YELLOW << "[2]" << RESET << " Zipped File Password Remover" << endl;
+            cout << YELLOW << "[3]" << RESET << " RAR Archive File Password Remover" << endl;
+            cout << YELLOW << "[4]" << RESET << " 7z File Password Remover" << endl;
+            cout << YELLOW << "[5]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1790,6 +1871,25 @@ int main() {
                         #endif
             }
 
+            else if (sub_adv_choice == "05" || sub_adv_choice == "5" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the option\n"; 
+                                    cout << "     which requires a default wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Tools" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     You need to be running Linux to use this option and\n";
+                                    cout << "     you need to have John The Ripper installed with its\n"; 
+                                    cout << "     sub-tools such as office2john, zip2john, rar2john\n"; 
+                                    cout << "     and 7z2john. You can install it with:\n"; 
+                                    cout << "     sudo apt install john -y\n"; 
+
+                        }
+
             else {
                 cout << endl;
                 cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
@@ -1804,8 +1904,9 @@ int main() {
 
             cout << BLUE << "_____________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "______________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
-            cout << YELLOW << "[02]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
+            cout << YELLOW << "[1]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
+            cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
+            cout << YELLOW << "[3]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1829,6 +1930,25 @@ int main() {
                         #endif
             }
 
+            else if (sub_adv_choice == "03" || sub_adv_choice == "3" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the option\n"; 
+                                    cout << "     which requires a default wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Tools" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     You need to be running Linux to use this option and\n";
+                                    cout << "     you need to have John The Ripper, unshadow and\n"; 
+                                    cout << "     impacket-secretsdump installed. You can install it with:\n"; 
+                                    cout << "     sudo apt install impacket-scripts\n"; 
+                                    cout << "     sudo apt install john -y\n"; 
+
+                        }
+
 
             else {
                 cout << endl;
@@ -1846,6 +1966,25 @@ int main() {
                         #endif
             }
 
+            else if (adv_choice == "04" || adv_choice == "4" || adv_choice == "Help" || adv_choice == "help"){ 
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the options\n"; 
+                                    cout << "     which require a default wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Tools" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     You need to be running Linux to use these options and\n";
+                                    cout << "     you need to have John The Ripper, unshadow, Aircrack-ng,\n"; 
+                                    cout << "     and impacket-secretsdump installed. You can install it with:\n"; 
+                                    cout << "     sudo apt install impacket-scripts -y\n"; 
+                                    cout << "     sudo apt install john -y\n"; 
+                                    cout << "     sudo apt install aircrack-ng -y\n";
+
+                        }
 
             else {
                 cout << endl;
@@ -1868,7 +2007,7 @@ int main() {
             cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[15]" << RESET << " Zipped File Password Crack" << endl;
             cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[16]" << RESET << " Steganography" << endl;
             cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[17]" << RESET << " ADFGX/ADFGVX" << endl;
-            cout << YELLOW << "[09]" << RESET << " AES                              " << RESET << YELLOW << "[18]" << RESET << " ?" << endl;
+            cout << YELLOW << "[09]" << RESET << " AES                              " << RESET << YELLOW << "[18]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2892,6 +3031,30 @@ int main() {
                                     system("python3 ADFGX-ADFGVX.py");
                         #endif
             }
+
+            else if (sub_choice == "18" || sub_choice == "Help" || sub_choice == "help"){
+                                    cout << "     " << GREEN << "About" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Capture the Flag (CTF) is a popular cybersecurity\n";
+                                    cout << "     competition where individuals or teams solve security\n"; 
+                                    cout << "     puzzles, exploit vulnerabilities, and 'capture flags'\n"; 
+                                    cout << "     (hidden text/code) to earn points.\n";  
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the options\n"; 
+                                    cout << "     which require a default wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Tools" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     You need to be running Linux to use these options and\n";
+                                    cout << "     you need to have John The Ripper installed. You can \n"; 
+                                    cout << "     install it with: sudo apt install john -y\n"; 
+
+            } 
 
             else {
                     cout << RED << "[x] " << RESET << "Invalid choice, please try again." << endl;
