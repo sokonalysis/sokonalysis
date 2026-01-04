@@ -278,6 +278,7 @@ solves a question manually.
 |                                       |                    | whirlpool             | ChaCha20                  |                                                                      |
 |                                       |                    |                       | Diffie-Hellman            |                                                                      |     
 |                                       |                    |                       | AES                       |                                                                      |
+|                                       |                    |                       | steghide                  |                                                                      |
 
 ## Contributors
 Thanks to everyone who has contributed!
