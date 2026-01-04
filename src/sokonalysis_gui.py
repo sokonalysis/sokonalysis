@@ -2,6 +2,7 @@
 import sys
 import os
 import subprocess
+import re
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QTextEdit, QLineEdit, QPushButton, QWidget, QMessageBox)
 from PyQt5.QtCore import QProcess, Qt, QThread, pyqtSignal
@@ -77,22 +78,73 @@ class SimpleCLIGUI(QMainWindow):
         self.current_format = QTextCharFormat()
         self.current_format.setForeground(QColor('#FFFFFF'))
         
-        # ANSI color mapping
+        # ANSI color mapping - matching your C++ code colors exactly
         self.ansi_colors = {
-            '30': QColor('#000000'), '31': QColor('#FF0000'), '32': QColor('#00FF00'),
-            '33': QColor('#FFFF00'), '34': QColor('#0000FF'), '35': QColor('#FF00FF'),
-            '36': QColor('#00FFFF'), '37': QColor('#FFFFFF'), '90': QColor('#808080'),
-            '91': QColor('#FF8080'), '92': QColor('#80FF80'), '93': QColor('#FFFF80'),
-            '94': QColor('#8080FF'), '95': QColor('#FF80FF'), '96': QColor('#80FFFF'),
-            '97': QColor('#FFFFFF'),
+            # Standard colors (30-37)
+            '30': QColor('#000000'),  # BLACK
+            '31': QColor('#FF0000'),  # RED
+            '32': QColor('#00FF00'),  # GREEN
+            '33': QColor('#FFFF00'),  # YELLOW
+            '34': QColor('#0000FF'),  # BLUE
+            '35': QColor('#FF00FF'),  # MAGENTA
+            '36': QColor('#00FFFF'),  # CYAN
+            '37': QColor('#FFFFFF'),  # WHITE
+            
+            # Bright colors (90-97) - matching your Python script
+            '90': QColor('#808080'),  # GRAY
+            '91': QColor('#FF0000'),  # BRIGHT RED (same as RED for consistency)
+            '92': QColor('#00FF00'),  # BRIGHT GREEN (same as GREEN)
+            '93': QColor('#FFFF00'),  # BRIGHT YELLOW (same as YELLOW)
+            '94': QColor('#0000FF'),  # BRIGHT BLUE (same as BLUE)
+            '95': QColor('#FF00FF'),  # BRIGHT MAGENTA (same as MAGENTA)
+            '96': QColor('#00FFFF'),  # BRIGHT CYAN (same as CYAN)
+            '97': QColor('#FFFFFF'),  # BRIGHT WHITE (same as WHITE)
+            
+            # Custom colors from your Python script
+            '38;5;208': QColor('#FFA500'),  # ORANGE (from your C++ ORANGE)
+            
+            # Background colors (not commonly used in your scripts)
+            '40': QColor('#000000'),  # BLACK BG
+            '41': QColor('#FF0000'),  # RED BG
+            '42': QColor('#00FF00'),  # GREEN BG
+            '43': QColor('#FFFF00'),  # YELLOW BG
+            '44': QColor('#0000FF'),  # BLUE BG
+            '45': QColor('#FF00FF'),  # MAGENTA BG
+            '46': QColor('#00FFFF'),  # CYAN BG
+            '47': QColor('#FFFFFF'),  # WHITE BG
         }
         
-        # Color name to QColor mapping
+        # Color attributes
+        self.bold = False
+        self.underline = False
+        self.italic = False
+        
+        # Color name to QColor mapping for system messages
+        # Using exact colors from your C++ and Python scripts
         self.color_map = {
-            '#FFFFFF': QColor('#FFFFFF'), '#888888': QColor('#888888'),
-            '#FF4444': QColor('#FF4444'), '#00FF00': QColor('#00FF00'),
-            '#FFFF00': QColor('#FFFF00'), '#FFA500': QColor('#FFA500'),
-            '#00FFFF': QColor('#00FFFF'), '#CCCCCC': QColor('#CCCCCC')
+            # Basic colors from C++ macros
+            '#FFFFFF': QColor('#FFFFFF'),  # WHITE
+            '#888888': QColor('#888888'),  # GRAY
+            '#FF4444': QColor('#FF4444'),  # ERROR RED
+            '#00FF00': QColor('#00FF00'),  # GREEN
+            '#FFFF00': QColor('#FFFF00'),  # YELLOW
+            '#FFA500': QColor('#FFA500'),  # ORANGE
+            '#00FFFF': QColor('#00FFFF'),  # CYAN
+            '#CCCCCC': QColor('#CCCCCC'),  # LIGHT GRAY
+            
+            # Colors from your C++ defines
+            '#FF0000': QColor('#FF0000'),  # RED
+            '#0000FF': QColor('#0000FF'),  # BLUE
+            '#FF00FF': QColor('#FF00FF'),  # MAGENTA
+            
+            # Additional colors from Python script
+            '#808080': QColor('#808080'),  # GRAY (bright black)
+            '#FF8080': QColor('#FF8080'),  # BRIGHT RED variant
+            '#80FF80': QColor('#80FF80'),  # BRIGHT GREEN variant
+            '#FFFF80': QColor('#FFFF80'),  # BRIGHT YELLOW variant
+            '#8080FF': QColor('#8080FF'),  # BRIGHT BLUE variant
+            '#FF80FF': QColor('#FF80FF'),  # BRIGHT MAGENTA variant
+            '#80FFFF': QColor('#80FFFF'),  # BRIGHT CYAN variant
         }
         
         self.setup_ui()
@@ -222,41 +274,99 @@ class SimpleCLIGUI(QMainWindow):
         font = QFont("Courier New", self.font_size)
         self.output.setFont(font)
     
+    def apply_text_attributes(self, format):
+        """Apply bold, underline, italic attributes to text format"""
+        if self.bold:
+            format.setFontWeight(QFont.Bold)
+        else:
+            format.setFontWeight(QFont.Normal)
+        
+        format.setFontUnderline(self.underline)
+        format.setFontItalic(self.italic)
+    
     def process_ansi_codes(self, text):
         """Process ANSI color codes and apply them to the text"""
         cursor = self.output.textCursor()
         cursor.movePosition(QTextCursor.End)
         
-        i = 0
-        while i < len(text):
-            if text[i] == '\x1b' and i + 1 < len(text) and text[i + 1] == '[':
-                i += 2
-                code_str = ""
-                while i < len(text) and text[i] not in 'mHJK':
-                    code_str += text[i]
-                    i += 1
-                i += 1
+        # Use regex to find all ANSI escape sequences
+        pattern = r'(\x1b\[[0-9;]*[a-zA-Z])'
+        parts = re.split(pattern, text)
+        
+        for part in parts:
+            if not part:
+                continue
+            
+            # Check if this part is an ANSI escape sequence
+            if part.startswith('\x1b['):
+                # Process the ANSI code
+                code_str = part[2:-1]  # Remove '\x1b[' and final character
+                codes = code_str.split(';')
                 
-                if code_str:
-                    codes = code_str.split(';')
-                    for code in codes:
-                        if code in self.ansi_colors:
-                            self.current_format.setForeground(self.ansi_colors[code])
-                        elif code == '0':
-                            self.current_format.setForeground(QColor('#FFFFFF'))
+                for code in codes:
+                    if not code:
+                        continue
+                    
+                    # Handle reset
+                    if code == '0':
+                        self.current_format.setForeground(QColor('#FFFFFF'))
+                        self.current_format.setBackground(QColor('#000000'))
+                        self.bold = False
+                        self.underline = False
+                        self.italic = False
+                    
+                    # Handle text attributes
+                    elif code == '1':
+                        self.bold = True
+                    elif code == '4':
+                        self.underline = True
+                    elif code == '3':
+                        self.italic = True
+                    elif code == '22':  # Reset bold
+                        self.bold = False
+                    elif code == '24':  # Reset underline
+                        self.underline = False
+                    elif code == '23':  # Reset italic
+                        self.italic = False
+                    
+                    # Handle colors (including custom 38;5;208 for ORANGE)
+                    elif code in self.ansi_colors:
+                        self.current_format.setForeground(self.ansi_colors[code])
+                    
+                    # Handle background colors (40-47, 100-107)
+                    elif code in self.ansi_colors:
+                        self.current_format.setBackground(self.ansi_colors[code])
+                    
+                    # Handle special cases for Python script colors
+                    elif code == '91':  # Bright red from Python
+                        self.current_format.setForeground(QColor('#FF0000'))
+                    elif code == '92':  # Bright green from Python
+                        self.current_format.setForeground(QColor('#00FF00'))
+                    elif code == '93':  # Bright yellow from Python
+                        self.current_format.setForeground(QColor('#FFFF00'))
+                    elif code == '96':  # Bright cyan from Python
+                        self.current_format.setForeground(QColor('#00FFFF'))
+                    elif code == '95':  # Bright magenta from Python
+                        self.current_format.setForeground(QColor('#FF00FF'))
+                    elif code == '94':  # Bright blue from Python
+                        self.current_format.setForeground(QColor('#0000FF'))
+                
+                # Apply current attributes
+                self.apply_text_attributes(self.current_format)
+            
             else:
-                cursor.insertText(text[i], self.current_format)
-                i += 1
+                # This is regular text, apply the current format
+                cursor.insertText(part, self.current_format)
+        
+        self.output.moveCursor(QTextCursor.End)
     
     def handle_output(self):
         data = self.process.readAllStandardOutput().data().decode('utf-8', errors='ignore')
         self.process_ansi_codes(data)
-        self.output.moveCursor(QTextCursor.End)
     
     def handle_error(self):
         data = self.process.readAllStandardError().data().decode('utf-8', errors='ignore')
         self.process_ansi_codes(data)
-        self.output.moveCursor(QTextCursor.End)
     
     def start_sokonalysis(self):
         """Start sokonalysis process"""
@@ -407,6 +517,11 @@ General:
         """Append text to output with optional color"""
         cursor = self.output.textCursor()
         cursor.movePosition(QTextCursor.End)
+        
+        # First check if the text contains ANSI codes
+        if '\x1b[' in text:
+            self.process_ansi_codes(text)
+            return
         
         if color_name and color_name in self.color_map:
             format = QTextCharFormat()
