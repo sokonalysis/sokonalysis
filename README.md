@@ -27,7 +27,7 @@ This tool is used to create a merged hash of a Windows user account from the **S
 sudo apt install impacket-scripts -y
 ````
 ### John The Ripper
-This tool is used to crack protected file/document passwords provided by the users by using the sub-tools such as **zip2john** (cracking Zipped files), **rar2john** (cracking RAR archived files), **7z2john** (cracking 7z files), **hccap2john** (cracking Wi-Fi passwords) which extract the hash for john to crack.
+This tool is used to crack protected file/document passwords provided by the users by using the sub-tools such as **zip2john** (cracking Zipped files), **rar2john** (cracking RAR archived files), **7z2john** (cracking 7z files), **hccap2john** (cracking Wi-Fi passwords) and **bitlocker2john** (cracking Windows Bitlocker) which extract the hash for john to crack.
 
 ````bash
 sudo apt install john -y
@@ -274,7 +274,7 @@ solves a question manually.
 | Transposition Cipher                  | Diffie Hellman     | SHA                   | FactorDB                  |  Recover forgotten passwords on protected zip, 7z, pdf and RAR files |
 | Hill Cipher                           |                    | lm                    | Substitution Cipher       |  Crack user account password (s) on both Linux and Windows           |
 |                                       |                    | ntlm                  | Morse Code                |  Crack a Wi-Fi password using a captured handshake file              |
-|                                       |                    | mysql                 | Base64 Decoder            |                                                                      |            |                                       |                    | ripemd160             | ROT13                     |                                                                      |   
+|                                       |                    | mysql                 | Base64 Decoder            |  Crack Windows BitLocker using an Image File                         |            |                                       |                    | ripemd160             | ROT13                     |                                                                      |   
 |                                       |                    | whirlpool             | ChaCha20                  |                                                                      |
 |                                       |                    |                       | Diffie-Hellman            |                                                                      |     
 |                                       |                    |                       | AES                       |                                                                      |
