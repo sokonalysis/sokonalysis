@@ -2996,6 +2996,7 @@ int main() {
                 cout << YELLOW << "[1]" << RESET << " LSB (PNG)" << endl;
                 cout << YELLOW << "[2]" << RESET << " Whitespace Cipher (Invisible)" << endl;
                 cout << YELLOW << "[3]" << RESET << " Hidden Content (Excel)" << endl;
+                cout << YELLOW << "[4]" << RESET << " Steghide (Embed/Extract Data From Image/Audio File)" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -3028,6 +3029,15 @@ int main() {
                                     system("py -3 excel_hidden_info_crack.py");
                         #else
                                     system("python3 excel_hidden_info_crack.py");
+                        #endif
+                }
+
+                else if (steg_choice == "4" || steg_choice == "04") {
+                    cout << endl;
+                        #ifdef _WIN32
+                                    system("py -3 steghide.py");
+                        #else
+                                    system("python3 steghide.py");
                         #endif
                 }
 
