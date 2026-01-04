@@ -16,7 +16,28 @@ sokonalysis from the word cryptanalysis is a cryptographic tool developed by Sok
 - [Usage](#Usage)
 
 ## Requirements
-The file named **wordlist.txt** is needed for local wordlist for the hashing algorithms md5, sha1 and sha256 but if you wish to customize it, add your own text in the same text file and keep it in the same folder as the tool.
+### Wordlist
+The file named **wordlist.txt** is needed for local/default wordlist for the hashing algorithms md5, sha1 and sha256, and cracking passwords with John The Ripper but if you wish to customize it, add your own wordlist in the /sokonalysis/src directory and rename it to wordlist.txt.
+
+### Linux Tools
+#### impacket-secretsdump
+This tool is used to create a merged hash of a Windows user account from the **SYSTEM** and **SAM** file provided by the user in Advanced Cryptography under Crack Operating Systems User Passwords.
+
+````bash
+sudo apt install impacket-scripts -y
+````
+### John The Ripper
+This tool is used to crack protected file/document passwords provided by the users by using the sub-tools such as **zip2john** (cracking Zipped files), **rar2john** (cracking RAR archived files), **7z2john** (cracking 7z files), **hccap2john** (cracking Wi-Fi passwords) which extract the hash for john to crack.
+
+````bash
+sudo apt install john -y
+````
+### Aircrack-ng
+This tool is used to convert the **.cap** handshake file provided by the user to **.hccap** file that **hccap2john** will extract the hash from for **john** to crack the Wi-Fi password.
+
+````bash
+sudo apt install aircrack-ng -y
+````
 
 ## Collaborator 
 For every git clone command on the download option, use these commands below if you have access to the repository.
