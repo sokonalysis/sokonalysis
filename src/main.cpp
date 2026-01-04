@@ -1915,7 +1915,8 @@ int main() {
             cout << endl;
             cout << YELLOW << "[1]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
             cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
-            cout << YELLOW << "[3]" << RESET << " Help" << endl;
+            cout << YELLOW << "[3]" << RESET << " Crack Windows Bitlocker Password From An Image File" << endl;
+            cout << YELLOW << "[4]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1939,7 +1940,15 @@ int main() {
                         #endif
             }
 
-            else if (sub_adv_choice == "03" || sub_adv_choice == "3" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
+            else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
+                #ifdef _WIN32
+                                    system("py -3 bitlocker2john.py");
+                        #else
+                                    system("python3 bitlocker2john.py");
+                        #endif
+            }
+
+            else if (sub_adv_choice == "04" || sub_adv_choice == "4" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
                                     cout << "     " << GREEN << "Requirements" << RESET << "\n";
                                     cout << endl;
                                     cout << "     Make sure you have a wordlist in this directory\n";
