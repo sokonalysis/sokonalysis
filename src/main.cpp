@@ -1831,7 +1831,8 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Zipped File Password Remover" << endl;
             cout << YELLOW << "[3]" << RESET << " RAR Archive File Password Remover" << endl;
             cout << YELLOW << "[4]" << RESET << " 7z File Password Remover" << endl;
-            cout << YELLOW << "[5]" << RESET << " Help" << endl;
+            cout << YELLOW << "[5]" << RESET << " PDF File Password Remover" << endl;
+            cout << YELLOW << "[6]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1871,7 +1872,15 @@ int main() {
                         #endif
             }
 
-            else if (sub_adv_choice == "05" || sub_adv_choice == "5" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
+            else if (sub_adv_choice == "05" || sub_adv_choice == "5"){
+                #ifdef _WIN32
+                                    system("py -3 pdf2john.py");
+                        #else
+                                    system("python3 pdf2john.py");
+                        #endif
+            }
+
+            else if (sub_adv_choice == "06" || sub_adv_choice == "6" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
                                     cout << "     " << GREEN << "Requirements" << RESET << "\n";
                                     cout << endl;
                                     cout << "     Make sure you have a wordlist in this directory\n";
