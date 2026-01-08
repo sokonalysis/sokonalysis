@@ -9,11 +9,12 @@
 ## About
 sokonalysis from the word cryptanalysis is a cryptographic tool developed by Soko James and it seeks to decrypt encrypted messages or break cryptographic systems with or without the secret key. Meant for University Students, Capture The Flag (CTF) competitions and Organizations to apply cryptography as a field. Officially released on 8th September, 2025 and copyrighted under Kapasa Makasa University till 1st September, 2026.
 
+
 ## Table of Content
 - [Requirements](#Requirements)
-- [Windows](#Windows)
-- [Linux](#Linux)
+- [Download](#Download)
 - [Usage](#Usage)
+
 
 ## Requirements
 ### Wordlist
@@ -26,22 +27,23 @@ This tool is used to create a merged hash of a Windows user account from the **S
 ````bash
 sudo apt install impacket-scripts -y
 ````
-### John The Ripper
+#### John The Ripper
 This tool is used to crack protected file/document passwords provided by the users by using the sub-tools such as **zip2john** (cracking Zipped files), **rar2john** (cracking RAR archived files), **7z2john** (cracking 7z files), **hccap2john** (cracking Wi-Fi passwords) and **bitlocker2john** (cracking Windows Bitlocker) which extract the hash for john to crack.
 
 ````bash
 sudo apt install john -y
 ````
-### Aircrack-ng
+#### Aircrack-ng
 This tool is used to convert the **.cap** handshake file provided by the user to **.hccap** file that **hccap2john** will extract the hash from for **john** to crack the Wi-Fi password.
 
 ````bash
 sudo apt install aircrack-ng -y
 ````
-# Download 
-## Windows
-### Dependencies
-#### MSYS2
+
+## Download 
+### Windows
+#### Dependencies
+##### MSYS2
 Download [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe)
 Install MSYS2 and run the following command:
 ````bash
@@ -54,7 +56,7 @@ pacman -Su
 pacman -S base-devel mingw-w64-x86_64-toolchain git
 ````
    
-#### MSYS2 MINGW64 Terminal
+##### MSYS2 MINGW64 Terminal
 ````bash
 pacman -S mingw-w64-x86_64-gcc
 ````
@@ -70,6 +72,7 @@ pacman -S mingw-w64-x86_64-curl
 ````bash
 pacman -S mingw-w64-x86_64-openssl
 ````
+##### Download 
 ```bash
 git clone https://github.com/sokonalysis/sokonalysis.git
 ```
@@ -79,9 +82,11 @@ cd sokonalysis
 ````bash
 cd src
 ````
+##### Wordlist
 ````bash
 curl -L -o wordlist.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
 ````
+##### Crypto++
 ````bash
 pacman -S --needed make git
 ````
@@ -98,15 +103,16 @@ make CXX=g++ -j$(nproc)
 cd ..
 ````
 
-### Build & Run
+#### Build & Run
 ````bash
 g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
 ````
 ````bash
 ./sokonalysis
 ````
+
    
-## Linux   
+### Linux   
 ```bash
 git clone https://github.com/sokonalysis/sokonalysis.git
 ```
@@ -117,7 +123,7 @@ cd sokonalysis
 cd src
 ````
 
-### Virtual Environment 
+#### Virtual Environment 
 ```bash
 python3 -m venv pythonvenv
 ```
@@ -125,7 +131,7 @@ python3 -m venv pythonvenv
 source pythonvenv/bin/activate
 ````
 
-### Requirements
+#### Requirements
 ````bash
 sudo apt update
 ````
@@ -145,12 +151,12 @@ sudo apt install nlohmann-json3-dev
 pip install -r requirements.txt
 ````
 
-### Wordlist
+#### Wordlist
 ````bash
 curl -L -o wordlist.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
 ````
 
-### Build & Run
+#### Build & Run
 ````bash
 g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
 ````
@@ -159,6 +165,7 @@ g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -l
 ````
 <img width="801" height="369" alt="Image" src="https://github.com/user-attachments/assets/e820ae6f-bb1a-47c4-aa63-d9f53d1b77b3" />
 <img width="802" height="537" alt="Image" src="https://github.com/user-attachments/assets/0e85c138-0a19-44d5-a13d-043db89b34a0" />
+
 
 ### GUI
 ````bash
@@ -170,11 +177,12 @@ python3 sokonalysis_gui.py
 
 <img width="404" height="314" alt="Image" src="https://github.com/user-attachments/assets/33349e08-6bde-4b2d-8c5c-bcdc6964dc6d" />
 
+
 ## Usage
 
 [Official sokonalysis YouTube Guide Playlist](https://youtube.com/playlist?list=PLbkdoTM3A8aOFijcnaxCZGhZklM5RsbaL&si=Yoo6r6xL3Y5DtohM)
 
-1. ## University Level
+1. ### University Level
    University students taking Cryptography as a course can utilize option 1 – 4 to automate their work. You don’t need internet connection (except options involving APIs or external websites) to perform these tasks but just some questions you can utilize. This tool will act as an offline calculator to verify the answers after a student 
 solves a question manually.
    Lets take an RSA example from Kapasa Makasa University CYS110 2025 Test 1;
@@ -208,14 +216,14 @@ solves a question manually.
 
    <img width="801" height="309" alt="Image" src="https://github.com/user-attachments/assets/d0bb4f2e-0253-44d8-9094-17384e5a9b66" />
 
-3. ## CTF Level
+3. ### CTF Level
    Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberTalents](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
 
    <img width="800" height="425" alt="Image" src="https://github.com/user-attachments/assets/9423dd1c-03d8-4ecd-8ecc-2de091b61ecf" />
 
     Let’s jump into these challenges!!!
 
-   ### [No Padding, no problem](https://play.picoctf.org/practice/challenge/154?category=2&page=3&search=) <br>
+   #### [No Padding, no problem](https://play.picoctf.org/practice/challenge/154?category=2&page=3&search=) <br>
    `STEP 1` <br>
    Connect to the challenge server with the command nc mercury.picoctf.net 42248 in Linux or ncat mercury.picoctf.net 42248 on Windows CMD if you have Nmap - Zenmap GUI installed.
 
@@ -240,14 +248,15 @@ solves a question manually.
    Finally, decrypt the cipher to get the flag with the new cipher text from the server.
 
    <img width="801" height="227" alt="Image" src="https://github.com/user-attachments/assets/cb763413-c696-43e1-94e0-11c6703ea639" />
-   
-5. ## Advanced Level
-   # Cracking Protected Microsoft Office Documents
+
+5. ### Advanced Level
+   #### Cracking Protected Microsoft Office Documents
    Select option [5] Advanced Cryptography and then [1] Microsoft Office Document Password Remover
 
    <img width="796" height="623" alt="Image" src="https://github.com/user-attachments/assets/e3a105eb-39a2-48a3-ac3a-92f9e4cb7a73" />
 
-# Supported Algorithms
+
+## Supported Algorithms
 
 | **Symmetric**                         | **Asymmetric**     | **Hashing**           | **Capture The Flag (CTF)**| **Advanced Cryptography**                                            |
 |---------------------------------------|--------------------|-----------------------|---------------------------|----------------------------------------------------------------------|
