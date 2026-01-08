@@ -318,9 +318,6 @@ if [ -f "${HERE}/usr/share/sokonalysis/wordlist.txt" ]; then
     # Your C++ binary should look for wordlist.txt in this path
     export SOKO_WORDLIST="${HERE}/usr/share/sokonalysis/wordlist.txt"
 fi
-````
-
-````bash
 exec "${HERE}/usr/bin/sokonalysis" "$@"
 EOF
 ````
@@ -337,7 +334,7 @@ Comment=The Cipher Toolkit Built For All Skill Levels
 Exec=sokonalysis
 Icon=sokonalysis
 Type=Application
-Categories=Cryptography;Utility;Security;ConsoleOnly;
+Categories=Utility;Security;ConsoleOnly;
 Terminal=true
 EOF
 ````
