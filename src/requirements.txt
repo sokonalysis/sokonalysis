@@ -1,7 +1,7 @@
 pycryptodome==3.20.0
 sympy
 colorama
-gmpy2==2.1.5
+gmpy2==2.2.0
 pillow
 cryptography
 msoffcrypto-tool
