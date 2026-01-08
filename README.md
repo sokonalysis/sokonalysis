@@ -38,7 +38,7 @@ This tool is used to convert the **.cap** handshake file provided by the user to
 ````bash
 sudo apt install aircrack-ng -y
 ````
-
+# Download 
 ## Windows
 ### Dependencies
 #### MSYS2
@@ -107,7 +107,6 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 ````
    
 ## Linux   
-### Download
 ```bash
 git clone https://github.com/sokonalysis/sokonalysis.git
 ```
@@ -125,9 +124,6 @@ python3 -m venv pythonvenv
 ```bash
 source pythonvenv/bin/activate
 ````
-````bash
-pip install -r requirements.txt
-````
 
 ### Requirements
 ````bash
@@ -140,8 +136,16 @@ sudo apt install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 sudo apt install libcrypto++-dev libssl-dev libcurl4-openssl-dev libgmp-dev libgmpxx4ldbl g++
 ````
 ````bash
+sudo apt install libgmp-dev libmpfr-dev libmpc-dev
+````
+````bash
 sudo apt install nlohmann-json3-dev
 ````
+````bash
+pip install -r requirements.txt
+````
+
+### Wordlist
 ````bash
 curl -L -o wordlist.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
 ````
