@@ -69,6 +69,8 @@ cat > AppDir/AppRun << 'EOF'
 H=$(dirname "$(readlink -f "${0}")")
 export PYTHONPATH="$H/usr/share/sokonalysis"
 
+export SOKO_WORDLIST="$H/usr/share/sokonalysis/wordlist.txt"
+
 # Where the user actually is
 WHERE_USER_IS="$(pwd -P)"
 
