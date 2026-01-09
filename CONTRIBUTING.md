@@ -74,13 +74,9 @@ export PYTHONPATH="${HERE}/usr/share/sokonalysis:${PYTHONPATH}"
 export PATH="${HERE}/usr/share/sokonalysis:${PATH}"
 export SOKO_WORDLIST="${HERE}/usr/share/sokonalysis/wordlist.txt"
 
-# CRITICAL: Always start in directory where user ran the AppImage
-USERDIR="$(pwd)"
-cd "$USERDIR"
-echo "📁 Working directory: $USERDIR"
-echo "💡 Place your files here or use full paths when prompted"
+# Always run from script directory so Python scripts can find each other
+cd "${HERE}/usr/share/sokonalysis"
 
-# Run the CLI
 exec "${HERE}/usr/bin/sokonalysis" "$@"
 EOF
 ````
