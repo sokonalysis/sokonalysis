@@ -70,15 +70,21 @@ H=$(dirname "$(readlink -f "${0}")")
 S="$H/usr/share/sokonalysis"
 export PYTHONPATH="$S"
 
-# Find or create sokonalysis/src
-U="$HOME/sokonalysis/src"
+# Get REAL user home (not root)
+REAL_USER=${SUDO_USER:-$USER}
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+[ -z "$REAL_HOME" ] && REAL_HOME="$HOME"
+
+# Use real user's directory
+U="$REAL_HOME/sokonalysis/src"
 [ -d "/sokonalysis/src" ] && U="/sokonalysis/src"
 [ ! -d "$U" ] && mkdir -p "$U"
 
-# Link scripts there
+# Link scripts
 for p in "$S"/*.py; do [ -f "$p" ] && ln -sf "$p" "$U/"; done
 
 cd "$U"
+echo "Working in: $U"
 exec "$H/usr/bin/sokonalysis" "$@"
 EOF
 ````
