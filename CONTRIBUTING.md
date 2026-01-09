@@ -79,6 +79,8 @@ for py in "$H/usr/share/sokonalysis"/*.py; do
     ln -sf "$py" "$WHERE_USER_IS/" 2>/dev/null
 done
 
+ln -sf "$H/usr/share/sokonalysis/wordlist.txt" "$WHERE_USER_IS/" 2>/dev/null
+
 # Stay in user's directory
 cd "$WHERE_USER_IS"
 exec "$H/usr/bin/sokonalysis" "$@"
