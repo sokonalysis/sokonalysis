@@ -67,8 +67,18 @@ ldd sokonalysis | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' AppD
 cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
 H=$(dirname "$(readlink -f "${0}")")
-export PYTHONPATH="$H/usr/share/sokonalysis"
-cd "$(find "$HOME" / -maxdepth 4 -type d -path "*/sokonalysis/src" 2>/dev/null | head -1 || echo "$H/usr/share/sokonalysis")"
+S="$H/usr/share/sokonalysis"
+export PYTHONPATH="$S"
+
+# Find or create sokonalysis/src
+U="$HOME/sokonalysis/src"
+[ -d "/sokonalysis/src" ] && U="/sokonalysis/src"
+[ ! -d "$U" ] && mkdir -p "$U"
+
+# Link scripts there
+for p in "$S"/*.py; do [ -f "$p" ] && ln -sf "$p" "$U/"; done
+
+cd "$U"
 exec "$H/usr/bin/sokonalysis" "$@"
 EOF
 ````
