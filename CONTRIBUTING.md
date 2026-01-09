@@ -66,39 +66,10 @@ ldd sokonalysis | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' AppD
 ````bash
 cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
-HERE="$(dirname "$(readlink -f "${0}")")"
-SCRIPT_DIR="${HERE}/usr/share/sokonalysis"
-
-# 1. PYTHONPATH so Python scripts can import each other
-export PYTHONPATH="${SCRIPT_DIR}:${PYTHONPATH}"
-
-# 2. Other environment
-export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-export PATH="${SCRIPT_DIR}:${PATH}"
-export SOKO_WORDLIST="${SCRIPT_DIR}/wordlist.txt"
-
-# 3. Find user's sokonalysis/src directory
-# Search for ANY directory ending with /sokonalysis/src
-USER_SOKO_DIR=""
-for dir in "$(pwd)" "$HOME" "$HOME/Desktop" "$HOME/Documents" "$HOME/Downloads" "/"; do
-    found=$(find "$dir" -maxdepth 3 -type d -path "*/sokonalysis/src" 2>/dev/null | head -1)
-    if [ -n "$found" ]; then
-        USER_SOKO_DIR="$found"
-        break
-    fi
-done
-
-# 4. If found, cd to it. Otherwise stay in script dir for Python.
-if [ -n "$USER_SOKO_DIR" ] && [ -d "$USER_SOKO_DIR" ]; then
-    cd "$USER_SOKO_DIR"
-    echo "Found user directory: $USER_SOKO_DIR"
-else
-    cd "$SCRIPT_DIR"
-    echo "Using default directory. Create: ~/sokonalysis/src"
-fi
-
-# 5. Run CLI
-exec "${HERE}/usr/bin/sokonalysis" "$@"
+H=$(dirname "$(readlink -f "${0}")")
+export PYTHONPATH="$H/usr/share/sokonalysis"
+cd "$(find "$HOME" / -maxdepth 4 -type d -path "*/sokonalysis/src" 2>/dev/null | head -1 || echo "$H/usr/share/sokonalysis")"
+exec "$H/usr/bin/sokonalysis" "$@"
 EOF
 ````
 
