@@ -74,8 +74,14 @@ export PYTHONPATH="${HERE}/usr/share/sokonalysis:${PYTHONPATH}"
 export PATH="${HERE}/usr/share/sokonalysis:${PATH}"
 export SOKO_WORDLIST="${HERE}/usr/share/sokonalysis/wordlist.txt"
 
-# Always run from script directory so Python scripts can find each other
-cd "${HERE}/usr/share/sokonalysis"
+# Find or use sokonalysis/src directory
+if [ -d "/sokonalysis/src" ]; then
+    cd "/sokonalysis/src"
+elif [ -d "$HOME/sokonalysis/src" ]; then
+    cd "$HOME/sokonalysis/src"
+fi
+
+ls -la 2>/dev/null | head -5
 
 exec "${HERE}/usr/bin/sokonalysis" "$@"
 EOF
