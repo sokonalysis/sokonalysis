@@ -68,20 +68,19 @@ cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
 HERE="$(dirname "$(readlink -f "${0}")")"
 
-# Essential environment for C++ binary
+# Set environment
 export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-
-# CRITICAL: Python environment for scripts called by CLI
 export PYTHONPATH="${HERE}/usr/share/sokonalysis:${PYTHONPATH}"
 export PATH="${HERE}/usr/share/sokonalysis:${PATH}"
-
-# Wordlist path for C++ binary
 export SOKO_WORDLIST="${HERE}/usr/share/sokonalysis/wordlist.txt"
 
-# Change to script directory (Python scripts might expect this)
-cd "${HERE}/usr/share/sokonalysis"
+# CRITICAL: Always start in directory where user ran the AppImage
+USERDIR="$(pwd)"
+cd "$USERDIR"
+echo "📁 Working directory: $USERDIR"
+echo "💡 Place your files here or use full paths when prompted"
 
-# Always run CLI version (no GUI option)
+# Run the CLI
 exec "${HERE}/usr/bin/sokonalysis" "$@"
 EOF
 ````
