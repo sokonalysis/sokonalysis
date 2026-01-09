@@ -108,6 +108,10 @@ EOF
 ````
 
 ````bash
+chmod +x appimagetool-x86_64.AppImage
+````
+
+````bash
 ./appimagetool-x86_64.AppImage AppDir sokonalysis-cli-x86_64.AppImage
 ````
 
