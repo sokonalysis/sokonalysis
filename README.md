@@ -42,8 +42,25 @@ sudo apt install aircrack-ng -y
 
 ## Download 
 ### Windows
-#### Dependencies
-##### MSYS2
+**NOTE:** If you don't want to use MSYS2, you can skip these installation guide and use the Linux command if you are using Windows Subsystem for Linux (WSL). Below are some instructions on how to install WSL.
+
+#### WSL
+##### Virtualization 
+Check Virtualization Status by pressing **Ctrl + Shift + Esc** on you keyboard and navigate to **Performance** and if not enabled, open Command Prompt (CMD) as an Administrator and type the command below, or shutdown your PC and go to BIOS Setup under Virtualization Technology and enable it.
+```bash
+shutdown /r /fw /t 2
+````
+
+#### Download 
+Run Windows PowerShell as an Administrator and enter the command: 
+```bash
+wsl –install
+````
+```bash
+wsl --install -d kali-linux
+````
+
+#### MSYS2
 Download [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe)
 Install MSYS2 and run the following command:
 ````bash
