@@ -36,6 +36,14 @@ cp sokonalysis AppDir/usr/bin/
 ````
 
 ````bash
+cp *.py AppDir/usr/share/sokonalysis/
+````
+
+````bash
+cp *.cpp *.h AppDir/usr/share/sokonalysis/ 2>/dev/null || true
+````
+
+````bash
 cp wordlist.txt AppDir/usr/share/sokonalysis/ 2>/dev/null || mkdir -p AppDir/usr/share/sokonalysis && cp wordlist.txt AppDir/usr/share/sokonalysis/
 ````
 
