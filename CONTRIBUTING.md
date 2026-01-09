@@ -28,7 +28,7 @@ wget -c https://github.com/AppImage/AppImageKit/releases/download/continuous/app
 ````
 
 ````bash
-mkdir -p AppDir/usr/{bin,lib}
+mkdir -p AppDir/usr/{bin,lib,share/sokonalysis}
 ````
 
 ````bash
@@ -56,36 +56,14 @@ fi
 ````
 
 ````bash
-cp *.cpp *.h AppDir/usr/share/sokonalysis/ 2>/dev/null || true
-````
-
-````bash
-cp wordlist.txt AppDir/usr/share/sokonalysis/ 2>/dev/null || mkdir -p AppDir/usr/share/sokonalysis && cp wordlist.txt AppDir/usr/share/sokonalysis/
-````
-
-````bash
-ldd sokonalysis | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' AppDir/usr/lib/
-````
-
-````bash
-if [ -d "pythonvenv" ]; then
-    cp -r pythonvenv/lib/python3.*/site-packages/* AppDir/usr/share/sokonalysis/
-else
-    echo "Creating temporary Python environment..."
-    python3 -m venv /tmp/soko_temp
-    source /tmp/soko_temp/bin/activate
-    pip install -r requirements.txt
-    cp -r /tmp/soko_temp/lib/python3.*/site-packages/* AppDir/usr/share/sokonalysis/
-    deactivate
-fi
-
-# 4. Copy wordlist
 cp wordlist.txt AppDir/usr/share/sokonalysis/
+````
 
-# 5. Copy shared libraries
+````bash
 ldd sokonalysis | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' AppDir/usr/lib/
+````
 
-# 6. FIXED AppRun for CLI with Python support
+````bash
 cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
 HERE="$(dirname "$(readlink -f "${0}")")"
@@ -115,12 +93,12 @@ chmod +x AppDir/AppRun
 ````bash
 cat > AppDir/sokonalysis.desktop << 'EOF'
 [Desktop Entry]
-Name=sokoNalysis CLI
+Name=SokoNalysis CLI
 Comment=The Cipher Toolkit Built For All Skill Levels
 Exec=sokonalysis
 Icon=sokonalysis
 Type=Application
-Categories=Utility;Security;ConsoleOnly;
+Categories=Utility;Security;
 Terminal=true
 EOF
 ````
