@@ -113,6 +113,7 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 
    
 ### Linux   
+#### Download
 ```bash
 git clone https://github.com/sokonalysis/sokonalysis.git
 ```
@@ -121,14 +122,6 @@ cd sokonalysis
 ````
 ````bash
 cd src
-````
-
-#### Virtual Environment 
-```bash
-python3 -m venv pythonvenv
-```
-```bash
-source pythonvenv/bin/activate
 ````
 
 #### Requirements
@@ -146,6 +139,14 @@ sudo apt install libgmp-dev libmpfr-dev libmpc-dev
 ````
 ````bash
 sudo apt install nlohmann-json3-dev
+````
+
+#### Virtual Environment 
+```bash
+python3 -m venv pythonvenv
+```
+```bash
+source pythonvenv/bin/activate
 ````
 ````bash
 pip install -r requirements.txt
