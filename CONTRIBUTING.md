@@ -68,10 +68,23 @@ cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
 H=$(dirname "$(readlink -f "${0}")")
 export PYTHONPATH="$H/usr/share/sokonalysis"
+
 export SOKO_WORDLIST="$H/usr/share/sokonalysis/wordlist.txt"
-cd "$(pwd -P)"
+
+# Where the user actually is
+WHERE_USER_IS="$(pwd -P)"
+
+# Symlink ALL Python scripts to user's current directory
+for py in "$H/usr/share/sokonalysis"/*.py; do
+    ln -sf "$py" "$WHERE_USER_IS/" 2>/dev/null
+done
+
+ln -sf "$H/usr/share/sokonalysis/wordlist.txt" "$WHERE_USER_IS/" 2>/dev/null
+
+# Stay in user's directory
+cd "$WHERE_USER_IS"
 exec "$H/usr/bin/sokonalysis" "$@"
-EOF
+EOf
 ````
 
 ````bash
