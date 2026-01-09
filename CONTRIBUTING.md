@@ -67,24 +67,18 @@ ldd sokonalysis | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' AppD
 cat > AppDir/AppRun << 'EOF'
 #!/bin/bash
 H=$(dirname "$(readlink -f "${0}")")
-S="$H/usr/share/sokonalysis"
-export PYTHONPATH="$S"
+export PYTHONPATH="$H/usr/share/sokonalysis"
 
-# Get REAL user home (not root)
-REAL_USER=${SUDO_USER:-$USER}
-REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
-[ -z "$REAL_HOME" ] && REAL_HOME="$HOME"
+# Where the user actually is
+WHERE_USER_IS="$(pwd -P)"
 
-# Use real user's directory
-U="$REAL_HOME/sokonalysis/src"
-[ -d "/sokonalysis/src" ] && U="/sokonalysis/src"
-[ ! -d "$U" ] && mkdir -p "$U"
+# Symlink ALL Python scripts to user's current directory
+for py in "$H/usr/share/sokonalysis"/*.py; do
+    ln -sf "$py" "$WHERE_USER_IS/" 2>/dev/null
+done
 
-# Link scripts
-for p in "$S"/*.py; do [ -f "$p" ] && ln -sf "$p" "$U/"; done
-
-cd "$U"
-echo "Working in: $U"
+# Stay in user's directory
+cd "$WHERE_USER_IS"
 exec "$H/usr/bin/sokonalysis" "$@"
 EOF
 ````
