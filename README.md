@@ -13,6 +13,7 @@ sokonalysis from the word cryptanalysis is a cryptographic tool developed by Sok
 ## Table of Content
 - [Requirements](#Requirements)
 - [Download](#Download)
+- [Update](#Update)
 - [Usage](#Usage)
 
 
@@ -195,6 +196,17 @@ python3 sokonalysis_gui.py
 
 <img width="404" height="314" alt="Image" src="https://github.com/user-attachments/assets/33349e08-6bde-4b2d-8c5c-bcdc6964dc6d" />
 
+
+## Update
+```bash
+cd sokonalysis
+````
+````bash
+cd src
+````
+```bash
+git pull
+````
 
 ## Usage
 
