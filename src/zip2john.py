@@ -2,7 +2,8 @@
 """
 ZIP File Password Cracker
 Complete workflow using zip2john for hash extraction
-Colorful Interface
+SOKONALYSIS - Created by Soko James
+Following Sokonalysis C++ Style Guidelines for Sub-options
 """
 
 import os
@@ -11,57 +12,29 @@ import subprocess
 import time
 import tempfile
 import shutil
+import platform
 
-# Check if we're in a GUI environment (no terminal)
-if sys.stdout.isatty():
-    # We have a real terminal, use colorama normally
-    from colorama import Fore, Style, init
-    init(autoreset=True)
-    
-    # Define our color functions
-    def c_red(text): return Fore.RED + text + Style.RESET_ALL
-    def c_green(text): return Fore.GREEN + text + Style.RESET_ALL
-    def c_yellow(text): return Fore.YELLOW + text + Style.RESET_ALL
-    def c_cyan(text): return Fore.CYAN + text + Style.RESET_ALL
-    def c_blue(text): return Fore.BLUE + text + Style.RESET_ALL
-    def c_magenta(text): return Fore.MAGENTA + text + Style.RESET_ALL
-    def c_reset(): return Style.RESET_ALL
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return Fore.YELLOW + "[*]" + Style.RESET_ALL + " "
-    def tag_plus(): return Fore.GREEN + "[+]" + Style.RESET_ALL + " "
-    def tag_minus(): return Fore.GREEN + "[-]" + Style.RESET_ALL + " "
-    def tag_exclamation(): return Fore.RED + "[!]" + Style.RESET_ALL + " "
-    def tag_gt(): return Fore.YELLOW + "[>]" + Style.RESET_ALL + " "
-    def tag_x(): return Fore.RED + "[x]" + Style.RESET_ALL + " "
-    
-else:
-    # We're in a GUI or redirected output, use ANSI escape codes directly
-    # ANSI escape codes for colors
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    CYAN = '\033[96m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    RESET = '\033[0m'
-    
-    # Define our color functions
-    def c_red(text): return RED + text + RESET
-    def c_green(text): return GREEN + text + RESET
-    def c_yellow(text): return YELLOW + text + RESET
-    def c_cyan(text): return CYAN + text + RESET
-    def c_blue(text): return BLUE + text + RESET
-    def c_magenta(text): return MAGENTA + text + RESET
-    def c_reset(): return RESET
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
-    def tag_plus(): return GREEN + "[+]" + RESET + " "
-    def tag_minus(): return GREEN + "[-]" + RESET + " "
-    def tag_exclamation(): return RED + "[!]" + RESET + " "
-    def tag_gt(): return YELLOW + "[>]" + RESET + " "
-    def tag_x(): return RED + "[x]" + RESET + " "
+# ANSI color codes - matching C++ style from main.cpp
+RED = '\033[31m'      # Changed from \033[91m to \033[31m
+GREEN = '\033[32m'    # Changed from \033[92m to \033[32m
+YELLOW = '\033[33m'   # Changed from \033[93m to \033[33m
+CYAN = '\033[36m'     # Changed from \033[96m to \033[36m
+BLUE = '\033[34m'     # Changed from \033[94m to \033[34m
+MAGENTA = '\033[35m'  # Changed from \033[95m to \033[35m
+ORANGE = '\033[38;5;208m'  # Keeping ORANGE same
+WHITE = '\033[37m'    # Changed from \033[97m to \033[37m
+BOLD = '\033[1m'
+RESET = '\033[0m'
+
+# Tag functions with consistent spacing - matching C++ style
+def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
+def tag_plus(): return GREEN + "[+]" + RESET + " "
+def tag_minus(): return GREEN + "[-]" + RESET + " "
+def tag_exclamation(): return RED + "[!]" + RESET + " "
+def tag_gt(): return YELLOW + "[>]" + RESET + " "
+def tag_x(): return RED + "[x]" + RESET + " "
+def tag_question(): return ORANGE + "[?]" + RESET + " "
+def tag_hash(): return CYAN + "[#]" + RESET + " "
 
 class ZipCracker:
     def __init__(self):
@@ -69,138 +42,107 @@ class ZipCracker:
         self.archive = None
         self.hash_file = None
         self.default_wordlist = "wordlist.txt"
-        self.zip2john_path = self.find_zip2john()  # Auto-detect on init
+        self.zip2john_path = "/usr/share/john/zip2john.py"
         self.current_dir = os.getcwd()
-    
-    def find_zip2john(self):
-        """Find zip2john in common locations across different Linux distributions"""
-        common_paths = [
-            # Debian/Ubuntu/Kali/Parrot
-            "/usr/sbin/zip2john",
-            "/usr/bin/zip2john",
-            "/usr/share/john/zip2john",
-            
-            # RedHat/Fedora/CentOS
-            "/usr/local/bin/zip2john",
-            "/usr/local/sbin/zip2john",
-            
-            # Arch Linux
-            "/opt/john/zip2john",
-            
-            # Source compilation
-            "/usr/local/share/john/zip2john",
-            "/opt/john/run/zip2john",
-            
-            # Python script versions
-            "/usr/share/john/zip2john.py",
-            "/usr/local/share/john/zip2john.py",
-            
-            # In PATH
-            "zip2john",
-        ]
+        self.temp_dir = None
         
-        print(tag_asterisk() + "Searching for zip2john...")
-        for path in common_paths:
-            if os.path.exists(path):
-                print(tag_plus() + f"Found at: {path}")
-                return path
-        
-        print(tag_exclamation() + "zip2john not found in common locations")
-        return None
+    def show_error(self, message):
+        """Display error message in red with [x] tag"""
+        print(tag_x() + message)
     
-    def clear_screen(self):
-        """Clear screen"""
-        os.system('clear' if os.name == 'posix' else 'cls')
+    def show_success(self, message):
+        """Display success message in green with [+] tag"""
+        print(tag_plus() + message)
     
-    def show_banner(self):
-        """Show colorful banner"""
-        self.clear_screen()
-        print(tag_minus() + "ZIP FILE PASSWORD CRACKER")
-        print()
+    def show_info(self, message):
+        """Display info message in cyan with [#] tag"""
+        print(tag_hash() + message)
+    
+    def show_warning(self, message):
+        """Display warning message in orange with [!] tag"""
+        print(tag_exclamation() + message)
     
     def check_tools(self):
         """Check if required tools are available"""
-        self.show_banner()
-        print(tag_asterisk() + "Checking for required tools...")
-        
         # Check for john
         try:
             result = subprocess.run([self.john_path, "--version"], 
                                   capture_output=True, text=True, timeout=2)
-            if result.returncode in [0, 1]:
-                print(tag_plus() + f"John the Ripper: Found at '{self.john_path}'")
-            else:
-                print(tag_exclamation() + "John the Ripper not working properly")
+            if result.returncode not in [0, 1]:
                 return False
         except FileNotFoundError:
-            print(tag_exclamation() + "John the Ripper not found!")
-            print(c_yellow("    Install with: sudo apt install john  (Debian/Ubuntu)"))
-            print(c_yellow("                  sudo yum install john  (RedHat/Fedora)"))
-            print(c_yellow("                  sudo pacman -S john    (Arch)"))
             return False
         
         # Check for zip2john
-        if not self.zip2john_path:
-            print(tag_exclamation() + "zip2john not found!")
-            print(c_yellow("    Common locations: /usr/sbin/zip2john, /usr/bin/zip2john, /usr/share/john/zip2john"))
-            print(c_yellow("    Find it with: find /usr -name '*zip2john*' 2>/dev/null"))
-            print(c_yellow("    Or install John the Ripper from source"))
+        zip2john_paths = [
+            "/usr/share/john/zip2john.py",
+            "/usr/bin/zip2john",
+            "/usr/sbin/zip2john",
+            "/usr/local/bin/zip2john",
+            "/usr/local/share/john/zip2john.py",
+            "/opt/john/run/zip2john"
+        ]
+        
+        found = False
+        for path in zip2john_paths:
+            if os.path.exists(path):
+                self.zip2john_path = path
+                found = True
+                break
+        
+        if not found:
             return False
-        else:
-            print(tag_plus() + f"zip2john: Found at '{self.zip2john_path}'")
         
         # Check for wordlist
-        if os.path.exists(self.default_wordlist):
-            wordcount = self.count_words(self.default_wordlist)
-            if wordcount:
-                print(tag_plus() + f"Default wordlist: '{self.default_wordlist}' ({wordcount} words)")
-            else:
-                print(tag_exclamation() + f"Cannot read wordlist: {self.default_wordlist}")
-        else:
-            print(tag_exclamation() + f"Default wordlist not found: '{self.default_wordlist}'")
-            print(c_yellow("    Please create a file named '") + c_cyan("wordlist.txt") + c_yellow("' with passwords"))
-            return False
-
-        return True
+        wordlist_paths = [
+            self.default_wordlist,
+            "wordlists/wordlist.txt",
+            "../wordlists/wordlist.txt",
+            "/usr/share/wordlists/rockyou.txt"
+        ]
+        
+        for path in wordlist_paths:
+            if os.path.exists(path):
+                self.default_wordlist = path
+                return True
+        
+        return False
     
     def count_words(self, filepath):
-        """Count words in a file, handling different encodings"""
+        """Count words in a file"""
         if not os.path.exists(filepath):
             return 0
         
-        encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
-        
-        for encoding in encodings:
-            try:
-                with open(filepath, 'r', encoding=encoding) as f:
-                    wordcount = sum(1 for line in f if line.strip())
-                return wordcount
-            except UnicodeDecodeError:
-                continue
-        
-        return 0
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                return sum(1 for line in f if line.strip())
+        except:
+            return 0
     
     def extract_hash(self, archive_path):
-        """Extract hash from ZIP file using zip2john"""
-        self.show_banner()
-        print(tag_asterisk() + f"Extracting hash from: {archive_path}")
+        """Extract hash from ZIP file"""
+        print(tag_asterisk() + "Extracting hash from: " + YELLOW + f"{archive_path}" + RESET)
+        print()
         
         if not os.path.exists(archive_path):
-            print(tag_exclamation() + f"File not found: {archive_path}")
+            self.show_error("File not found")
             return False
         
         # Create temporary file for hash
-        temp_dir = tempfile.mkdtemp(prefix="zip_hash_")
-        self.hash_file = os.path.join(temp_dir, "zip.hash")
+        self.temp_dir = tempfile.mkdtemp(prefix="zip_hash_")
+        self.hash_file = os.path.join(self.temp_dir, "zip.hash")
         
         try:
-            # Run zip2john - check if it's a Python script
+            # Determine Python command
+            python_cmd = "python3"
+            if platform.system() == "Windows":
+                python_cmd = "py -3"
+            
+            # Run zip2john
             if self.zip2john_path.endswith('.py'):
-                cmd = ["python3", self.zip2john_path, archive_path]
+                cmd = [python_cmd, self.zip2john_path, archive_path]
             else:
                 cmd = [self.zip2john_path, archive_path]
-            
-            print(tag_gt() + f"Running: {' '.join(cmd)}")
             
             result = subprocess.run(cmd, capture_output=True, text=True)
             
@@ -209,49 +151,45 @@ class ZipCracker:
                 hash_lines = []
                 for line in result.stdout.split('\n'):
                     line = line.strip()
-                    if line and ('$pkzip$' in line or '$zip2$' in line or '$zip$' in line):
-                        # Add filename for john if not already present
+                    if line and any(x in line for x in ['$pkzip$', '$zip2$', '$zip$', '$pkzip2$']):
                         if ':' not in line:
-                            line = f"{line}:{os.path.basename(archive_path)}"
+                            line = f"{os.path.basename(archive_path)}:{line}"
                         hash_lines.append(line)
-                        print(tag_minus() + "Hash extracted successfully!")
                 
                 if hash_lines:
-                    # Save hash to file
                     with open(self.hash_file, 'w') as f:
                         for hash_line in hash_lines:
                             f.write(hash_line + '\n')
                     
-                    print(tag_minus() + "Hash saved to temporary file")
+                    self.show_success("Hash extracted successfully!")
                     return True
                 else:
-                    print(tag_exclamation() + "No hash found in output")
+                    self.show_error("No hash found in output")
+                    print(YELLOW + "    The ZIP file might not be password protected" + RESET)
             else:
-                print(tag_exclamation() + "zip2john failed or produced no output")
+                self.show_error("zip2john failed")
                 
         except Exception as e:
-            print(tag_x() + f"Error extracting hash: {e}")
+            self.show_error(f"Error: {e}")
         
-        # Cleanup on failure
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
-        
+        self.cleanup()
         return False
     
-    def list_zips(self):
+    def list_archives(self):
         """List ZIP files in current directory"""
-        extensions = ['.zip']  # Focus only on ZIP files
+        extensions = ['.zip']
         
-        zips = []
+        archives = []
         
-        print(c_cyan("\n📁") + " Current Directory: " + c_yellow(self.current_dir))
-        print(c_yellow("📦") + " Place ZIP files in this directory to see them here.\n")
-        print(tag_minus() + "AVAILABLE ZIP FILES")
+        print(BLUE + "\n____________________ " + GREEN + "Available ZIP Archives" + BLUE + " _____________________\n")
         
         idx = 1
         for file in sorted(os.listdir('.')):
             if any(file.lower().endswith(ext) for ext in extensions):
                 if os.path.isfile(file):
+                    archives.append(file)
+                    
+                    # Show file size
                     size = os.path.getsize(file)
                     if size < 1024:
                         size_str = f"{size}B"
@@ -260,188 +198,134 @@ class ZipCracker:
                     else:
                         size_str = f"{size/(1024*1024):.1f}MB"
                     
-                    zips.append(file)
-                    print(c_yellow(f"[{idx}]") + f" {file}" + c_cyan(f" ({size_str})"))
+                    print(YELLOW + f"[{idx}]" + RESET + f" {file} " + CYAN + f"({size_str})" + RESET)
                     idx += 1
         
-        return zips
+        return archives
     
-    def select_zip(self):
+    def select_archive(self):
         """Let user select a ZIP file"""
-        self.show_banner()
+        archives = self.list_archives()
         
-        print(c_yellow("📁") + f" Current working directory: {self.current_dir}")
-        
-        zips = self.list_zips()
-        
-        if not zips:
-            print(tag_exclamation() + "No ZIP files found in current directory!")
-            print(c_yellow("\n💡") + f" Tip: Place ZIP files in: {self.current_dir}")
+        if not archives:
+            self.show_error("No ZIP files found!")
             print()
-            print(tag_minus() + "ZIP SELECTION OPTIONS")
-            print(c_yellow("[1]") + " Enter ZIP file path manually")
-            print(c_yellow("[2]") + " Exit")
+            print(YELLOW + "[1]" + RESET + " Enter archive path manually")
+            print(YELLOW + "[2]" + RESET + " Exit")
+            print(BLUE + "_________________________________________________________________")
+            print()
             
             choice = input(tag_gt() + "Select option (1-2): ").strip()
             if choice == "1":
-                path = input(tag_gt() + "Enter full path to ZIP file: ").strip()
+                path = input(tag_gt() + "Enter full path: ").strip()
                 if os.path.exists(path):
                     return path
                 else:
-                    print(tag_exclamation() + f"File not found: {path}")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("File not found")
                     return None
-            else:
-                return None
+            return None
         
-        print(c_yellow(f"[{len(zips)+1}]") + " Enter custom path")
-        print(c_yellow(f"[{len(zips)+2}]") + " Exit")
+        print(YELLOW + f"[{len(archives)+1}]" + RESET + " Enter custom path")
+        print(YELLOW + f"[{len(archives)+2}]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
-            choice = int(input(tag_gt() + f"Select ZIP file (1-{len(zips)+2}): "))
+            choice = int(input(tag_gt() + f"Select archive (1-{len(archives)+2}): "))
             
-            if 1 <= choice <= len(zips):
-                selected = zips[choice-1]
-                print(tag_minus() + f"Selected: {selected}")
-                return selected
-            elif choice == len(zips) + 1:
-                path = input(tag_gt() + "Enter full path to ZIP file: ").strip()
+            if 1 <= choice <= len(archives):
+                return archives[choice-1]
+            elif choice == len(archives) + 1:
+                path = input(tag_gt() + "Enter full path: ").strip()
                 if os.path.exists(path):
-                    print(tag_minus() + f"Selected: {path}")
                     return path
                 else:
-                    print(tag_exclamation() + f"File not found: {path}")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("File not found")
                     return None
             else:
+                # Exit silently - just return None without printing anything
                 return None
-                
-        except ValueError:
-            print(tag_exclamation() + "Please enter a valid number")
-            input(tag_gt() + "Press Enter to continue...")
+        except:
+            self.show_error("Invalid choice")
             return None
     
     def select_attack_mode(self):
         """Select attack mode"""
-        self.show_banner()
-        print(tag_asterisk() + "ZIP File: " + c_yellow(f"{self.archive}"))
+        print(tag_asterisk() + "Archive: " + YELLOW + f"{self.archive}" + RESET)
         print()
-        print(tag_minus() + "SELECT ATTACK MODE")
+        print(BLUE + "\n____________________________ " + GREEN + "Options" + BLUE + " ____________________________")
+        print()
 
-        print(c_yellow("[1]") + " Wordlist Attack (using default wordlist)")
-        print(c_yellow("[2]") + " Wordlist Attack (custom wordlist)")
-        print(c_yellow("[3]") + " Single Crack Mode")
-        print(c_yellow("[4]") + " Incremental Mode (brute force)")
-        print(c_yellow("[5]") + " Show cracked passwords")
-        print(c_yellow("[6]") + " Select different ZIP file")
-        print(c_yellow("[7]") + " Exit")
+        print(YELLOW + "[1]" + RESET + " Wordlist Attack (using default wordlist)")
+        print(YELLOW + "[2]" + RESET + " Wordlist Attack (custom wordlist)")
+        print(YELLOW + "[3]" + RESET + " Single Crack Mode")
+        print(YELLOW + "[4]" + RESET + " Incremental Mode (brute force)")
+        print(YELLOW + "[5]" + RESET + " Show cracked passwords")
+        print(YELLOW + "[6]" + RESET + " Select different archive")
+        print(YELLOW + "[7]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
-            choice = int(input(tag_gt() + "Select option (1-7): "))
-            return choice
-        except ValueError:
-            print(tag_exclamation() + "Please enter a number")
-            input(tag_gt() + "Press Enter to continue...")
+            return int(input(tag_gt() + "Select option (1-7): "))
+        except:
+            self.show_error("Please enter a number")
             return None
     
-    def get_wordlist_info(self, wordlist_path):
-        """Get information about a wordlist"""
-        if not os.path.exists(wordlist_path):
-            print(tag_exclamation() + f"Wordlist not found: {wordlist_path}")
-            return False
-        
-        wordcount = self.count_words(wordlist_path)
-        if wordcount == 0:
-            print(tag_exclamation() + f"Wordlist is empty: {wordlist_path}")
-            return False
-        
-        filesize = os.path.getsize(wordlist_path)
-        if filesize < 1024:
-            size_str = f"{filesize}B"
-        elif filesize < 1024*1024:
-            size_str = f"{filesize/1024:.1f}KB"
-        else:
-            size_str = f"{filesize/(1024*1024):.1f}MB"
-        
-        print(tag_plus() + f"Wordlist: {wordlist_path}")
-        print(tag_plus() + f"Size: {size_str}, Words: {wordcount}")
-        return True
-    
     def run_john_command(self, cmd, attack_name):
-        """Run a John the Ripper command"""
-        self.show_banner()
-        print(tag_asterisk() + f"{attack_name} on: {self.archive}")
-        
-        print(tag_gt() + f"Command: {' '.join(cmd)}")
+        """Run a John the Ripper command - silenced output"""
+        print(tag_asterisk() + f"{attack_name} on: " + YELLOW + f"{self.archive}" + RESET)
         print()
-        print(tag_asterisk() + "Starting attack... " + c_red("Press Ctrl+C to stop"))
+        print(tag_asterisk() + "Starting attack... " + RED + "Press Ctrl+C to stop" + RESET)
+        print()
         
         try:
-            start_time = time.time()
-            process = subprocess.Popen(
+            start = time.time()
+            # Run silently without printing John's output
+            result = subprocess.run(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1
+                capture_output=True,
+                text=True
             )
             
-            # Print output in real-time
-            for line in iter(process.stdout.readline, ''):
-                if line.strip():
-                    # Color different types of output
-                    if "Press 'q' or Ctrl-C to abort" in line:
-                        print(c_yellow(line.strip()))
-                    elif "session aborted" in line.lower():
-                        print(c_red(line.strip()))
-                    elif "password hash cracked" in line.lower():
-                        print(tag_plus() + " " + line.strip())
-                    elif "guesses:" in line.lower():
-                        print(c_cyan(line.strip()))
-                    elif "remaining:" in line.lower():
-                        print(c_yellow(line.strip()))
-                    else:
-                        print(line.strip())
-            
-            process.wait()
-            elapsed = time.time() - start_time
-            
-            print(tag_minus() + f"Finished in {elapsed:.1f} seconds")
+            elapsed = time.time() - start
+            print(tag_minus() + f"Finished in " + YELLOW + f"{elapsed:.1f} seconds" + RESET)
             
         except KeyboardInterrupt:
-            print(c_red("\n\n[x]") + " Stopped by user")
+            print()
+            self.show_error("Stopped by user")
             return False
         except Exception as e:
-            print(c_red("\n[x]") + f" Error: {e}")
+            print()
+            self.show_error(f"Error: {e}")
             return False
         
         return True
     
     def run_wordlist_attack(self, custom_wordlist=None):
         """Run wordlist attack"""
-        wordlist = custom_wordlist if custom_wordlist else self.default_wordlist
+        wordlist = custom_wordlist or self.default_wordlist
         
-        if not self.get_wordlist_info(wordlist):
+        if not os.path.exists(wordlist):
+            self.show_error("Wordlist not found")
             return False
         
+        cmd = [self.john_path, self.hash_file, "--wordlist=" + wordlist]
+        
         print()
-        print(tag_minus() + "RULE OPTIONS")
-        print(c_yellow("[1]") + " No rules (fastest)")
-        print(c_yellow("[2]") + " Standard rules (recommended)")
-        print(c_yellow("[3]") + " All rules (slow but thorough)")
+        print(BLUE + "_____________________________ " + GREEN + "Rules" + BLUE + " _____________________________")
+        print()
+        print(YELLOW + "[1]" + RESET + " No rules (fastest)")
+        print(YELLOW + "[2]" + RESET + " Standard rules (recommended)")
+        print(YELLOW + "[3]" + RESET + " All rules (slow but thorough)")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
-        rule_choice = input(tag_gt() + "Select rule option (1-3, default=2): ").strip() or "2"
+        choice = input(tag_gt() + "Select rule option (1-3, default=2): ").strip() or "2"
         
-        # Build command
-        cmd = [self.john_path, self.hash_file]
-        
-        # Add wordlist
-        cmd.append("--wordlist=" + wordlist)
-        
-        # Add rules
-        if rule_choice == "2":
+        if choice == "2":
             cmd.append("--rules")
-        elif rule_choice == "3":
+        elif choice == "3":
             cmd.append("--rules=All")
         
         return self.run_john_command(cmd, "Wordlist Attack")
@@ -453,50 +337,43 @@ class ZipCracker:
     
     def run_incremental_mode(self):
         """Run incremental mode"""
-        print(tag_minus() + "INCREMENTAL MODE OPTIONS")
-        print(c_yellow("[1]") + " Digits only (0-9)")
-        print(c_yellow("[2]") + " Lowercase letters (a-z)")
-        print(c_yellow("[3]") + " Alphanumeric (a-z, A-Z, 0-9)")
-        print(c_yellow("[4]") + " All characters")
-        print(c_yellow("[5]") + " Cancel")
+        print()
+        print(BLUE + "________________________ " + GREEN + "Character Sets" + BLUE + " ________________________")
+        print()
+        print(YELLOW + "[1]" + RESET + " Digits only (0-9)")
+        print(YELLOW + "[2]" + RESET + " Lowercase letters (a-z)")
+        print(YELLOW + "[3]" + RESET + " Alphanumeric (a-z, A-Z, 0-9)")
+        print(YELLOW + "[4]" + RESET + " All characters")
+        print(YELLOW + "[5]" + RESET + " Cancel")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
             choice = int(input(tag_gt() + "Select character set (1-5): "))
-        except ValueError:
-            print(tag_exclamation() + "Invalid choice")
+            if choice == 5:
+                return False
+        except:
+            self.show_error("Invalid choice")
             return False
         
-        if choice == 5:
-            return False
+        modes = {1: "Digits", 2: "Lower", 3: "Alnum", 4: "All"}
+        mode = modes.get(choice, "Alnum")
         
-        charsets = {
-            1: "Digits",
-            2: "Lower",
-            3: "Alnum",
-            4: "All"
-        }
+        print()
+        self.show_warning("This may take a VERY long time!")
+        confirm = input(tag_question() + "Continue with brute force? (y/n): ").lower()
         
-        if choice not in charsets:
-            print(tag_exclamation() + "Invalid choice")
-            return False
-        
-        charset = charsets[choice]
-        
-        print(tag_asterisk() + f"Using character set: {charset}")
-        print(tag_exclamation() + "WARNING: This may take a VERY long time!")
-        
-        confirm = input(tag_gt() + "Continue with brute force? (y/n): ").lower()
         if confirm != 'y':
             print(tag_asterisk() + "Cancelled")
             return False
         
-        cmd = [self.john_path, self.hash_file, "--incremental=" + charset]
-        return self.run_john_command(cmd, f"Incremental Mode ({charset})")
+        cmd = [self.john_path, self.hash_file, "--incremental=" + mode]
+        return self.run_john_command(cmd, f"Incremental Mode ({mode})")
     
     def show_results(self):
-        """Show cracked passwords"""
-        self.show_banner()
+        """Show cracked passwords - exactly as specified"""
         print(tag_asterisk() + "Checking for cracked passwords...")
+        print()
         
         cmd = [self.john_path, self.hash_file, "--show"]
         
@@ -504,131 +381,167 @@ class ZipCracker:
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.stdout:
-                print()
-                print(tag_minus() + "CRACKED PASSWORDS RESULTS")
-                print()
-                
-                # Colorize the output
+                # Parse the output to extract just the password
                 lines = result.stdout.strip().split('\n')
-                for line in lines:
-                    if ':' in line and not line.startswith(' '):
-                        parts = line.split(':')
-                        if len(parts) >= 2:
-                            print(c_cyan(parts[0] + ":") + c_green(":".join(parts[1:])))
-                        else:
-                            print(c_cyan(line))
-                    else:
-                        print(line)
+                password_found = False
+                password_value = ""
                 
-                # Check if any passwords were actually cracked
-                if "password hash cracked" in result.stdout or "password hashes cracked" in result.stdout:
-                    # Save to file
-                    timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    results_file = f"cracked_{timestamp}.txt"
+                for line in lines:
+                    # Look for the line with format "filename:password"
+                    if ':' in line and not line.startswith(' ') and not line.startswith('1 password'):
+                        parts = line.split(':', 1)
+                        if len(parts) > 1:
+                            # Get just the password part - everything before the first comma or double colon
+                            raw_password = parts[1].strip()
+                            
+                            # Extract only the password (before any special characters)
+                            if '::' in raw_password:
+                                password_value = raw_password.split('::')[0].strip()
+                            elif ',' in raw_password:
+                                password_value = raw_password.split(',')[0].strip()
+                            elif ':' in raw_password:
+                                password_value = raw_password.split(':')[0].strip()
+                            else:
+                                password_value = raw_password
+                            
+                            password_found = True
+                            break
+                
+                if password_found:
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    # Display just the password value with the [-] tag
+                    print(tag_minus() + "Cracked Password Results: " + GREEN + password_value + RESET)
+                    print()
+                    print(BLUE + "_________________________________________________________________")
                     
-                    with open(results_file, "w") as f:
-                        f.write(f"ZIP File: {self.archive}\n")
-                        f.write(f"Time: {time.ctime()}\n")
-                        f.write("=" * 50 + "\n")
+                    # Save full results to file
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    filename = f"cracked_{timestamp}.txt"
+                    with open(filename, "w") as f:
                         f.write(result.stdout)
                     
-                    print(tag_minus() + f"Results saved to: {results_file}")
+                    print()
+                    print(tag_plus() + f" Results saved to: {filename}")
+                    print()
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    
+                    return True
                 else:
                     print(tag_minus() + "No passwords cracked yet")
+                    print(BLUE + "\n_________________________________________________________________")
+                    return False
             else:
                 print(tag_minus() + "No passwords cracked yet")
+                print(BLUE + "\n_________________________________________________________________")
+                return False
                 
         except Exception as e:
-            print(tag_x() + f"Error showing results: {e}")
+            self.show_error(f"Error showing results: {e}")
+            print(BLUE + "\n_________________________________________________________________")
+            return False
     
     def cleanup(self):
         """Clean up temporary files"""
-        if self.hash_file and os.path.exists(os.path.dirname(self.hash_file)):
+        if self.temp_dir and os.path.exists(self.temp_dir):
             try:
-                shutil.rmtree(os.path.dirname(self.hash_file))
+                shutil.rmtree(self.temp_dir)
+                self.temp_dir = None
+                self.hash_file = None
             except:
                 pass
     
     def main_loop(self):
-        """Main program loop"""
+        """Main program loop - exits completely after cracking"""
         if not self.check_tools():
-            print(tag_exclamation() + "Please install missing tools and try again")
-            input(tag_gt() + "Press Enter to exit...")
+            print(tag_exclamation() + "Required tools not found. Please install john and zip2john.")
             return
         
         while True:
-            # Select ZIP file
-            self.archive = self.select_zip()
+            self.archive = self.select_archive()
             if not self.archive:
-                print(tag_asterisk() + "Exiting...")
+                # Exit silently without printing anything
                 self.cleanup()
-                break
+                return
             
-            # Extract hash
-            print(tag_asterisk() + "Extracting hash from ZIP file...")
+            print()
             if not self.extract_hash(self.archive):
-                print(tag_exclamation() + "Failed to extract hash from ZIP file")
-                print(tag_asterisk() + "The ZIP file might not be password protected")
-                input(tag_gt() + "Press Enter to continue...")
                 continue
             
-            # Main attack loop for this ZIP file
             while True:
+                print()
                 choice = self.select_attack_mode()
                 
                 if choice == 1:
-                    # Wordlist attack with default wordlist
                     self.run_wordlist_attack()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    password_cracked = self.show_results()
+                    self.cleanup()
+                    if password_cracked:
+                        return  # Exit completely
+                    break  # Break to outer loop to select another archive
                 elif choice == 2:
-                    # Wordlist attack with custom wordlist
-                    wordlist = input(tag_gt() + "Enter path to custom wordlist: ").strip()
-                    if wordlist:
-                        if os.path.exists(wordlist):
-                            self.run_wordlist_attack(custom_wordlist=wordlist)
-                            self.show_results()
+                    wl = input(tag_gt() + "Enter path to custom wordlist: ").strip()
+                    if wl:
+                        if os.path.exists(wl):
+                            self.run_wordlist_attack(wl)
+                            password_cracked = self.show_results()
+                            self.cleanup()
+                            if password_cracked:
+                                return  # Exit completely
+                            break
                         else:
-                            print(tag_exclamation() + f"Wordlist not found: {wordlist}")
+                            self.show_error(f"Wordlist not found: {wl}")
                     else:
-                        print(tag_exclamation() + "No wordlist specified")
-                    input(tag_gt() + "Press Enter to continue...")
+                        self.show_error("No wordlist specified")
                 elif choice == 3:
-                    # Single crack mode
                     self.run_single_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    password_cracked = self.show_results()
+                    self.cleanup()
+                    if password_cracked:
+                        return  # Exit completely
+                    break
                 elif choice == 4:
-                    # Incremental mode
                     self.run_incremental_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    password_cracked = self.show_results()
+                    self.cleanup()
+                    if password_cracked:
+                        return  # Exit completely
+                    break
                 elif choice == 5:
-                    # Show results
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    password_cracked = self.show_results()
+                    if password_cracked:
+                        self.cleanup()
+                        return  # Exit completely
                 elif choice == 6:
-                    # Select different ZIP file
                     self.cleanup()
                     break
                 elif choice == 7:
-                    # Exit
-                    print(tag_asterisk() + "Goodbye!")
+                    # Exit silently without printing "Goodbye!"
                     self.cleanup()
                     return
                 else:
-                    print(tag_exclamation() + "Invalid choice")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("Invalid choice")
 
 def main():
     """Main function"""
     try:
+        # Enable virtual terminal processing on Windows
+        if platform.system() == "Windows":
+            try:
+                import ctypes
+                kernel32 = ctypes.windll.kernel32
+                kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+            except:
+                pass
+        
         cracker = ZipCracker()
         cracker.main_loop()
+        
     except KeyboardInterrupt:
-        print(c_red("\n\n[x]") + " Program stopped by user")
+        print(RED + "\n[x] Program stopped by user" + RESET)
     except Exception as e:
-        print(c_red("\n[x]") + f" Error: {e}")
+        print(RED + f"\n[x] Error: {e}" + RESET)
         import traceback
         traceback.print_exc()
 
