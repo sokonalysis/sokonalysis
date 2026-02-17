@@ -2,7 +2,8 @@
 """
 RAR File Password Cracker
 Complete workflow using rar2john for hash extraction
-Colorful Interface
+SOKONALYSIS - Created by Soko James
+Following Sokonalysis C++ Style Guidelines for Sub-options
 """
 
 import os
@@ -12,57 +13,29 @@ import time
 import tempfile
 import shutil
 import re
+import platform
 
-# Check if we're in a GUI environment (no terminal)
-if sys.stdout.isatty():
-    # We have a real terminal, use colorama normally
-    from colorama import Fore, Style, init
-    init(autoreset=True)
-    
-    # Define our color functions
-    def c_red(text): return Fore.RED + text + Style.RESET_ALL
-    def c_green(text): return Fore.GREEN + text + Style.RESET_ALL
-    def c_yellow(text): return Fore.YELLOW + text + Style.RESET_ALL
-    def c_cyan(text): return Fore.CYAN + text + Style.RESET_ALL
-    def c_blue(text): return Fore.BLUE + text + Style.RESET_ALL
-    def c_magenta(text): return Fore.MAGENTA + text + Style.RESET_ALL
-    def c_reset(): return Style.RESET_ALL
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return Fore.YELLOW + "[*]" + Style.RESET_ALL + " "
-    def tag_plus(): return Fore.GREEN + "[+]" + Style.RESET_ALL + " "
-    def tag_minus(): return Fore.GREEN + "[-]" + Style.RESET_ALL + " "
-    def tag_exclamation(): return Fore.RED + "[!]" + Style.RESET_ALL + " "
-    def tag_gt(): return Fore.YELLOW + "[>]" + Style.RESET_ALL + " "
-    def tag_x(): return Fore.RED + "[x]" + Style.RESET_ALL + " "
-    
-else:
-    # We're in a GUI or redirected output, use ANSI escape codes directly
-    # ANSI escape codes for colors
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    CYAN = '\033[96m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    RESET = '\033[0m'
-    
-    # Define our color functions
-    def c_red(text): return RED + text + RESET
-    def c_green(text): return GREEN + text + RESET
-    def c_yellow(text): return YELLOW + text + RESET
-    def c_cyan(text): return CYAN + text + RESET
-    def c_blue(text): return BLUE + text + RESET
-    def c_magenta(text): return MAGENTA + text + RESET
-    def c_reset(): return RESET
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
-    def tag_plus(): return GREEN + "[+]" + RESET + " "
-    def tag_minus(): return GREEN + "[-]" + RESET + " "
-    def tag_exclamation(): return RED + "[!]" + RESET + " "
-    def tag_gt(): return YELLOW + "[>]" + RESET + " "
-    def tag_x(): return RED + "[x]" + RESET + " "
+# ANSI color codes - matching C++ style from main.cpp
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+CYAN = '\033[36m'
+BLUE = '\033[34m'
+MAGENTA = '\033[35m'
+ORANGE = '\033[38;5;208m'
+WHITE = '\033[37m'
+BOLD = '\033[1m'
+RESET = '\033[0m'
+
+# Tag functions with consistent spacing - matching C++ style
+def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
+def tag_plus(): return GREEN + "[+]" + RESET + " "
+def tag_minus(): return GREEN + "[-]" + RESET + " "
+def tag_exclamation(): return RED + "[!]" + RESET + " "
+def tag_gt(): return YELLOW + "[>]" + RESET + " "
+def tag_x(): return RED + "[x]" + RESET + " "
+def tag_question(): return ORANGE + "[?]" + RESET + " "
+def tag_hash(): return CYAN + "[#]" + RESET + " "
 
 class RARCracker:
     def __init__(self):
@@ -70,8 +43,9 @@ class RARCracker:
         self.archive = None
         self.hash_file = None
         self.default_wordlist = "wordlist.txt"
-        self.rar2john_path = self.find_rar2john()  # Auto-detect on init
+        self.rar2john_path = self.find_rar2john()
         self.current_dir = os.getcwd()
+        self.temp_dir = None
     
     def find_rar2john(self):
         """Find rar2john in common locations across different Linux distributions"""
@@ -100,69 +74,57 @@ class RARCracker:
             "rar2john",
         ]
         
-        print(tag_asterisk() + "Searching for rar2john...")
         for path in common_paths:
             if os.path.exists(path):
-                print(tag_plus() + f"Found at: {path}")
                 return path
         
-        print(tag_exclamation() + "rar2john not found in common locations")
         return None
     
-    def clear_screen(self):
-        """Clear screen"""
-        os.system('clear' if os.name == 'posix' else 'cls')
+    def show_error(self, message):
+        """Display error message in red with [x] tag"""
+        print(tag_x() + message)
     
-    def show_banner(self):
-        """Show colorful banner"""
-        self.clear_screen()
-        print(tag_minus() + "RAR FILE PASSWORD CRACKER")
-        print()
+    def show_success(self, message):
+        """Display success message in green with [+] tag"""
+        print(tag_plus() + message)
+    
+    def show_info(self, message):
+        """Display info message in cyan with [#] tag"""
+        print(tag_hash() + message)
+    
+    def show_warning(self, message):
+        """Display warning message in orange with [!] tag"""
+        print(tag_exclamation() + message)
     
     def check_tools(self):
         """Check if required tools are available"""
-        self.show_banner()
-        print(tag_asterisk() + "Checking for required tools...")
-        
         # Check for john
         try:
             result = subprocess.run([self.john_path, "--version"], 
                                   capture_output=True, text=True, timeout=2)
-            if result.returncode in [0, 1]:
-                print(tag_plus() + f"John the Ripper: Found at '{self.john_path}'")
-            else:
-                print(tag_exclamation() + "John the Ripper not working properly")
+            if result.returncode not in [0, 1]:
                 return False
         except FileNotFoundError:
-            print(tag_exclamation() + "John the Ripper not found!")
-            print(c_yellow("    Install with: sudo apt install john  (Debian/Ubuntu)"))
-            print(c_yellow("                  sudo yum install john  (RedHat/Fedora)"))
-            print(c_yellow("                  sudo pacman -S john    (Arch)"))
             return False
         
         # Check for rar2john
         if not self.rar2john_path:
-            print(tag_exclamation() + "rar2john not found!")
-            print(c_yellow("    Common locations: /usr/sbin/rar2john, /usr/bin/rar2john, /usr/share/john/rar2john"))
-            print(c_yellow("    Find it with: find /usr -name '*rar2john*' 2>/dev/null"))
-            print(c_yellow("    Or install John the Ripper from source"))
             return False
-        else:
-            print(tag_plus() + f"rar2john: Found at '{self.rar2john_path}'")
         
         # Check for wordlist
-        if os.path.exists(self.default_wordlist):
-            wordcount = self.count_words(self.default_wordlist)
-            if wordcount:
-                print(tag_plus() + f"Default wordlist: '{self.default_wordlist}' ({wordcount} words)")
-            else:
-                print(tag_exclamation() + f"Cannot read wordlist: {self.default_wordlist}")
-        else:
-            print(tag_exclamation() + f"Default wordlist not found: '{self.default_wordlist}'")
-            print(c_yellow("    Please create a file named '") + c_cyan("wordlist.txt") + c_yellow("' with passwords"))
-            return False
-
-        return True
+        wordlist_paths = [
+            self.default_wordlist,
+            "wordlists/wordlist.txt",
+            "../wordlists/wordlist.txt",
+            "/usr/share/wordlists/rockyou.txt"
+        ]
+        
+        for path in wordlist_paths:
+            if os.path.exists(path):
+                self.default_wordlist = path
+                return True
+        
+        return False
     
     def count_words(self, filepath):
         """Count words in a file, handling different encodings"""
@@ -183,25 +145,26 @@ class RARCracker:
     
     def extract_hash(self, archive_path):
         """Extract hash from RAR file using rar2john"""
-        self.show_banner()
-        print(tag_asterisk() + f"Extracting hash from: {archive_path}")
+        print(tag_asterisk() + "Extracting hash from: " + YELLOW + f"{archive_path}" + RESET)
+        print()
         
         if not os.path.exists(archive_path):
-            print(tag_exclamation() + f"File not found: {archive_path}")
+            self.show_error("File not found")
             return False
         
         # Create temporary file for hash
-        temp_dir = tempfile.mkdtemp(prefix="rar_hash_")
-        self.hash_file = os.path.join(temp_dir, "rar.hash")
+        self.temp_dir = tempfile.mkdtemp(prefix="rar_hash_")
+        self.hash_file = os.path.join(self.temp_dir, "rar.hash")
         
         try:
             # Run rar2john - check if it's a Python script
             if self.rar2john_path.endswith('.py'):
-                cmd = ["python3", self.rar2john_path, archive_path]
+                python_cmd = "python3"
+                if platform.system() == "Windows":
+                    python_cmd = "py -3"
+                cmd = [python_cmd, self.rar2john_path, archive_path]
             else:
                 cmd = [self.rar2john_path, archive_path]
-            
-            print(tag_gt() + f"Running: {' '.join(cmd)}")
             
             # Run with timeout
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -223,9 +186,6 @@ class RARCracker:
                 for line in output_lines:
                     line = line.strip()
                     if line:
-                        # Debug: show what we're parsing
-                        print(c_cyan(f"Processing line: {line[:80]}..."))
-                        
                         # Check for hash patterns
                         for pattern in hash_patterns:
                             if re.search(pattern, line):
@@ -233,7 +193,6 @@ class RARCracker:
                                 if ':' not in line or line.count(':') < 2:
                                     line = f"{line}:{os.path.basename(archive_path)}"
                                 hash_lines.append(line)
-                                print(tag_minus() + f"Found hash: {line[:50]}...")
                                 break
                 
                 if not hash_lines:
@@ -247,7 +206,6 @@ class RARCracker:
                                 if line.count(':') < 2:
                                     line = f"{line}:{os.path.basename(archive_path)}"
                                 hash_lines.append(line)
-                                print(tag_minus() + f"Using line as hash: {line[:50]}...")
                                 break
                 
                 if hash_lines:
@@ -256,47 +214,28 @@ class RARCracker:
                         for hash_line in hash_lines:
                             f.write(hash_line + '\n')
                     
-                    print(tag_plus() + f"Hash saved to temporary file: {self.hash_file}")
-                    
-                    # Display the hash for debugging
-                    with open(self.hash_file, 'r') as f:
-                        hash_content = f.read()
-                        print(c_yellow("\nExtracted hash:"))
-                        print(hash_content)
-                    
+                    self.show_success("Hash extracted successfully!")
                     return True
                 else:
-                    print(tag_exclamation() + "No hash found in output")
-                    print(c_yellow("\nRaw rar2john output:"))
-                    print(result.stdout[:500])
+                    self.show_error("No hash found in output")
+                    print(YELLOW + "    The archive might not be password protected" + RESET)
                     
                     # Try alternative method: save entire output as hash
                     if result.stdout.strip():
                         print(tag_asterisk() + "Trying alternative method...")
                         with open(self.hash_file, 'w') as f:
                             f.write(result.stdout.strip())
-                        print(tag_plus() + f"Saved raw output as hash: {self.hash_file}")
+                        self.show_success("Hash extracted successfully!")
                         return True
             else:
-                print(tag_exclamation() + f"rar2john failed with return code: {result.returncode}")
-                if result.stderr:
-                    print(c_red("Error output:"))
-                    print(result.stderr)
+                self.show_error("rar2john failed")
                 
         except subprocess.TimeoutExpired:
-            print(tag_exclamation() + "rar2john timed out after 30 seconds")
+            self.show_error("rar2john timed out after 30 seconds")
         except Exception as e:
-            print(tag_x() + f"Error extracting hash: {e}")
-            import traceback
-            traceback.print_exc()
+            self.show_error(f"Error: {e}")
         
-        # Cleanup on failure
-        if os.path.exists(temp_dir):
-            try:
-                shutil.rmtree(temp_dir)
-            except:
-                pass
-        
+        self.cleanup()
         return False
     
     def list_rars(self):
@@ -305,9 +244,7 @@ class RARCracker:
         
         rars = []
         
-        print(c_cyan("\n📁") + " Current Directory: " + c_yellow(self.current_dir))
-        print(c_yellow("📦") + " Place RAR files in this directory to see them here.\n")
-        print(tag_minus() + "AVAILABLE RAR FILES")
+        print(BLUE + "\n______________________ " + GREEN + "Available RAR Files" + BLUE + " _____________________\n")
         
         idx = 1
         for file in sorted(os.listdir('.')):
@@ -322,120 +259,102 @@ class RARCracker:
                         size_str = f"{size/(1024*1024):.1f}MB"
                     
                     rars.append(file)
-                    print(c_yellow(f"[{idx}]") + f" {file}" + c_cyan(f" ({size_str})"))
+                    print(YELLOW + f"[{idx}]" + RESET + f" {file}" + CYAN + f" ({size_str})" + RESET)
                     idx += 1
         
         return rars
     
     def select_rar(self):
         """Let user select a RAR file"""
-        self.show_banner()
-        
-        print(c_yellow("📁") + f" Current working directory: {self.current_dir}")
-        
         rars = self.list_rars()
         
         if not rars:
-            print(tag_exclamation() + "No RAR files found in current directory!")
-            print(c_yellow("\n💡") + f" Tip: Place RAR files in: {self.current_dir}")
+            self.show_error("No RAR files found!")
             print()
-            print(tag_minus() + "RAR SELECTION OPTIONS")
-            print(c_yellow("[1]") + " Enter RAR file path manually")
-            print(c_yellow("[2]") + " Exit")
+            print(YELLOW + "[1]" + RESET + " Enter RAR file path manually")
+            print(YELLOW + "[2]" + RESET + " Exit")
+            print(BLUE + "_________________________________________________________________")
+            print()
             
             choice = input(tag_gt() + "Select option (1-2): ").strip()
             if choice == "1":
-                path = input(tag_gt() + "Enter full path to RAR file: ").strip()
+                path = input(tag_gt() + "Enter full path: ").strip()
                 if os.path.exists(path):
                     return path
                 else:
-                    print(tag_exclamation() + f"File not found: {path}")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("File not found")
                     return None
-            else:
-                return None
+            return None
         
-        print(c_yellow(f"[{len(rars)+1}]") + " Enter custom path")
-        print(c_yellow(f"[{len(rars)+2}]") + " Exit")
+        print(YELLOW + f"[{len(rars)+1}]" + RESET + " Enter custom path")
+        print(YELLOW + f"[{len(rars)+2}]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
             choice = int(input(tag_gt() + f"Select RAR file (1-{len(rars)+2}): "))
             
             if 1 <= choice <= len(rars):
-                selected = rars[choice-1]
-                print(tag_minus() + f"Selected: {selected}")
-                return selected
+                return rars[choice-1]
             elif choice == len(rars) + 1:
-                path = input(tag_gt() + "Enter full path to RAR file: ").strip()
+                path = input(tag_gt() + "Enter full path: ").strip()
                 if os.path.exists(path):
-                    print(tag_minus() + f"Selected: {path}")
                     return path
                 else:
-                    print(tag_exclamation() + f"File not found: {path}")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("File not found")
                     return None
             else:
                 return None
                 
         except ValueError:
-            print(tag_exclamation() + "Please enter a valid number")
-            input(tag_gt() + "Press Enter to continue...")
+            self.show_error("Invalid choice")
             return None
     
     def select_attack_mode(self):
         """Select attack mode"""
-        self.show_banner()
-        print(tag_asterisk() + "RAR File: " + c_yellow(f"{self.archive}"))
+        print(tag_asterisk() + "RAR File: " + YELLOW + f"{self.archive}" + RESET)
         print()
-        print(tag_minus() + "SELECT ATTACK MODE")
+        print(BLUE + "\n____________________________ " + GREEN + "Options" + BLUE + " ____________________________")
+        print()
 
-        print(c_yellow("[1]") + " Wordlist Attack (using default wordlist)")
-        print(c_yellow("[2]") + " Wordlist Attack (custom wordlist)")
-        print(c_yellow("[3]") + " Single Crack Mode")
-        print(c_yellow("[4]") + " Incremental Mode (brute force)")
-        print(c_yellow("[5]") + " Show cracked passwords")
-        print(c_yellow("[6]") + " Select different RAR file")
-        print(c_yellow("[7]") + " Exit")
+        print(YELLOW + "[1]" + RESET + " Wordlist Attack (using default wordlist)")
+        print(YELLOW + "[2]" + RESET + " Wordlist Attack (custom wordlist)")
+        print(YELLOW + "[3]" + RESET + " Single Crack Mode")
+        print(YELLOW + "[4]" + RESET + " Incremental Mode (brute force)")
+        print(YELLOW + "[5]" + RESET + " Show cracked passwords")
+        print(YELLOW + "[6]" + RESET + " Select different RAR file")
+        print(YELLOW + "[7]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
-            choice = int(input(tag_gt() + "Select option (1-7): "))
-            return choice
+            return int(input(tag_gt() + "Select option (1-7): "))
         except ValueError:
-            print(tag_exclamation() + "Please enter a number")
-            input(tag_gt() + "Press Enter to continue...")
+            self.show_error("Please enter a number")
             return None
     
     def get_wordlist_info(self, wordlist_path):
         """Get information about a wordlist"""
         if not os.path.exists(wordlist_path):
-            print(tag_exclamation() + f"Wordlist not found: {wordlist_path}")
+            self.show_error("Wordlist not found")
             return False
         
         wordcount = self.count_words(wordlist_path)
         if wordcount == 0:
-            print(tag_exclamation() + f"Wordlist is empty: {wordlist_path}")
+            self.show_error("Wordlist is empty")
             return False
         
-        filesize = os.path.getsize(wordlist_path)
-        if filesize < 1024:
-            size_str = f"{filesize}B"
-        elif filesize < 1024*1024:
-            size_str = f"{filesize/1024:.1f}KB"
-        else:
-            size_str = f"{filesize/(1024*1024):.1f}MB"
-        
-        print(tag_plus() + f"Wordlist: {wordlist_path}")
-        print(tag_plus() + f"Size: {size_str}, Words: {wordcount}")
         return True
     
     def run_john_command(self, cmd, attack_name):
         """Run a John the Ripper command"""
-        self.show_banner()
-        print(tag_asterisk() + f"{attack_name} on: {self.archive}")
-        
-        print(tag_gt() + f"Command: {' '.join(cmd)}")
-        print()
-        print(tag_asterisk() + "Starting attack... " + c_red("Press Ctrl+C to stop"))
+        # Suppress the attack name and command display
+        # print(tag_asterisk() + f"{attack_name} on: " + YELLOW + f"{self.archive}" + RESET)
+        # print()
+        # print(tag_gt() + "Command: " + CYAN + f"{' '.join(cmd)}" + RESET)
+        # print()
+        # print(tag_asterisk() + "Starting attack... " + RED + "Press Ctrl+C to stop" + RESET)
+        # print()
         
         try:
             start_time = time.time()
@@ -451,29 +370,27 @@ class RARCracker:
             for line in iter(process.stdout.readline, ''):
                 if line.strip():
                     # Color different types of output
-                    if "Press 'q' or Ctrl-C to abort" in line:
-                        print(c_yellow(line.strip()))
-                    elif "session aborted" in line.lower():
-                        print(c_red(line.strip()))
-                    elif "password hash cracked" in line.lower():
-                        print(tag_plus() + " " + line.strip())
-                    elif "guesses:" in line.lower():
-                        print(c_cyan(line.strip()))
-                    elif "remaining:" in line.lower():
-                        print(c_yellow(line.strip()))
+                    if "cracked" in line.lower():
+                        print(tag_plus() + " " + GREEN + line.strip() + RESET)
+                    elif "warning" in line.lower():
+                        print(tag_exclamation() + " " + ORANGE + line.strip() + RESET)
+                    elif "error" in line.lower():
+                        print(tag_x() + " " + RED + line.strip() + RESET)
                     else:
                         print(line.strip())
             
             process.wait()
             elapsed = time.time() - start_time
-            
-            print(tag_minus() + f"Finished in {elapsed:.1f} seconds")
+            print()
+            print(tag_minus() + f"Finished in " + YELLOW + f"{elapsed:.1f} seconds" + RESET)
             
         except KeyboardInterrupt:
-            print(c_red("\n\n[x]") + " Stopped by user")
+            print()
+            self.show_error("Stopped by user")
             return False
         except Exception as e:
-            print(c_red("\n[x]") + f" Error: {e}")
+            print()
+            self.show_error(f"Error: {e}")
             return False
         
         return True
@@ -486,10 +403,13 @@ class RARCracker:
             return False
         
         print()
-        print(tag_minus() + "RULE OPTIONS")
-        print(c_yellow("[1]") + " No rules (fastest)")
-        print(c_yellow("[2]") + " Standard rules (recommended)")
-        print(c_yellow("[3]") + " All rules (slow but thorough)")
+        print(BLUE + "_____________________________ " + GREEN + "Rules" + BLUE + " _____________________________")
+        print()
+        print(YELLOW + "[1]" + RESET + " No rules (fastest)")
+        print(YELLOW + "[2]" + RESET + " Standard rules (recommended)")
+        print(YELLOW + "[3]" + RESET + " All rules (slow but thorough)")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         rule_choice = input(tag_gt() + "Select rule option (1-3, default=2): ").strip() or "2"
         
@@ -514,17 +434,21 @@ class RARCracker:
     
     def run_incremental_mode(self):
         """Run incremental mode"""
-        print(tag_minus() + "INCREMENTAL MODE OPTIONS")
-        print(c_yellow("[1]") + " Digits only (0-9)")
-        print(c_yellow("[2]") + " Lowercase letters (a-z)")
-        print(c_yellow("[3]") + " Alphanumeric (a-z, A-Z, 0-9)")
-        print(c_yellow("[4]") + " All characters")
-        print(c_yellow("[5]") + " Cancel")
+        print()
+        print(BLUE + "________________________ " + GREEN + "Character Sets" + BLUE + " ________________________")
+        print()
+        print(YELLOW + "[1]" + RESET + " Digits only (0-9)")
+        print(YELLOW + "[2]" + RESET + " Lowercase letters (a-z)")
+        print(YELLOW + "[3]" + RESET + " Alphanumeric (a-z, A-Z, 0-9)")
+        print(YELLOW + "[4]" + RESET + " All characters")
+        print(YELLOW + "[5]" + RESET + " Cancel")
+        print(BLUE + "_________________________________________________________________")
+        print()
         
         try:
             choice = int(input(tag_gt() + "Select character set (1-5): "))
         except ValueError:
-            print(tag_exclamation() + "Invalid choice")
+            self.show_error("Invalid choice")
             return False
         
         if choice == 5:
@@ -538,15 +462,16 @@ class RARCracker:
         }
         
         if choice not in charsets:
-            print(tag_exclamation() + "Invalid choice")
+            self.show_error("Invalid choice")
             return False
         
         charset = charsets[choice]
         
+        print()
         print(tag_asterisk() + f"Using character set: {charset}")
-        print(tag_exclamation() + "WARNING: This may take a VERY long time!")
+        self.show_warning("This may take a VERY long time!")
+        confirm = input(tag_question() + "Continue with brute force? (y/n): ").lower()
         
-        confirm = input(tag_gt() + "Continue with brute force? (y/n): ").lower()
         if confirm != 'y':
             print(tag_asterisk() + "Cancelled")
             return False
@@ -556,8 +481,8 @@ class RARCracker:
     
     def show_results(self):
         """Show cracked passwords"""
-        self.show_banner()
         print(tag_asterisk() + "Checking for cracked passwords...")
+        print()
         
         cmd = [self.john_path, self.hash_file, "--show"]
         
@@ -565,145 +490,143 @@ class RARCracker:
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.stdout:
-                print()
-                print(tag_minus() + "CRACKED PASSWORDS RESULTS")
-                print()
-                
-                # Colorize the output
                 lines = result.stdout.strip().split('\n')
+                password_found = False
+                password_value = ""
+                
                 for line in lines:
                     if ':' in line and not line.startswith(' '):
-                        parts = line.split(':')
-                        if len(parts) >= 2:
-                            print(c_cyan(parts[0] + ":") + c_green(":".join(parts[1:])))
-                        else:
-                            print(c_cyan(line))
-                    else:
-                        print(line)
+                        parts = line.split(':', 1)
+                        if len(parts) > 1:
+                            # Get only the password part, strip any filename suffix
+                            full_value = parts[1].strip()
+                            # Extract just the password (remove filename after colon)
+                            if ':' in full_value:
+                                password_value = full_value.split(':', 1)[0].strip()
+                            else:
+                                password_value = full_value
+                            password_found = True
+                            break
                 
-                # Check if any passwords were actually cracked
-                if "password hash cracked" in result.stdout or "password hashes cracked" in result.stdout:
-                    # Save to file
-                    timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    results_file = f"cracked_{timestamp}.txt"
+                if password_found:
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    print(tag_minus() + "Cracked Password Results: " + GREEN + password_value + RESET)
+                    print()
+                    print(BLUE + "_________________________________________________________________")
                     
-                    with open(results_file, "w") as f:
-                        f.write(f"RAR File: {self.archive}\n")
-                        f.write(f"Time: {time.ctime()}\n")
-                        f.write("=" * 50 + "\n")
+                    # Save results to file
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    filename = f"cracked_{timestamp}.txt"
+                    with open(filename, "w") as f:
                         f.write(result.stdout)
                     
-                    print(tag_minus() + f"Results saved to: {results_file}")
+                    print()
+                    print(tag_plus() + f" Results saved to: {filename}")
+                    print()
+                    print(BLUE + "_________________________________________________________________")
+                    
+                    return True
                 else:
                     print(tag_minus() + "No passwords cracked yet")
             else:
                 print(tag_minus() + "No passwords cracked yet")
                 
         except Exception as e:
-            print(tag_x() + f"Error showing results: {e}")
+            self.show_error(f"Error showing results: {e}")
+        
+        print(BLUE + "\n_________________________________________________________________")
+        return False
     
     def cleanup(self):
         """Clean up temporary files"""
-        if self.hash_file and os.path.exists(os.path.dirname(self.hash_file)):
+        if self.temp_dir and os.path.exists(self.temp_dir):
             try:
-                shutil.rmtree(os.path.dirname(self.hash_file))
+                shutil.rmtree(self.temp_dir)
+                self.temp_dir = None
+                self.hash_file = None
             except:
                 pass
     
     def main_loop(self):
         """Main program loop"""
         if not self.check_tools():
-            print(tag_exclamation() + "Please install missing tools and try again")
-            input(tag_gt() + "Press Enter to exit...")
+            print(tag_exclamation() + "Required tools not found. Please install john and rar2john.")
             return
         
         while True:
-            # Select RAR file
             self.archive = self.select_rar()
             if not self.archive:
-                print(tag_asterisk() + "Exiting...")
                 self.cleanup()
-                break
+                return
             
-            # Extract hash
-            print(tag_asterisk() + "Extracting hash from RAR file...")
+            print()
             if not self.extract_hash(self.archive):
-                print(tag_exclamation() + "Failed to extract hash from RAR file")
-                
-                # Offer manual hash input
-                print(tag_minus() + "You can manually extract the hash with:")
-                print(c_yellow(f"    {self.rar2john_path} \"{self.archive}\""))
-                print(tag_minus() + "Then create a hash file manually and continue")
-                
-                manual_hash = input(tag_gt() + "Enter hash manually (or press Enter to skip): ").strip()
-                if manual_hash:
-                    # Create temporary file for manual hash
-                    temp_dir = tempfile.mkdtemp(prefix="rar_hash_")
-                    self.hash_file = os.path.join(temp_dir, "rar.hash")
-                    with open(self.hash_file, 'w') as f:
-                        f.write(manual_hash + '\n')
-                    print(tag_plus() + f"Manual hash saved to: {self.hash_file}")
-                else:
-                    input(tag_gt() + "Press Enter to continue...")
-                    continue
+                continue
             
-            # Main attack loop for this RAR file
             while True:
+                print()
                 choice = self.select_attack_mode()
                 
                 if choice == 1:
-                    # Wordlist attack with default wordlist
                     self.run_wordlist_attack()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 2:
-                    # Wordlist attack with custom wordlist
-                    wordlist = input(tag_gt() + "Enter path to custom wordlist: ").strip()
-                    if wordlist:
-                        if os.path.exists(wordlist):
-                            self.run_wordlist_attack(custom_wordlist=wordlist)
-                            self.show_results()
+                    wl = input(tag_gt() + "Enter path to custom wordlist: ").strip()
+                    if wl:
+                        if os.path.exists(wl):
+                            self.run_wordlist_attack(wl)
+                            if self.show_results():
+                                self.cleanup()
+                                return
                         else:
-                            print(tag_exclamation() + f"Wordlist not found: {wordlist}")
+                            self.show_error(f"Wordlist not found: {wl}")
                     else:
-                        print(tag_exclamation() + "No wordlist specified")
-                    input(tag_gt() + "Press Enter to continue...")
+                        self.show_error("No wordlist specified")
                 elif choice == 3:
-                    # Single crack mode
                     self.run_single_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 4:
-                    # Incremental mode
                     self.run_incremental_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 5:
-                    # Show results
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 6:
-                    # Select different RAR file
                     self.cleanup()
                     break
                 elif choice == 7:
-                    # Exit
-                    print(tag_asterisk() + "Goodbye!")
                     self.cleanup()
                     return
                 else:
-                    print(tag_exclamation() + "Invalid choice")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("Invalid choice")
 
 def main():
     """Main function"""
     try:
+        # Enable virtual terminal processing on Windows
+        if platform.system() == "Windows":
+            try:
+                import ctypes
+                kernel32 = ctypes.windll.kernel32
+                kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+            except:
+                pass
+        
         cracker = RARCracker()
         cracker.main_loop()
+        
     except KeyboardInterrupt:
-        print(c_red("\n\n[x]") + " Program stopped by user")
+        print(RED + "\n[x] Program stopped by user" + RESET)
     except Exception as e:
-        print(c_red("\n[x]") + f" Error: {e}")
+        print(RED + f"\n[x] Error: {e}" + RESET)
         import traceback
         traceback.print_exc()
 
