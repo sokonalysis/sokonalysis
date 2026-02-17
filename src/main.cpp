@@ -90,6 +90,9 @@
 #include "rsa_solver_common_n.h"
 #include "mod_solver.h"
 
+// Enterprise
+
+
 
 #include <sstream>   // for stringstream
 
@@ -238,7 +241,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                     Last update 04 January 2026                           " << RESET << endl;
+        cout << WHITE << "                    Last update 17 February 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1911,7 +1914,7 @@ int main() {
             string sub_adv_choice;
             cout << endl;
 
-            cout << BLUE << "_____________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "______________________" << RESET << endl;
+            cout << BLUE << "_________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "____________________" << RESET << endl;
             cout << endl;
             cout << YELLOW << "[1]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
             cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
