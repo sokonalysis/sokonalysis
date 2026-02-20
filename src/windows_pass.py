@@ -2,7 +2,8 @@
 """
 WINDOWS PASSWORD CRACKER
 Extract and crack passwords from Windows SAM and SYSTEM files
-Colorful Interface
+SOKONALYSIS - Created by Soko James
+Following Sokonalysis C++ Style Guidelines for Sub-options
 """
 
 import os
@@ -12,62 +13,30 @@ import time
 import tempfile
 import shutil
 import re
-import json
-import argparse
-from pathlib import Path
+import platform
 
-# Check if we're in a GUI environment (no terminal)
-if sys.stdout.isatty():
-    # We have a real terminal, use colorama normally
-    from colorama import Fore, Style, init
-    init(autoreset=True)
-    
-    # Define our color functions
-    def c_red(text): return Fore.RED + text + Style.RESET_ALL
-    def c_green(text): return Fore.GREEN + text + Style.RESET_ALL
-    def c_yellow(text): return Fore.YELLOW + text + Style.RESET_ALL
-    def c_cyan(text): return Fore.CYAN + text + Style.RESET_ALL
-    def c_blue(text): return Fore.BLUE + text + Style.RESET_ALL
-    def c_magenta(text): return Fore.MAGENTA + text + Style.RESET_ALL
-    def c_reset(): return Style.RESET_ALL
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return Fore.YELLOW + "[*]" + Style.RESET_ALL + " "
-    def tag_plus(): return Fore.GREEN + "[+]" + Style.RESET_ALL + " "
-    def tag_minus(): return Fore.GREEN + "[-]" + Style.RESET_ALL + " "
-    def tag_exclamation(): return Fore.RED + "[!]" + Style.RESET_ALL + " "
-    def tag_gt(): return Fore.YELLOW + "[>]" + Style.RESET_ALL + " "
-    def tag_x(): return Fore.RED + "[x]" + Style.RESET_ALL + " "
-    def tag_info(): return Fore.CYAN + "[i]" + Style.RESET_ALL + " "
-    
-else:
-    # We're in a GUI or redirected output, use ANSI escape codes directly
-    # ANSI escape codes for colors
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    CYAN = '\033[96m'
-    BLUE = '\033[94m'
-    MAGENTA = '\033[95m'
-    RESET = '\033[0m'
-    
-    # Define our color functions
-    def c_red(text): return RED + text + RESET
-    def c_green(text): return GREEN + text + RESET
-    def c_yellow(text): return YELLOW + text + RESET
-    def c_cyan(text): return CYAN + text + RESET
-    def c_blue(text): return BLUE + text + RESET
-    def c_magenta(text): return MAGENTA + text + RESET
-    def c_reset(): return RESET
-    
-    # Tag functions with consistent spacing
-    def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
-    def tag_plus(): return GREEN + "[+]" + RESET + " "
-    def tag_minus(): return GREEN + "[-]" + RESET + " "
-    def tag_exclamation(): return RED + "[!]" + RESET + " "
-    def tag_gt(): return YELLOW + "[>]" + RESET + " "
-    def tag_x(): return RED + "[x]" + RESET + " "
-    def tag_info(): return CYAN + "[i]" + RESET + " "
+# ANSI color codes - matching C++ style from main.cpp
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+CYAN = '\033[36m'
+BLUE = '\033[34m'
+MAGENTA = '\033[35m'
+ORANGE = '\033[38;5;208m'
+WHITE = '\033[37m'
+BOLD = '\033[1m'
+RESET = '\033[0m'
+
+# Tag functions with consistent spacing - matching C++ style
+def tag_asterisk(): return YELLOW + "[*]" + RESET + " "
+def tag_plus(): return GREEN + "[+]" + RESET + " "
+def tag_minus(): return GREEN + "[-]" + RESET + " "
+def tag_exclamation(): return RED + "[!]" + RESET + " "
+def tag_gt(): return YELLOW + "[>]" + RESET + " "
+def tag_x(): return RED + "[x]" + RESET + " "
+def tag_question(): return ORANGE + "[?]" + RESET + " "
+def tag_hash(): return CYAN + "[#]" + RESET + " "
+def tag_info(): return CYAN + "[i]" + RESET + " "
 
 class WindowsPasswordCracker:
     def __init__(self):
@@ -83,90 +52,72 @@ class WindowsPasswordCracker:
         self.temp_dir = None
         self.output_file = None
         
-    def clear_screen(self):
-        """Clear screen"""
-        os.system('clear' if os.name == 'posix' else 'cls')
+    def show_error(self, message):
+        """Display error message in red with [x] tag"""
+        print(tag_x() + message)
     
-    def show_banner(self):
-        """Show colorful banner"""
-        self.clear_screen()
-        print(tag_minus() + "WINDOWS PASSWORD CRACKER")
-        print(c_yellow("Extract and crack passwords from Windows SAM and SYSTEM files"))
-        print()
+    def show_success(self, message):
+        """Display success message in green with [+] tag"""
+        print(tag_plus() + message)
+    
+    def show_info(self, message):
+        """Display info message in cyan with [#] tag"""
+        print(tag_hash() + message)
+    
+    def show_warning(self, message):
+        """Display warning message in orange with [!] tag"""
+        print(tag_exclamation() + message)
     
     def check_tools(self):
         """Check if required tools are available"""
-        self.show_banner()
-        print(tag_asterisk() + "Checking for required tools...")
-        
         # Check for john
         try:
             result = subprocess.run([self.john_path, "--version"], 
                                   capture_output=True, text=True, timeout=2)
-            if result.returncode in [0, 1]:
-                print(tag_plus() + f"John the Ripper: Found at '{self.john_path}'")
-            else:
-                print(tag_exclamation() + "John the Ripper not working properly")
+            if result.returncode not in [0, 1]:
                 return False
         except FileNotFoundError:
-            print(tag_exclamation() + "John the Ripper not found!")
-            print(c_yellow("    Install with: sudo apt install john  (Debian/Ubuntu)"))
-            print(c_yellow("                  sudo yum install john  (RedHat/Fedora)"))
-            print(c_yellow("                  sudo pacman -S john    (Arch)"))
             return False
         
         # Check for impacket-secretsdump
         try:
             result = subprocess.run(["impacket-secretsdump", "-h"], 
                                   capture_output=True, text=True, timeout=2)
-            if "secretsdump" in result.stdout.lower() or result.returncode == 0:
-                print(tag_plus() + "Impacket-secretsdump: Found")
-            else:
-                print(tag_exclamation() + "Impacket-secretsdump not found!")
-                print(c_yellow("    Install with: pip install impacket"))
-                print(c_yellow("    Or download from: https://github.com/fortra/impacket"))
+            if "secretsdump" not in result.stdout.lower() and result.returncode != 0:
                 return False
         except FileNotFoundError:
-            print(tag_exclamation() + "Impacket-secretsdump not found!")
-            print(c_yellow("    Install with: pip install impacket"))
-            print(c_yellow("    Or download from: https://github.com/fortra/impacket"))
             return False
         
         # Check for wordlist
-        if os.path.exists(self.default_wordlist):
-            wordcount = self.count_words(self.default_wordlist)
-            if wordcount:
-                print(tag_plus() + f"Default wordlist: '{self.default_wordlist}' ({wordcount} words)")
-            else:
-                print(tag_exclamation() + f"Cannot read wordlist: {self.default_wordlist}")
-        else:
-            print(tag_exclamation() + f"Default wordlist not found: '{self.default_wordlist}'")
-            print(c_yellow("    Please create a file named '") + c_cyan("wordlist.txt") + c_yellow("' with passwords"))
-            return False
-
-        return True
+        wordlist_paths = [
+            self.default_wordlist,
+            "wordlists/wordlist.txt",
+            "../wordlists/wordlist.txt",
+            "/usr/share/wordlists/rockyou.txt"
+        ]
+        
+        for path in wordlist_paths:
+            if os.path.exists(path):
+                self.default_wordlist = path
+                return True
+        
+        return False
     
     def count_words(self, filepath):
-        """Count words in a file, handling different encodings"""
+        """Count words in a file"""
         if not os.path.exists(filepath):
             return 0
         
-        encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
-        
-        for encoding in encodings:
-            try:
-                with open(filepath, 'r', encoding=encoding) as f:
-                    wordcount = sum(1 for line in f if line.strip())
-                return wordcount
-            except UnicodeDecodeError:
-                continue
-        
-        return 0
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                return sum(1 for line in f if line.strip())
+        except:
+            return 0
     
     def auto_detect_files(self):
         """Auto-detect SAM and SYSTEM files in current directory"""
-        self.show_banner()
         print(tag_asterisk() + "Auto-detecting SAM and SYSTEM files...")
+        print()
         
         sam_files = []
         system_files = []
@@ -189,104 +140,108 @@ class WindowsPasswordCracker:
         
         # Display found files
         if sam_files:
-            print(tag_plus() + f"Found {len(sam_files)} SAM file(s):")
+            self.show_success(f"Found {len(sam_files)} SAM file(s):")
             for filename, path in sam_files:
-                print(c_cyan(f"    {filename}"))
+                print(CYAN + f"    {filename}" + RESET)
         
         if system_files:
-            print(tag_plus() + f"Found {len(system_files)} SYSTEM file(s):")
+            self.show_success(f"Found {len(system_files)} SYSTEM file(s):")
             for filename, path in system_files:
-                print(c_cyan(f"    {filename}"))
+                print(CYAN + f"    {filename}" + RESET)
         
         # Try to auto-select
         if len(sam_files) == 1 and len(system_files) == 1:
             self.sam_file = sam_files[0][1]
             self.system_file = system_files[0][1]
-            print(tag_plus() + f"Auto-selected SAM: {sam_files[0][0]}")
-            print(tag_plus() + f"Auto-selected SYSTEM: {system_files[0][0]}")
+            self.show_success(f"Auto-selected SAM: {sam_files[0][0]}")
+            self.show_success(f"Auto-selected SYSTEM: {system_files[0][0]}")
             return True
         elif sam_files and system_files:
             # Let user select
             return self.select_detected_files(sam_files, system_files)
         else:
-            print(tag_exclamation() + "Could not auto-detect both SAM and SYSTEM files")
+            self.show_error("Could not auto-detect both SAM and SYSTEM files")
             return False
     
     def select_detected_files(self, sam_files, system_files):
         """Let user select from detected files"""
         print(tag_minus() + "SELECT SAM FILE")
         for idx, (filename, path) in enumerate(sam_files, 1):
-            print(c_yellow(f"[{idx}]") + f" {filename}")
+            print(YELLOW + f"[{idx}]" + RESET + f" {filename}")
         
         try:
             choice = int(input(tag_gt() + f"Select SAM file (1-{len(sam_files)}): "))
             if 1 <= choice <= len(sam_files):
                 self.sam_file = sam_files[choice-1][1]
-                print(tag_plus() + f"Selected SAM: {sam_files[choice-1][0]}")
+                self.show_success(f"Selected SAM: {sam_files[choice-1][0]}")
             else:
                 return False
         except ValueError:
-            print(tag_exclamation() + "Invalid selection")
+            self.show_error("Invalid selection")
             return False
         
+        print()
         print(tag_minus() + "SELECT SYSTEM FILE")
         for idx, (filename, path) in enumerate(system_files, 1):
-            print(c_yellow(f"[{idx}]") + f" {filename}")
+            print(YELLOW + f"[{idx}]" + RESET + f" {filename}")
         
         try:
             choice = int(input(tag_gt() + f"Select SYSTEM file (1-{len(system_files)}): "))
             if 1 <= choice <= len(system_files):
                 self.system_file = system_files[choice-1][1]
-                print(tag_plus() + f"Selected SYSTEM: {system_files[choice-1][0]}")
+                self.show_success(f"Selected SYSTEM: {system_files[choice-1][0]}")
                 return True
             else:
                 return False
         except ValueError:
-            print(tag_exclamation() + "Invalid selection")
+            self.show_error("Invalid selection")
             return False
     
     def get_custom_files(self):
         """Get custom file paths from user"""
-        self.show_banner()
         print(tag_minus() + "ENTER CUSTOM FILE PATHS")
+        print()
         
         sam_path = input(tag_gt() + "Enter full path to SAM file: ").strip()
         if not os.path.exists(sam_path):
-            print(tag_exclamation() + f"File not found: {sam_path}")
+            self.show_error(f"File not found: {sam_path}")
             return False
         
         system_path = input(tag_gt() + "Enter full path to SYSTEM file: ").strip()
         if not os.path.exists(system_path):
-            print(tag_exclamation() + f"File not found: {system_path}")
+            self.show_error(f"File not found: {system_path}")
             return False
         
         self.sam_file = sam_path
         self.system_file = system_path
-        print(tag_plus() + f"Using SAM file: {sam_path}")
-        print(tag_plus() + f"Using SYSTEM file: {system_path}")
+        self.show_success(f"Using SAM file: {sam_path}")
+        self.show_success(f"Using SYSTEM file: {system_path}")
         return True
     
     def extract_hashes(self):
         """Extract password hashes using impacket-secretsdump"""
-        self.show_banner()
         print(tag_asterisk() + "Extracting password hashes...")
+        print()
         
         # Create temporary directory
         self.temp_dir = tempfile.mkdtemp(prefix="windows_pass_")
         self.output_file = os.path.join(self.temp_dir, "hashes.txt")
         
         print(tag_info() + f"Using command: impacket-secretsdump -system {self.system_file} -sam {self.sam_file} LOCAL")
+        print()
         
         try:
             # Run impacket-secretsdump
             cmd = ["impacket-secretsdump", "-system", self.system_file, "-sam", self.sam_file, "LOCAL"]
             
             print(tag_gt() + "Running secretsdump...")
+            print()
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             
             if result.returncode != 0:
-                print(tag_exclamation() + f"secretsdump failed with error:")
-                print(c_red(result.stderr))
+                self.show_error(f"secretsdump failed")
+                if result.stderr:
+                    print(RED + result.stderr + RESET)
                 return False
             
             # Parse output to extract hashes
@@ -295,20 +250,18 @@ class WindowsPasswordCracker:
             # Save hashes to file in John format
             if self.users:
                 self.save_hashes_to_file()
-                print(tag_plus() + f"Extracted {len(self.users)} user(s)")
-                print(tag_plus() + f"Hashes saved to: {self.output_file}")
+                self.show_success(f"Extracted {len(self.users)} user(s)")
+                self.show_success(f"Hashes saved to: {self.output_file}")
                 return True
             else:
-                print(tag_exclamation() + "No password hashes found in output!")
+                self.show_error("No password hashes found in output!")
                 return False
             
         except subprocess.TimeoutExpired:
-            print(tag_exclamation() + "secretsdump timed out!")
+            self.show_error("secretsdump timed out!")
             return False
         except Exception as e:
-            print(tag_exclamation() + f"Error running secretsdump: {e}")
-            import traceback
-            traceback.print_exc()
+            self.show_error(f"Error running secretsdump: {e}")
             return False
     
     def parse_secretsdump_output(self, output):
@@ -321,10 +274,8 @@ class WindowsPasswordCracker:
         for line in lines:
             line = line.strip()
             
-            # Look for NTLM hash lines (format: username:RID:LMhash:NThash:::")
-            if ':' in line and ('aad3b435b51404eeaad3b435b51404ee' in line or 
-                              '$NT$' in line or 
-                              'NTLM' in line.lower()):
+            # Look for NTLM hash lines (format: username:RID:LMhash:NThash:::
+            if ':' in line and ('aad3b435b51404eeaad3b435b51404ee' in line):
                 
                 # Check for standard format: username:rid:lmhash:nthash:::
                 if line.count(':') >= 4:
@@ -364,35 +315,27 @@ class WindowsPasswordCracker:
     
     def display_users(self):
         """Display list of users with password hashes"""
-        self.show_banner()
-        print(tag_minus() + f"EXTRACTED WINDOWS USERS")
-        print(c_yellow(f"SAM: {self.sam_file}"))
-        print(c_yellow(f"SYSTEM: {self.system_file}"))
+        print(tag_minus() + "EXTRACTED WINDOWS USERS")
+        print()
+        print(tag_info() + f"SAM: {self.sam_file}")
+        print(tag_info() + f"SYSTEM: {self.system_file}")
         print()
         
         if not self.users:
-            print(tag_exclamation() + "No users with password hashes found!")
+            self.show_error("No users with password hashes found!")
             return False
         
-        print(c_cyan(f"Found {len(self.users)} user(s) with NTLM hashes:"))
+        self.show_success(f"Found {len(self.users)} user(s) with NTLM hashes:")
         print()
-        print(c_yellow("ID  USERNAME        RID     LM HASH                          NT HASH"))
-        print(c_yellow("--  --------        ---     -------                          -------"))
+        print(YELLOW + "ID  USERNAME        RID     NT HASH" + RESET)
+        print(YELLOW + "--  --------        ---     -------" + RESET)
         
         for idx, user in enumerate(self.users, 1):
             username = user['username']
             rid = user['rid']
-            lm_hash = user['lm_hash']
             nt_hash = user['nt_hash']
             
-            # Truncate hashes for display
-            if lm_hash == 'aad3b435b51404eeaad3b435b51404ee':
-                lm_display = "(empty)"
-            elif len(lm_hash) > 8:
-                lm_display = lm_hash[:8] + "..."
-            else:
-                lm_display = lm_hash
-            
+            # Truncate hash for display
             if len(nt_hash) > 8:
                 nt_display = nt_hash[:8] + "..."
             else:
@@ -406,11 +349,10 @@ class WindowsPasswordCracker:
             
             # Color based on hash type
             if user.get('cracked', False):
-                username_display = c_green(username_display)
-                lm_display = c_green(lm_display)
-                nt_display = c_green(nt_display)
+                username_display = GREEN + username_display + RESET
+                nt_display = GREEN + nt_display + RESET
             
-            print(f"{idx:2d}  {username_display:15} {rid:6}  {lm_display:32}  {nt_display}")
+            print(f"{idx:2d}  {username_display:15} {rid:6}  {nt_display}")
         
         print()
         return True
@@ -420,41 +362,46 @@ class WindowsPasswordCracker:
         if len(self.users) == 1:
             # Only one user, auto-select
             self.selected_user = self.users[0]
-            print(tag_plus() + f"Auto-selected user: {self.selected_user['username']}")
+            self.show_success(f"Auto-selected user: {self.selected_user['username']}")
             return True
         
-        print(tag_minus() + "USER SELECTION")
-        print(c_yellow(f"[1-{len(self.users)}]") + f" Select user by ID")
-        print(c_yellow(f"[{len(self.users)+1}]") + " Crack ALL users")
-        print(c_yellow(f"[{len(self.users)+2}]") + " Cancel")
+        # Colored header matching the style of Options header
+        print(BLUE + "_____________________ " + GREEN + "User Selection" + BLUE + " ____________________________" + RESET)
+        print()
+        print(YELLOW + f"[1-{len(self.users)}]" + RESET + f" Select user by ID")
+        print(YELLOW + f"[{len(self.users)+1}]" + RESET + " Crack ALL users")
+        print(YELLOW + f"[{len(self.users)+2}]" + RESET + " Cancel")
+        print(BLUE + "_________________________________________________________________" + RESET)
+        print()
         
         try:
             choice = int(input(tag_gt() + f"Select option (1-{len(self.users)+2}): "))
+            print()
             
             if 1 <= choice <= len(self.users):
                 self.selected_user = self.users[choice-1]
-                print(tag_plus() + f"Selected user: {self.selected_user['username']}")
+                self.show_success(f"Selected user: {self.selected_user['username']}")
                 return True
             elif choice == len(self.users) + 1:
                 self.selected_user = None  # Means all users
-                print(tag_plus() + "Selected ALL users")
+                self.show_success("Selected ALL users")
                 return True
             else:
                 return False
                 
         except ValueError:
-            print(tag_exclamation() + "Please enter a valid number")
+            self.show_error("Please enter a valid number")
             return False
     
     def get_wordlist_info(self, wordlist_path):
         """Get information about a wordlist"""
         if not os.path.exists(wordlist_path):
-            print(tag_exclamation() + f"Wordlist not found: {wordlist_path}")
+            self.show_error(f"Wordlist not found: {wordlist_path}")
             return False
         
         wordcount = self.count_words(wordlist_path)
         if wordcount == 0:
-            print(tag_exclamation() + f"Wordlist is empty: {wordlist_path}")
+            self.show_error(f"Wordlist is empty: {wordlist_path}")
             return False
         
         filesize = os.path.getsize(wordlist_path)
@@ -465,22 +412,24 @@ class WindowsPasswordCracker:
         else:
             size_str = f"{filesize/(1024*1024):.1f}MB"
         
-        print(tag_plus() + f"Wordlist: {wordlist_path}")
-        print(tag_plus() + f"Size: {size_str}, Words: {wordcount}")
+        self.show_success(f"Wordlist: {wordlist_path}")
+        self.show_success(f"Size: {size_str}, Words: {wordcount}")
         return True
     
     def run_john_command(self, cmd, attack_name):
         """Run a John the Ripper command"""
-        self.show_banner()
+        print(tag_asterisk() + f"{attack_name} starting...")
+        print()
         
         if self.selected_user:
-            print(tag_asterisk() + f"{attack_name} on user: {self.selected_user['username']}")
+            print(tag_info() + f"Target user: {YELLOW}{self.selected_user['username']}{RESET}")
         else:
-            print(tag_asterisk() + f"{attack_name} on {len(self.users)} users")
+            print(tag_info() + f"Target: {YELLOW}{len(self.users)} users{RESET}")
         
-        print(tag_gt() + f"Command: {' '.join(cmd)}")
+        print(tag_gt() + "Command: " + CYAN + f"{' '.join(cmd)}" + RESET)
         print()
-        print(tag_asterisk() + "Starting attack... " + c_red("Press Ctrl+C to stop"))
+        print(tag_asterisk() + "Starting attack... " + RED + "Press Ctrl+C to stop" + RESET)
+        print()
         
         try:
             start_time = time.time()
@@ -495,34 +444,27 @@ class WindowsPasswordCracker:
             # Print output in real-time
             for line in iter(process.stdout.readline, ''):
                 if line.strip():
-                    # Color different types of output
-                    if "Press 'q' or Ctrl-C to abort" in line:
-                        print(c_yellow(line.strip()))
-                    elif "session aborted" in line.lower():
-                        print(c_red(line.strip()))
-                    elif "password hash cracked" in line.lower():
-                        print(tag_plus() + " " + line.strip())
-                    elif "guesses:" in line.lower():
-                        print(c_cyan(line.strip()))
-                    elif "remaining:" in line.lower():
-                        print(c_yellow(line.strip()))
-                    elif "Loaded" in line and "password hash" in line:
-                        print(c_magenta(line.strip()))
+                    if "cracked" in line.lower():
+                        print(tag_plus() + " " + GREEN + line.strip() + RESET)
+                    elif "warning" in line.lower():
+                        print(tag_exclamation() + " " + ORANGE + line.strip() + RESET)
+                    elif "error" in line.lower():
+                        print(tag_x() + " " + RED + line.strip() + RESET)
                     else:
                         print(line.strip())
             
             process.wait()
             elapsed = time.time() - start_time
-            
-            print(tag_minus() + f"Finished in {elapsed:.1f} seconds")
+            print()
+            print(tag_minus() + f"Finished in " + YELLOW + f"{elapsed:.1f} seconds" + RESET)
             
         except KeyboardInterrupt:
-            print(c_red("\n\n[x]") + " Stopped by user")
+            print()
+            self.show_error("Stopped by user")
             return False
         except Exception as e:
-            print(c_red("\n[x]") + f" Error: {e}")
-            import traceback
-            traceback.print_exc()
+            print()
+            self.show_error(f"Error: {e}")
             return False
         
         return True
@@ -531,7 +473,7 @@ class WindowsPasswordCracker:
         """Run wordlist attack"""
         # Check if hash file exists
         if not self.hash_file or not os.path.exists(self.hash_file):
-            print(tag_exclamation() + "Hash file not found or not created!")
+            self.show_error("Hash file not found or not created!")
             return False
         
         wordlist = custom_wordlist if custom_wordlist else self.default_wordlist
@@ -540,21 +482,19 @@ class WindowsPasswordCracker:
             return False
         
         print()
-        print(tag_minus() + "RULE OPTIONS")
-        print(c_yellow("[1]") + " No rules (fastest)")
-        print(c_yellow("[2]") + " Standard rules (recommended)")
-        print(c_yellow("[3]") + " All rules (slow but thorough)")
+        print(BLUE + "_____________________________ " + GREEN + "Rules" + BLUE + " _____________________________" + RESET)
+        print()
+        print(YELLOW + "[1]" + RESET + " No rules (fastest)")
+        print(YELLOW + "[2]" + RESET + " Standard rules (recommended)")
+        print(YELLOW + "[3]" + RESET + " All rules (slow but thorough)")
+        print(BLUE + "_________________________________________________________________" + RESET)
+        print()
         
         rule_choice = input(tag_gt() + "Select rule option (1-3, default=2): ").strip() or "2"
+        print()
         
         # Build command
-        cmd = [self.john_path]
-        
-        # Add hash file
-        cmd.append(self.hash_file)
-        
-        # Add wordlist
-        cmd.append("--wordlist=" + wordlist)
+        cmd = [self.john_path, self.hash_file, "--format=NT", "--wordlist=" + wordlist]
         
         # Add rules
         if rule_choice == "2":
@@ -562,15 +502,12 @@ class WindowsPasswordCracker:
         elif rule_choice == "3":
             cmd.append("--rules=All")
         
-        # Specify format for Windows NTLM hashes
-        cmd.append("--format=NT")
-        
         return self.run_john_command(cmd, "Wordlist Attack")
     
     def run_single_mode(self):
         """Run single crack mode"""
         if not self.hash_file or not os.path.exists(self.hash_file):
-            print(tag_exclamation() + "Hash file not found or not created!")
+            self.show_error("Hash file not found or not created!")
             return False
         
         cmd = [self.john_path, self.hash_file, "--single", "--format=NT"]
@@ -579,57 +516,50 @@ class WindowsPasswordCracker:
     def run_incremental_mode(self):
         """Run incremental mode"""
         if not self.hash_file or not os.path.exists(self.hash_file):
-            print(tag_exclamation() + "Hash file not found or not created!")
+            self.show_error("Hash file not found or not created!")
             return False
         
-        print(tag_minus() + "INCREMENTAL MODE OPTIONS")
-        print(c_yellow("[1]") + " Digits only (0-9)")
-        print(c_yellow("[2]") + " Lowercase letters (a-z)")
-        print(c_yellow("[3]") + " Alphanumeric (a-z, A-Z, 0-9)")
-        print(c_yellow("[4]") + " All characters")
-        print(c_yellow("[5]") + " Cancel")
+        print()
+        print(BLUE + "________________________ " + GREEN + "Character Sets" + BLUE + " ________________________" + RESET)
+        print()
+        print(YELLOW + "[1]" + RESET + " Digits only (0-9)")
+        print(YELLOW + "[2]" + RESET + " Lowercase letters (a-z)")
+        print(YELLOW + "[3]" + RESET + " Alphanumeric (a-z, A-Z, 0-9)")
+        print(YELLOW + "[4]" + RESET + " All characters")
+        print(YELLOW + "[5]" + RESET + " Cancel")
+        print(BLUE + "_________________________________________________________________" + RESET)
+        print()
         
         try:
             choice = int(input(tag_gt() + "Select character set (1-5): "))
-        except ValueError:
-            print(tag_exclamation() + "Invalid choice")
+            if choice == 5:
+                return False
+        except:
+            self.show_error("Invalid choice")
             return False
         
-        if choice == 5:
-            return False
+        modes = {1: "Digits", 2: "Lower", 3: "Alnum", 4: "All"}
+        mode = modes.get(choice, "Alnum")
         
-        charsets = {
-            1: "Digits",
-            2: "Low",
-            3: "Alnum",
-            4: "All"
-        }
+        print()
+        self.show_warning("This may take a VERY long time!")
+        confirm = input(tag_question() + "Continue with brute force? (y/n): ").lower()
         
-        if choice not in charsets:
-            print(tag_exclamation() + "Invalid choice")
-            return False
-        
-        charset = charsets[choice]
-        
-        print(tag_asterisk() + f"Using character set: {charset}")
-        print(tag_exclamation() + "WARNING: This may take a VERY long time!")
-        
-        confirm = input(tag_gt() + "Continue with brute force? (y/n): ").lower()
         if confirm != 'y':
             print(tag_asterisk() + "Cancelled")
             return False
         
-        cmd = [self.john_path, self.hash_file, "--incremental=" + charset, "--format=NT"]
-        return self.run_john_command(cmd, f"Incremental Mode ({charset})")
+        cmd = [self.john_path, self.hash_file, "--incremental=" + mode, "--format=NT"]
+        return self.run_john_command(cmd, f"Incremental Mode ({mode})")
     
     def show_results(self):
-        """Show cracked passwords"""
-        self.show_banner()
+        """Show cracked passwords - exactly as specified"""
         print(tag_asterisk() + "Checking for cracked passwords...")
+        print()
         
         if not self.hash_file or not os.path.exists(self.hash_file):
-            print(tag_exclamation() + "Hash file not found!")
-            return
+            self.show_error("Hash file not found!")
+            return False
         
         cmd = [self.john_path, self.hash_file, "--show", "--format=NT"]
         
@@ -637,16 +567,16 @@ class WindowsPasswordCracker:
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.stdout:
-                print()
-                print(tag_minus() + "CRACKED PASSWORDS RESULTS")
-                print()
-                
-                # Parse the output and update users
+                # Parse the output to extract the password
                 lines = result.stdout.strip().split('\n')
+                password_found = False
+                password_value = ""
+                
                 for line in lines:
                     if ':' in line and not line.startswith(' '):
-                        parts = line.split(':')
-                        if len(parts) >= 2:
+                        # This is a cracked password line like "username:password"
+                        parts = line.split(':', 1)
+                        if len(parts) > 1:
                             username = parts[0]
                             password = parts[1]
                             
@@ -655,69 +585,85 @@ class WindowsPasswordCracker:
                                 if user['username'] == username:
                                     user['cracked'] = True
                                     user['password'] = password
-                                    break
                             
-                            print(c_cyan(username + ":") + c_green(password))
-                        else:
-                            print(c_cyan(line))
-                    else:
-                        print(line)
+                            # If this is the selected user or we're showing all
+                            if self.selected_user is None or self.selected_user['username'] == username:
+                                # Extract just the password (not the hash)
+                                if ':' in password:
+                                    password_parts = password.split(':')
+                                    password_value = password_parts[0]
+                                else:
+                                    password_value = password
+                                password_found = True
                 
-                # Check if any passwords were actually cracked
-                cracked_count = sum(1 for user in self.users if user.get('cracked', False))
-                if cracked_count > 0:
-                    # Save to file
+                if password_found:
+                    print(BLUE + "_________________________________________________________________" + RESET)
+                    print()
+                    print(tag_minus() + "Cracked Passwords Results: " + GREEN + password_value + RESET)
+                    print()
+                    print(BLUE + "_________________________________________________________________" + RESET)
+                    
+                    # Save results to file
                     timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    results_file = f"cracked_windows_passwords_{timestamp}.txt"
+                    filename = f"cracked_{timestamp}.txt"
+                    with open(filename, "w") as f:
+                        f.write(result.stdout)
                     
-                    with open(results_file, "w") as f:
-                        f.write(f"Source SAM: {self.sam_file}\n")
-                        f.write(f"Source SYSTEM: {self.system_file}\n")
-                        f.write(f"Time: {time.ctime()}\n")
-                        f.write(f"Cracked {cracked_count} of {len(self.users)} users\n")
-                        f.write("=" * 50 + "\n")
-                        
-                        for user in self.users:
-                            if user.get('cracked', False):
-                                f.write(f"{user['username']}:{user['password']}\n")
+                    print()
+                    print(tag_plus() + f" Results saved to: {filename}")
+                    print()
+                    print(BLUE + "_________________________________________________________________" + RESET)
                     
-                    print(tag_minus() + f"Results saved to: {results_file}")
+                    return True
                 else:
                     print(tag_minus() + "No passwords cracked yet")
             else:
                 print(tag_minus() + "No passwords cracked yet")
                 
         except Exception as e:
-            print(tag_x() + f"Error showing results: {e}")
+            self.show_error(f"Error showing results: {e}")
+        
+        print(BLUE + "\n_________________________________________________________________" + RESET)
+        return False
     
     def select_attack_mode(self):
         """Select attack mode"""
-        self.show_banner()
-        
-        if self.selected_user:
-            print(tag_asterisk() + f"Target User: " + c_yellow(f"{self.selected_user['username']}"))
-            print(tag_asterisk() + f"RID: " + c_cyan(f"{self.selected_user['rid']}"))
-        else:
-            print(tag_asterisk() + f"Target: " + c_yellow("ALL USERS"))
-            print(tag_asterisk() + f"Users: " + c_cyan(f"{len(self.users)} users"))
-        
+        print(tag_asterisk() + "Target: " + YELLOW + f"{self.selected_user['username'] if self.selected_user else 'ALL USERS'}" + RESET)
         print()
-        print(tag_minus() + "SELECT ATTACK MODE")
+        print(BLUE + "____________________________ " + GREEN + "Options" + BLUE + " ____________________________" + RESET)
+        print()
 
-        print(c_yellow("[1]") + " Wordlist Attack (using default wordlist)")
-        print(c_yellow("[2]") + " Wordlist Attack (custom wordlist)")
-        print(c_yellow("[3]") + " Single Crack Mode")
-        print(c_yellow("[4]") + " Incremental Mode (brute force)")
-        print(c_yellow("[5]") + " Show cracked passwords")
-        print(c_yellow("[6]") + " Select different user/file")
-        print(c_yellow("[7]") + " Exit")
+        print(YELLOW + "[1]" + RESET + " Wordlist Attack (using default wordlist)")
+        print(YELLOW + "[2]" + RESET + " Wordlist Attack (custom wordlist)")
+        print(YELLOW + "[3]" + RESET + " Single Crack Mode")
+        print(YELLOW + "[4]" + RESET + " Incremental Mode (brute force)")
+        print(YELLOW + "[5]" + RESET + " Show cracked passwords")
+        print(YELLOW + "[6]" + RESET + " Select different user/file")
+        print(YELLOW + "[7]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________" + RESET)
+        print()
         
         try:
-            choice = int(input(tag_gt() + "Select option (1-7): "))
-            return choice
-        except ValueError:
-            print(tag_exclamation() + "Please enter a number")
-            input(tag_gt() + "Press Enter to continue...")
+            return int(input(tag_gt() + "Select option (1-7): "))
+        except:
+            self.show_error("Please enter a number")
+            return None
+    
+    def select_file_source(self):
+        """Select file source method"""
+        # Colored header matching the style of Options header
+        print(BLUE + "_______________________ " + GREEN + "File Source" + BLUE + " _____________________________" + RESET)
+        print()
+        print(YELLOW + "[1]" + RESET + " Auto-detect SAM/SYSTEM files in current directory")
+        print(YELLOW + "[2]" + RESET + " Enter custom file paths")
+        print(YELLOW + "[3]" + RESET + " Exit")
+        print(BLUE + "_________________________________________________________________" + RESET)
+        print()
+        
+        try:
+            return int(input(tag_gt() + "Select option (1-3): "))
+        except:
+            self.show_error("Please enter a number")
             return None
     
     def cleanup(self):
@@ -725,127 +671,125 @@ class WindowsPasswordCracker:
         if self.temp_dir and os.path.exists(self.temp_dir):
             try:
                 shutil.rmtree(self.temp_dir)
-                print(tag_info() + f"Cleaned up temporary directory: {self.temp_dir}")
-            except Exception as e:
-                print(tag_exclamation() + f"Error cleaning up: {e}")
+                self.temp_dir = None
+                self.hash_file = None
+            except:
+                pass
     
     def main_loop(self):
         """Main program loop"""
         if not self.check_tools():
-            print(tag_exclamation() + "Please install missing tools and try again")
-            input(tag_gt() + "Press Enter to exit...")
+            print(tag_exclamation() + "Required tools not found. Please install john and impacket.")
             return
         
         while True:
-            self.show_banner()
-            print(tag_minus() + "SELECT FILE SOURCE")
-            
-            print(c_yellow("[1]") + f" Auto-detect SAM/SYSTEM files in current directory")
-            print(c_yellow("[2]") + " Enter custom file paths")
-            print(c_yellow("[3]") + " Exit")
-            
-            try:
-                choice = int(input(tag_gt() + "Select option (1-3): "))
-            except ValueError:
-                print(tag_exclamation() + "Invalid choice")
-                continue
+            choice = self.select_file_source()
             
             if choice == 1:
                 # Auto-detect
+                print()
                 if not self.auto_detect_files():
                     input(tag_gt() + "Press Enter to continue...")
                     continue
             elif choice == 2:
                 # Custom files
+                print()
                 if not self.get_custom_files():
                     input(tag_gt() + "Press Enter to continue...")
                     continue
             elif choice == 3:
-                # Exit
-                print(tag_asterisk() + "Goodbye!")
+                # Exit silently
                 self.cleanup()
                 return
             else:
                 continue
             
             # Extract hashes
+            print()
             if not self.extract_hashes():
-                print(tag_exclamation() + "Failed to extract hashes")
+                self.cleanup()
                 input(tag_gt() + "Press Enter to continue...")
                 continue
             
             # Display users
+            print()
             if not self.display_users():
+                self.cleanup()
                 input(tag_gt() + "Press Enter to continue...")
                 continue
             
             # Select user to crack
             if not self.select_user():
+                self.cleanup()
                 continue
             
             # Main attack loop for selected user(s)
             while True:
+                print()
                 choice = self.select_attack_mode()
                 
                 if choice == 1:
-                    # Wordlist attack with default wordlist
                     self.run_wordlist_attack()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 2:
-                    # Wordlist attack with custom wordlist
-                    wordlist = input(tag_gt() + "Enter path to custom wordlist: ").strip()
-                    if wordlist:
-                        if os.path.exists(wordlist):
-                            self.run_wordlist_attack(custom_wordlist=wordlist)
-                            self.show_results()
+                    wl = input(tag_gt() + "Enter path to custom wordlist: ").strip()
+                    if wl:
+                        if os.path.exists(wl):
+                            self.run_wordlist_attack(custom_wordlist=wl)
+                            if self.show_results():
+                                self.cleanup()
+                                return
                         else:
-                            print(tag_exclamation() + f"Wordlist not found: {wordlist}")
+                            self.show_error(f"Wordlist not found: {wl}")
                     else:
-                        print(tag_exclamation() + "No wordlist specified")
-                    input(tag_gt() + "Press Enter to continue...")
+                        self.show_error("No wordlist specified")
                 elif choice == 3:
-                    # Single crack mode
                     self.run_single_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 4:
-                    # Incremental mode
                     self.run_incremental_mode()
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 5:
-                    # Show results
-                    self.show_results()
-                    input(tag_gt() + "Press Enter to continue...")
+                    if self.show_results():
+                        self.cleanup()
+                        return
                 elif choice == 6:
-                    # Select different user/file
                     self.cleanup()
                     break
                 elif choice == 7:
-                    # Exit
-                    print(tag_asterisk() + "Goodbye!")
+                    # Exit silently
                     self.cleanup()
                     return
                 else:
-                    print(tag_exclamation() + "Invalid choice")
-                    input(tag_gt() + "Press Enter to continue...")
+                    self.show_error("Invalid choice")
 
 def main():
     """Main function"""
     try:
+        # Enable virtual terminal processing on Windows
+        if platform.system() == "Windows":
+            try:
+                import ctypes
+                kernel32 = ctypes.windll.kernel32
+                kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+            except:
+                pass
+        
         cracker = WindowsPasswordCracker()
         cracker.main_loop()
+        
     except KeyboardInterrupt:
-        print(c_red("\n\n[x]") + " Program stopped by user")
-        if 'cracker' in locals():
-            cracker.cleanup()
+        print(RED + "\n[x] Program stopped by user" + RESET)
     except Exception as e:
-        print(c_red("\n[x]") + f" Error: {e}")
+        print(RED + f"\n[x] Error: {e}" + RESET)
         import traceback
         traceback.print_exc()
-        if 'cracker' in locals():
-            cracker.cleanup()
 
 if __name__ == "__main__":
     main()
