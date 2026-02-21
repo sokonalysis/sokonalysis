@@ -16,6 +16,7 @@ import getpass
 import platform
 import threading
 import math
+import re
 
 # ANSI color codes - matching C++ style from main.cpp
 RED = '\033[31m'
@@ -42,6 +43,9 @@ def tag_hash(): return CYAN + "[#]" + RESET + " "
 class SteghideCracker:
     def __init__(self):
         self.steghide_path = "steghide"
+        self.stegseek_path = "stegseek"  # Much faster than stegcracker
+        self.stegcracker_path = "stegcracker"
+        self.hashcat_path = "hashcat"
         self.document = None
         self.hash_file = None
         self.default_wordlist = "wordlist.txt"
@@ -50,6 +54,9 @@ class SteghideCracker:
         self.supported_extensions = ['.jpg', '.jpeg', '.bmp', '.wav', '.au']
         self.loading_active = False
         self.loading_thread = None
+        self.use_stegseek = False
+        self.use_stegcracker = False
+        self.use_hashcat = False
         
     def show_error(self, message):
         """Display error message in red with [x] tag"""
@@ -138,15 +145,60 @@ class SteghideCracker:
     
     def check_tools(self):
         """Check if required tools are available"""
+        tools_found = False
+        
         # Check for steghide
         try:
             result = subprocess.run([self.steghide_path, "--version"], 
                                   capture_output=True, text=True, timeout=2)
-            if result.returncode not in [0, 1]:
-                return False
-            return True
+            if result.returncode in [0, 1]:
+                self.show_success("Steghide found")
+                tools_found = True
         except FileNotFoundError:
-            return False
+            self.show_warning("Steghide not found")
+        except subprocess.TimeoutExpired:
+            self.show_warning("Steghide check timed out")
+        except Exception as e:
+            self.show_warning(f"Steghide check error: {e}")
+        
+        # Check for stegseek (fastest - specifically designed for cracking)
+        try:
+            import shutil
+            if shutil.which(self.stegseek_path):
+                self.show_success(f"Stegseek found - will use for ultra-fast cracking (1000x speed)")
+                self.use_stegseek = True
+                tools_found = True
+            else:
+                self.show_warning("Stegseek not found (install: sudo apt install stegseek or download from GitHub)")
+        except Exception as e:
+            self.show_warning(f"Stegseek check error: {e}")
+        
+        # Check for stegcracker (slower fallback)
+        try:
+            import shutil
+            if shutil.which(self.stegcracker_path):
+                self.show_success(f"Stegcracker found - available as fallback")
+                self.use_stegcracker = True
+                tools_found = True
+        except Exception as e:
+            pass
+        
+        # Check for hashcat (fastest for GPU)
+        try:
+            import shutil
+            if shutil.which(self.hashcat_path):
+                try:
+                    result = subprocess.run([self.hashcat_path, "--version"], 
+                                          capture_output=True, text=True, timeout=1)
+                    if result.returncode == 0:
+                        self.show_success(f"Hashcat found - available for GPU cracking")
+                        self.use_hashcat = True
+                except:
+                    pass
+        except:
+            pass
+        
+        return tools_found
     
     def count_words(self, filepath):
         """Count words in a file"""
@@ -630,147 +682,185 @@ class SteghideCracker:
             self.show_error(f"Error getting file info: {e}")
             return False
     
-    def wordlist_attack(self, stego_file):
-        """Try passwords from a wordlist"""
-        # Check for wordlist.txt in current directory
-        if os.path.exists(self.default_wordlist):
-            wordcount = self.count_words(self.default_wordlist)
-            if wordcount:
-                self.show_info(f"Found wordlist: '{self.default_wordlist}' ({wordcount:,} words)")
-                print()
-                
-                use_default = input(tag_gt() + f"Use '{self.default_wordlist}'? (y/n, default=y): ").strip().lower()
-                print()
-                
-                if use_default != 'n':
-                    wordlist = self.default_wordlist
-                else:
-                    wordlist = input(tag_gt() + "Enter path to custom wordlist: ").strip()
-                    print()
-            else:
-                self.show_warning(f"Cannot read '{self.default_wordlist}'")
-                wordlist = input(tag_gt() + "Enter path to wordlist: ").strip()
-                print()
-        else:
-            self.show_info(f"Default wordlist not found: '{self.default_wordlist}'")
-            wordlist = input(tag_gt() + "Enter path to wordlist: ").strip()
-            print()
-        
-        if not wordlist or not os.path.exists(wordlist):
-            self.show_error(f"Wordlist not found: {wordlist}")
-            return False
-        
-        # Count words in wordlist
-        wordcount = self.count_words(wordlist)
-        if not wordcount:
-            self.show_error("Wordlist is empty or cannot be read")
-            return False
-        
-        self.show_info(f"Wordlist contains {wordcount:,} passwords")
+    def stegseek_attack(self, stego_file, wordlist, output_file):
+        """Use stegseek for ultra-fast cracking (1000x faster than manual)"""
+        print(tag_asterisk() + "Using stegseek for ultra-fast cracking...")
         print()
         
-        # Get output filename
-        output_file = input(tag_gt() + "Output file name for extracted data (default=extracted): ").strip()
-        print()
-        if not output_file:
-            output_file = "extracted"
+        # stegseek automatically outputs to <filename>.out
+        stegseek_output = f"{stego_file}.out"
         
-        # Create temporary directory for attempts
-        temp_dir = tempfile.mkdtemp(prefix="steghide_bf_")
-        
-        print(tag_asterisk() + "Starting wordlist attack...")
-        print(tag_asterisk() + "Press Ctrl+C to stop at any time")
-        print()
-        
-        passwords_tried = 0
-        start_time = time.time()
-        last_password = ""
+        cmd = [self.stegseek_path, stego_file, wordlist]
         
         try:
-            with open(wordlist, 'r', encoding='utf-8', errors='ignore') as f:
-                for line in f:
-                    password = line.strip()
-                    if not password:
-                        continue
-                    
-                    passwords_tried += 1
-                    last_password = password
-                    
-                    # Update progress bar every attempt (but only redraw every 100ms to avoid flicker)
-                    if passwords_tried % 10 == 0 or passwords_tried == 1:
-                        self.draw_progress_bar(passwords_tried, wordcount, start_time, last_password)
-                    
-                    # Try extraction with this password
-                    temp_output = os.path.join(temp_dir, f"attempt_{passwords_tried}")
-                    cmd = [self.steghide_path, "extract", "-sf", stego_file, "-xf", temp_output, "-p", password, "-f"]
-                    
-                    try:
-                        result = subprocess.run(cmd, capture_output=True, text=True)
-                        
-                        if result.returncode == 0:
-                            # Success!
-                            elapsed = time.time() - start_time
-                            print()  # New line after progress bar
-                            print()
-                            self.show_success(GREEN + f"PASSWORD FOUND: {password}" + RESET)
-                            print()
-                            self.show_info(f"Found after {passwords_tried:,} attempts ({elapsed:.1f} seconds)")
-                            
-                            # Copy to final output
-                            shutil.copy(temp_output, output_file)
-                            
-                            # Read and display the extracted file content
-                            extracted_content = ""
-                            if os.path.exists(output_file):
-                                try:
-                                    # Try to read as text file
-                                    with open(output_file, 'r', encoding='utf-8', errors='ignore') as f:
-                                        content = f.read().strip()
-                                        if content:
-                                            extracted_content = content
-                                        else:
-                                            extracted_content = "(empty file)"
-                                except:
-                                    extracted_content = f"Binary file saved as {output_file}"
-                            
-                            print()
-                            print(BLUE + "_________________________________________________________________")
-                            print()
-                            print(tag_minus() + "Extracted Results: " + GREEN + extracted_content + RESET)
-                            print(BLUE + "_________________________________________________________________")
-                            print()
-                            print(tag_minus() + f"Extracted file: {output_file}")
-                            print(BLUE + "_________________________________________________________________")
-                            
-                            # Cleanup and return
-                            shutil.rmtree(temp_dir)
-                            return True
-                            
-                    except:
-                        continue
+            # Run stegseek and capture output
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
             
-            # If we get here, no password found
-            elapsed = time.time() - start_time
-            print()  # New line after progress bar
-            self.show_error(f"No password found after {passwords_tried:,} attempts ({elapsed:.1f} seconds)")
+            password_found = None
+            
+            for line in iter(process.stdout.readline, ''):
+                if line.strip():
+                    print(line.strip())
+                    
+                    # Check for password found message
+                    if "found passphrase:" in line.lower() or "password:" in line.lower():
+                        # Extract password - format: "[i] found passphrase: \"password\""
+                        match = re.search(r'found passphrase:?\s*["\']?([^"\'\n]+)["\']?', line, re.IGNORECASE)
+                        if match:
+                            password_found = match.group(1).strip()
+                        else:
+                            # Try alternative format
+                            match = re.search(r'password:?\s*["\']?([^"\'\n]+)["\']?', line, re.IGNORECASE)
+                            if match:
+                                password_found = match.group(1).strip()
+            
+            process.wait()
+            
+            # Check if output file was created
+            if os.path.exists(stegseek_output):
+                # Copy to user-specified output file
+                shutil.copy(stegseek_output, output_file)
+                os.remove(stegseek_output)  # Clean up
+                
+                if password_found:
+                    print()
+                    self.show_success(GREEN + f"PASSWORD FOUND: {password_found}" + RESET)
+                    print()
+                    
+                    # Read and display the extracted file content
+                    extracted_content = ""
+                    if os.path.exists(output_file):
+                        try:
+                            with open(output_file, 'r', encoding='utf-8', errors='ignore') as f:
+                                content = f.read().strip()
+                                if content:
+                                    extracted_content = content
+                                else:
+                                    extracted_content = "(empty file)"
+                        except:
+                            extracted_content = f"Binary file saved as {output_file}"
+                    
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    print(tag_minus() + "Extracted Results: " + GREEN + extracted_content + RESET)
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    print(tag_minus() + f"Extracted file: {output_file}")
+                    print(BLUE + "_________________________________________________________________")
+                    
+                    return True
+                else:
+                    # Password found but couldn't extract from output
+                    print()
+                    self.show_success("Password found! Check the output file.")
+                    print()
+                    print(tag_minus() + f"Extracted file: {output_file}")
+                    return True
+            else:
+                self.show_error("Stegseek failed to extract the file")
+                return False
+            
+        except FileNotFoundError:
+            self.show_error("Stegseek not found. Please install: sudo apt install stegseek")
             return False
-            
-        except KeyboardInterrupt:
-            print()
-            self.show_error("Stopped by user")
-            elapsed = time.time() - start_time
-            self.show_info(f"Tried {passwords_tried:,} passwords in {elapsed:.1f} seconds")
-            return False
-            
         except Exception as e:
-            print()
-            self.show_error(f"Error during wordlist attack: {e}")
+            self.show_error(f"Error with stegseek: {e}")
             return False
+    
+    def stegcracker_attack(self, stego_file, wordlist, output_file):
+        """Use stegcracker as fallback (slower than stegseek)"""
+        print(tag_asterisk() + "Using stegcracker (fallback mode)...")
+        print()
+        
+        # stegcracker automatically outputs to <filename>.out
+        stegcracker_output = f"{stego_file}.out"
+        
+        cmd = [self.stegcracker_path, stego_file, wordlist]
+        
+        try:
+            # Run stegcracker and capture output
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
             
-        finally:
-            # Cleanup
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
+            password_found = None
+            
+            for line in iter(process.stdout.readline, ''):
+                if line.strip():
+                    print(line.strip())
+                    
+                    # Check if password found
+                    if "Found password:" in line or "Password found:" in line:
+                        match = re.search(r'[Ff]ound password:?\s*["\']?([^"\'\n]+)["\']?', line)
+                        if match:
+                            password_found = match.group(1).strip()
+                    
+                    # Check for stegcracker output format
+                    elif "-->" in line and "password" in line.lower():
+                        parts = line.split("-->")
+                        if len(parts) > 1:
+                            password_found = parts[1].strip()
+            
+            process.wait()
+            
+            # Check if output file was created
+            if os.path.exists(stegcracker_output):
+                shutil.copy(stegcracker_output, output_file)
+                os.remove(stegcracker_output)
+                
+                if password_found:
+                    print()
+                    self.show_success(GREEN + f"PASSWORD FOUND: {password_found}" + RESET)
+                    print()
+                    
+                    # Read and display the extracted file content
+                    extracted_content = ""
+                    if os.path.exists(output_file):
+                        try:
+                            with open(output_file, 'r', encoding='utf-8', errors='ignore') as f:
+                                content = f.read().strip()
+                                if content:
+                                    extracted_content = content
+                                else:
+                                    extracted_content = "(empty file)"
+                        except:
+                            extracted_content = f"Binary file saved as {output_file}"
+                    
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    print(tag_minus() + "Extracted Results: " + GREEN + extracted_content + RESET)
+                    print(BLUE + "_________________________________________________________________")
+                    print()
+                    print(tag_minus() + f"Extracted file: {output_file}")
+                    print(BLUE + "_________________________________________________________________")
+                    
+                    return True
+                else:
+                    print()
+                    self.show_success("Password found! Check the output file.")
+                    print()
+                    print(tag_minus() + f"Extracted file: {output_file}")
+                    return True
+            else:
+                self.show_error("Stegcracker failed to extract the file")
+                return False
+            
+        except FileNotFoundError:
+            self.show_error("Stegcracker not found. Please install: pip3 install stegcracker")
+            return False
+        except Exception as e:
+            self.show_error(f"Error with stegcracker: {e}")
+            return False
     
     def brute_force_extract(self):
         """Attempt to extract data using brute force or wordlist"""
@@ -779,9 +869,28 @@ class SteghideCracker:
         if not stego_file:
             return False
         
+        print()
+        
+        # Determine which tool to use (prefer stegseek, then stegcracker)
+        use_tool = None
+        if self.use_stegseek:
+            print(tag_asterisk() + "Stegseek detected - ultra-fast cracking available (1000x speed)")
+            print()
+            tool_choice = input(tag_gt() + "Use stegseek for cracking? (y/n, default=y): ").strip().lower()
+            print()
+            if tool_choice != 'n':
+                use_tool = "stegseek"
+        elif self.use_stegcracker:
+            print(tag_asterisk() + "Stegcracker detected - fast cracking available (100x speed)")
+            print()
+            tool_choice = input(tag_gt() + "Use stegcracker for cracking? (y/n, default=y): ").strip().lower()
+            print()
+            if tool_choice != 'n':
+                use_tool = "stegcracker"
+        
         print(BLUE + "____________________________ " + GREEN + "Options" + BLUE + " ____________________________")
         print()
-        print(YELLOW + "[1]" + RESET + " Wordlist attack (using wordlist.txt)")
+        print(YELLOW + "[1]" + RESET + " Wordlist attack")
         print(YELLOW + "[2]" + RESET + " Return to main menu")
         print(BLUE + "_________________________________________________________________")
         print()
@@ -794,7 +903,57 @@ class SteghideCracker:
             return False
         
         if choice == 1:
-            return self.wordlist_attack(stego_file)
+            # Check for wordlist
+            if os.path.exists(self.default_wordlist):
+                wordcount = self.count_words(self.default_wordlist)
+                if wordcount:
+                    self.show_info(f"Found wordlist: '{self.default_wordlist}' ({wordcount:,} words)")
+                    print()
+                    
+                    use_default = input(tag_gt() + f"Use '{self.default_wordlist}'? (y/n, default=y): ").strip().lower()
+                    print()
+                    
+                    if use_default != 'n':
+                        wordlist = self.default_wordlist
+                    else:
+                        wordlist = input(tag_gt() + "Enter path to custom wordlist: ").strip()
+                        print()
+                else:
+                    self.show_warning(f"Cannot read '{self.default_wordlist}'")
+                    wordlist = input(tag_gt() + "Enter path to wordlist: ").strip()
+                    print()
+            else:
+                self.show_info(f"Default wordlist not found: '{self.default_wordlist}'")
+                wordlist = input(tag_gt() + "Enter path to wordlist: ").strip()
+                print()
+            
+            if not wordlist or not os.path.exists(wordlist):
+                self.show_error(f"Wordlist not found: {wordlist}")
+                return False
+            
+            # Count words in wordlist
+            wordcount = self.count_words(wordlist)
+            if not wordcount:
+                self.show_error("Wordlist is empty or cannot be read")
+                return False
+            
+            self.show_info(f"Wordlist contains {wordcount:,} passwords")
+            print()
+            
+            # Get output filename
+            output_file = input(tag_gt() + "Output file name for extracted data (default=extracted): ").strip()
+            print()
+            if not output_file:
+                output_file = "extracted"
+            
+            # Use the fastest available tool
+            if use_tool == "stegseek":
+                return self.stegseek_attack(stego_file, wordlist, output_file)
+            elif use_tool == "stegcracker":
+                return self.stegcracker_attack(stego_file, wordlist, output_file)
+            else:
+                self.show_error("No cracking tool available. Please install stegseek or stegcracker")
+                return False
         else:
             return False
     
@@ -820,7 +979,12 @@ class SteghideCracker:
     def main_loop(self):
         """Main program loop"""
         if not self.check_tools():
-            self.show_error("Steghide not found. Please install: sudo apt install steghide")
+            self.show_error("No steganography tools found. Please install steghide")
+            print()
+            print(YELLOW + "Install steghide: sudo apt install steghide" + RESET)
+            print(YELLOW + "Install stegseek (recommended for cracking): sudo apt install stegseek" + RESET)
+            print(YELLOW + "Install stegcracker (alternative): pip3 install stegcracker" + RESET)
+            print()
             input(tag_gt() + "Press Enter to continue...")
             return
         
