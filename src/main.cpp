@@ -241,7 +241,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                    Last update 21 February 2026                           " << RESET << endl;
+        cout << WHITE << "                    Last update 22 February 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1918,7 +1918,7 @@ int main() {
             cout << endl;
             cout << YELLOW << "[1]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
             cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
-            cout << YELLOW << "[3]" << RESET << " Crack Windows Bitlocker Password From An Image File" << endl;
+            cout << YELLOW << "[3]" << RESET << " Windows Bitlocker" << endl;
             cout << YELLOW << "[4]" << RESET << " Help" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
@@ -1944,11 +1944,68 @@ int main() {
             }
 
             else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
+                string bitlocker_choice;
+                cout << endl;
+
+                cout << BLUE << "_____________________" << RESET<< GREEN << " Windows Bitlocker "<< RESET << BLUE << "_________________________" << RESET << endl;
+                cout << endl;
+                cout << YELLOW << "[1]" << RESET << " Crack Windows Bitlocker Password From An Image File" << endl;
+                cout << YELLOW << "[2]" << RESET << " Mount BitLocker Image File with Known Password" << endl;
+                cout << YELLOW << "[3]" << RESET << " Help" << endl;
+                cout << BLUE << "_________________________________________________________________\n" << RESET;
+                cout << endl;
+                cout << YELLOW << "[>] " << RESET<< "Select an option: ";
+                std::cin >> bitlocker_choice;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
+                std::cout << std::endl;
+
+                if (bitlocker_choice == "01" || bitlocker_choice == "1"){
+
                 #ifdef _WIN32
                                     system("py -3 bitlocker2john.py");
                         #else
                                     system("python3 bitlocker2john.py");
                         #endif
+                }
+
+                else if (bitlocker_choice == "02" || bitlocker_choice == "2"){
+                    #ifdef _WIN32
+                                    system("py -3 unmount2john.py");
+                        #else
+                                    system("python3 unmount2john.py");
+                        #endif
+                }
+
+                else if (bitlocker_choice == "03" || bitlocker_choice == "3" || bitlocker_choice == "Help" || bitlocker_choice == "help"){ 
+                                    cout << "     " << GREEN << "BitLocker" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     BitLocker is a built-in Microsoft Windows security\n";
+                                    cout << "     feature that protects data on hard drives by\n"; 
+                                    cout << "     encrypting entire volumes using AES 128-bit\n"; 
+                                    cout << "     or 256-bit encryption.\n";
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Requirements" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     Make sure you have a wordlist in this directory\n";
+                                    cout << "     (/sokonalysis/src) named wordlist.txt to use the options\n"; 
+                                    cout << "     which require a default wordlist. You can download it\n"; 
+                                    cout << "     via the GitHub installation guide lines or add one and\n"; 
+                                    cout << "     rename it to wordlist.txt\n"; 
+                                    cout << endl;
+                                    cout << "     " << GREEN << "Tools" << RESET << "\n";
+                                    cout << endl;
+                                    cout << "     You need to be running Linux to use these options and\n";
+                                    cout << "     you need to have John The Ripper.\n"; 
+                                    cout << "     You can install it with:\n"; 
+                                    cout << "     sudo apt install john -y\n"; 
+
+                        }
+
+                else {
+                cout << endl;
+                cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
+                cout << endl;
+                }
             }
 
             else if (sub_adv_choice == "04" || sub_adv_choice == "4" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
