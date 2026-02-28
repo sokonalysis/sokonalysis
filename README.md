@@ -284,10 +284,31 @@ solves a question manually.
    <img width="801" height="227" alt="Image" src="https://github.com/user-attachments/assets/cb763413-c696-43e1-94e0-11c6703ea639" />
 
 5. ### Advanced Level
-   #### Cracking Protected Microsoft Office Documents
-   Select option [5] Advanced Cryptography and then [1] Microsoft Office Document Password Remover
+   #### Cracking Protected Documents
+   Register your account on ZedCTF and practice the [John](https://zedctf.web.app/practice/multi/4qEkWQ2nTYT4GsiRnyPd) challenge to understand how to crack these Procted Files with passwords.
+   
+   ##### Zipped Files
+   `STEP 1`
+   Download the target [zip file](https://drive.google.com/file/d/185e7VWtPm-xEb0Xkv41WJjcKL_XZaPR_/view) and save the file in /sokonalysis/src/, run sokonalysis and select option number 5.
 
-   <img width="796" height="623" alt="Image" src="https://github.com/user-attachments/assets/e3a105eb-39a2-48a3-ac3a-92f9e4cb7a73" />
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/4886fca0-f8a2-4075-a0f7-16dbdb679215" />
+
+   `STEP 2`
+   Select option number 1 then option number 2.
+
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/610512e1-eef9-4a57-a70a-0940ce953758" />
+
+   `STEP 3`
+   Select the target zip file.
+
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/904ed151-6058-402b-a31b-ac0e750809b2" />
+
+   `STEP 4`
+   Select your prefered options to crack the password.
+
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/8951e3bc-b074-412f-9756-ebb9ceee0c7d" />
+
+   
 
 
 ## Supported Algorithms
