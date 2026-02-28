@@ -308,6 +308,16 @@ solves a question manually.
 
    <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/8951e3bc-b074-412f-9756-ebb9ceee0c7d" />
 
+   ##### 7z Files
+   `STEP 5`
+   Extract the zipped folder with the cracked password, add the .7z file in /sokonalysis/src/, restart sokonalysis and go back on option number 5. Select option number 1 then option number 4 and lastly select the target .7z file.
+
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/3fb04194-c52c-4f3e-b902-a6a2414d7715" />
+
+   `STEP 6`
+   Select your prefered options to crack the password.
+
+
    
 
 
