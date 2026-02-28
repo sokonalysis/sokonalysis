@@ -10,6 +10,10 @@ import sys
 import subprocess
 import time
 import getpass
+import pwd
+import grp
+import stat
+import signal
 
 # ANSI color codes
 RED = '\033[31m'
@@ -35,6 +39,22 @@ class BitLockerMounter:
         self.dislocker_dir = "dislocker"
         self.mounted_dir = "mounted"
         self.current_dir = os.getcwd()
+        
+        # Get the original user who ran sudo
+        self.sudo_user = os.environ.get('SUDO_USER')
+        if self.sudo_user and self.sudo_user != 'root':
+            self.username = self.sudo_user
+            self.uid = int(os.environ.get('SUDO_UID', os.getuid()))
+            self.gid = int(os.environ.get('SUDO_GID', os.getgid()))
+        else:
+            self.username = pwd.getpwuid(os.getuid()).pw_name
+            self.uid = os.getuid()
+            self.gid = os.getgid()
+        
+        # Store mount paths
+        self.mounted_path = os.path.join(self.current_dir, self.mounted_dir)
+        self.dislocker_path = os.path.join(self.current_dir, self.dislocker_dir)
+        self.dislocker_file = os.path.join(self.dislocker_path, 'dislocker-file')
         
     def show_error(self, message): print(tag_x() + message)
     def show_success(self, message): print(tag_plus() + message)
@@ -114,26 +134,39 @@ class BitLockerMounter:
         return self.password is not None
     
     def create_directories(self):
-        """Create necessary directories"""
+        """Create necessary directories with proper ownership"""
         for dir_name in [self.dislocker_dir, self.mounted_dir]:
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
                 self.show_minus(f"Created directory: {dir_name}")
             else:
                 self.show_minus(f"Using existing directory: {dir_name}")
+            
+            # Set ownership to the original user
+            try:
+                os.chown(dir_name, self.uid, self.gid)
+            except:
+                pass  # Ignore if can't change ownership
+            # Set permissions
+            os.chmod(dir_name, 0o755)
     
     def unmount_if_needed(self):
         """Unmount if already mounted"""
-        mounted_path = os.path.join(self.current_dir, self.mounted_dir)
-        dislocker_path = os.path.join(self.current_dir, self.dislocker_dir)
-        
-        if os.path.ismount(mounted_path):
+        # Force unmount if mounted
+        if os.path.ismount(self.mounted_path):
             self.show_minus("Unmounting previously mounted directory...")
-            subprocess.run(['umount', mounted_path], capture_output=True)
+            subprocess.run(['umount', '-f', self.mounted_path], capture_output=True)
+            time.sleep(1)  # Give it time to unmount
         
-        if os.path.ismount(dislocker_path):
-            self.show_minus("Unmounting dislocker directory...")
-            subprocess.run(['umount', dislocker_path], capture_output=True)
+        # Check if dislocker dir is mounted
+        try:
+            result = subprocess.run(['mountpoint', '-q', self.dislocker_path], capture_output=True)
+            if result.returncode == 0:
+                self.show_minus("Unmounting dislocker directory...")
+                subprocess.run(['umount', '-f', self.dislocker_path], capture_output=True)
+                time.sleep(1)
+        except:
+            pass
         
         # Detach any loop devices
         try:
@@ -150,13 +183,22 @@ class BitLockerMounter:
         # Unmount if needed
         self.unmount_if_needed()
         
-        # Create directories
+        # Create directories with proper ownership
         self.create_directories()
         print()  # Add blank line after directory creation
         
         # Step 1: Run dislocker
         self.show_info("Unlocking with dislocker...")
-        cmd1 = ['dislocker', self.disk_image, '-u' + self.password, self.dislocker_dir]
+        
+        # Use full path for dislocker
+        dislocker_path = subprocess.run(['which', 'dislocker'], capture_output=True, text=True).stdout.strip()
+        if not dislocker_path:
+            self.show_error("dislocker not found! Please install it first.")
+            self.show_info("On Debian/Ubuntu/Kali/Parrot: sudo apt install dislocker")
+            return False
+        
+        # Run dislocker
+        cmd1 = [dislocker_path, self.disk_image, '-u' + self.password, self.dislocker_dir]
         
         result = subprocess.run(cmd1, capture_output=True, text=True)
         if result.returncode != 0:
@@ -168,31 +210,53 @@ class BitLockerMounter:
             return False
         
         self.show_success("BitLocker unlocked successfully")
-        print()  # Add blank line after success
+        print()
         
         # Check if dislocker-file exists
-        dislocker_file = os.path.join(self.dislocker_dir, 'dislocker-file')
-        if not os.path.exists(dislocker_file):
+        if not os.path.exists(self.dislocker_file):
             self.show_error("dislocker-file not created!")
             return False
         
-        file_size = os.path.getsize(dislocker_file)
-        self.show_minus(f"dislocker-file size: {self.format_size(file_size)}")
+        # Check file size
+        try:
+            file_size = os.path.getsize(self.dislocker_file)
+            self.show_minus(f"dislocker-file size: {self.format_size(file_size)}")
+        except:
+            self.show_error("Cannot access dislocker-file")
+            return False
         
         # Step 2: Mount the dislocker-file
         self.show_info("Mounting filesystem...")
-        print()  # Add blank line before mount
+        print()
         
-        mounted_path = os.path.join(self.current_dir, self.mounted_dir)
+        # Try ntfs-3g first (most common for BitLocker)
+        cmd2 = [
+            'ntfs-3g',
+            '-o', f'uid={self.uid}',
+            '-o', f'gid={self.gid}',
+            '-o', 'umask=007',
+            '-o', 'fmask=113',
+            '-o', 'dmask=002',
+            '-o', 'allow_other',
+            '-o', 'ro',
+            self.dislocker_file,
+            self.mounted_path
+        ]
         
-        # Try mounting with auto-detection
-        cmd2 = ['mount', '-o', 'loop', dislocker_file, mounted_path]
         result = subprocess.run(cmd2, capture_output=True, text=True)
         
         if result.returncode != 0:
-            # Try with ntfs-3g
-            cmd2 = ['mount', '-t', 'ntfs-3g', '-o', 'loop', dislocker_file, mounted_path]
-            result = subprocess.run(cmd2, capture_output=True, text=True)
+            self.show_info("ntfs-3g failed, trying mount with loop...")
+            
+            # Fallback to mount
+            cmd3 = [
+                'mount',
+                '-o', f'loop,ro,uid={self.uid},gid={self.gid},umask=007,fmask=113,dmask=002',
+                self.dislocker_file,
+                self.mounted_path
+            ]
+            
+            result = subprocess.run(cmd3, capture_output=True, text=True)
             
             if result.returncode != 0:
                 self.show_error("Failed to mount filesystem!")
@@ -200,78 +264,139 @@ class BitLockerMounter:
                 return False
         
         self.show_success("Filesystem mounted successfully")
-        print()  # Add blank line after mount
+        print()
         
-        # Show mounted path
+        # Show mount info
         print(BLUE + "_________________________________________________________________\n")
-        self.show_minus(f"Mounted Path: {YELLOW}{mounted_path}{RESET}")
+        self.show_minus(f"Mounted Path: {YELLOW}{self.mounted_path}{RESET}")
+        self.show_minus(f"Mounted as user: {GREEN}{self.username}{RESET}")
+        
+        # Verify mount
+        if os.path.ismount(self.mounted_path):
+            self.show_success("Mount verified")
+        else:
+            self.show_error("Mount verification failed")
+            return False
+        
         print(BLUE + "_________________________________________________________________")
         print()
         
         return True
     
     def open_file_manager(self):
-        """Open the mounted directory in file manager"""
-        mounted_path = os.path.join(self.current_dir, self.mounted_dir)
+        """Open file manager (works on any Linux system)"""
+        print()
+        self.show_info(f"Files are mounted at: {YELLOW}{self.mounted_path}{RESET}")
+        print()
+        self.show_info("You can access them with any of these commands:")
+        print(f"  {GREEN}cd \"{self.mounted_path}\"{RESET}")
+        print(f"  {GREEN}xdg-open \"{self.mounted_path}\"{RESET}")
+        print(f"  {GREEN}nautilus \"{self.mounted_path}\"{RESET}  # GNOME")
+        print(f"  {GREEN}dolphin \"{self.mounted_path}\"{RESET}   # KDE")
+        print(f"  {GREEN}thunar \"{self.mounted_path}\"{RESET}    # XFCE")
+        print(f"  {GREEN}pcmanfm \"{self.mounted_path}\"{RESET}   # LXDE")
+        print()
         
-        # Try different file managers
-        file_managers = [
-            ['nautilus', mounted_path],   # GNOME
-            ['dolphin', mounted_path],    # KDE
-            ['nemo', mounted_path],       # Cinnamon
-            ['thunar', mounted_path],     # XFCE
-            ['pcmanfm', mounted_path],    # LXDE/LXQT
-            ['caja', mounted_path],       # MATE
-            ['xdg-open', mounted_path]    # Default
-        ]
+        # Try to detect and open the appropriate file manager
+        try:
+            # Detect desktop environment
+            desktop = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
+            
+            if 'kde' in desktop:
+                fm = 'dolphin'
+            elif 'gnome' in desktop:
+                fm = 'nautilus'
+            elif 'xfce' in desktop:
+                fm = 'thunar'
+            elif 'cinnamon' in desktop:
+                fm = 'nemo'
+            elif 'mate' in desktop:
+                fm = 'caja'
+            elif 'lxde' in desktop or 'lxqt' in desktop:
+                fm = 'pcmanfm'
+            else:
+                fm = 'xdg-open'
+            
+            # Try to open as the original user
+            if self.username and self.username != 'root':
+                self.show_info(f"Attempting to open with {fm}...")
+                cmd = ['sudo', '-u', self.username, 'setsid', fm, self.mounted_path]
+                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                time.sleep(2)
+        except:
+            pass  # Ignore errors - we already showed manual commands
         
-        for fm in file_managers:
-            try:
-                # Check if file manager exists
-                subprocess.run(['which', fm[0]], capture_output=True, check=True)
-                subprocess.Popen(fm)
-                self.show_info(f"Opened in {fm[0]}")
-                return True
-            except:
-                continue
-        
-        self.show_info("Could not open file manager automatically")
-        self.show_info(f"You can access files at: {mounted_path}")
-        return False
+        return True
     
     def unmount(self):
-        """Unmount the BitLocker volumes"""
+        """Unmount the BitLocker volumes - FIXED VERSION"""
         print()
         self.show_info("Unmounting...")
         
-        mounted_path = os.path.join(self.current_dir, self.mounted_dir)
-        dislocker_path = os.path.join(self.current_dir, self.dislocker_dir)
-        
         success = True
         
-        if os.path.ismount(mounted_path):
-            result = subprocess.run(['umount', mounted_path], capture_output=True)
-            if result.returncode == 0:
-                self.show_success(f"Unmounted: {mounted_path}")
+        # Step 1: Try to unmount the mounted filesystem
+        if os.path.ismount(self.mounted_path):
+            self.show_minus("Unmounting filesystem...")
+            
+            # Try normal unmount
+            result = subprocess.run(['umount', self.mounted_path], capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                self.show_info("Normal unmount failed, trying force unmount...")
+                # Try force unmount
+                result = subprocess.run(['umount', '-f', self.mounted_path], capture_output=True, text=True)
+                
+                if result.returncode != 0:
+                    # Try lazy unmount
+                    self.show_info("Force unmount failed, trying lazy unmount...")
+                    result = subprocess.run(['umount', '-l', self.mounted_path], capture_output=True, text=True)
+                    
+                    if result.returncode != 0:
+                        self.show_error(f"Failed to unmount {self.mounted_path}")
+                        self.show_error(f"Error: {result.stderr}")
+                        success = False
+                    else:
+                        self.show_success(f"Lazy unmounted: {self.mounted_path}")
+                else:
+                    self.show_success(f"Force unmounted: {self.mounted_path}")
             else:
-                self.show_error(f"Failed to unmount {mounted_path}")
-                success = False
+                self.show_success(f"Unmounted: {self.mounted_path}")
+        else:
+            self.show_minus("Filesystem not mounted")
         
-        if os.path.ismount(dislocker_path):
-            result = subprocess.run(['umount', dislocker_path], capture_output=True)
+        time.sleep(1)  # Give it time to unmount
+        
+        # Step 2: Unmount dislocker if it's mounted
+        try:
+            # Check if dislocker dir is a mount point
+            result = subprocess.run(['mountpoint', '-q', self.dislocker_path], capture_output=True)
             if result.returncode == 0:
-                self.show_success(f"Unmounted: {dislocker_path}")
-            else:
-                self.show_error(f"Failed to unmount {dislocker_path}")
-                success = False
+                self.show_minus("Unmounting dislocker directory...")
+                subprocess.run(['umount', '-f', self.dislocker_path], capture_output=True)
+                self.show_success("Unmounted dislocker directory")
+        except:
+            pass
         
-        # Detach loop devices
+        # Step 3: Detach any loop devices
+        self.show_minus("Cleaning up loop devices...")
         subprocess.run(['losetup', '-D'], capture_output=True)
         
-        if success:
-            self.show_success("All volumes unmounted successfully")
+        # Step 4: Verify unmount
+        time.sleep(1)
+        if os.path.ismount(self.mounted_path):
+            self.show_error("Warning: Filesystem still mounted!")
+            success = False
         else:
-            self.show_error("Some volumes could not be unmounted")
+            self.show_success("Filesystem successfully unmounted")
+        
+        print()
+        if success:
+            self.show_success("✅ Unmount completed successfully")
+        else:
+            self.show_error("❌ Unmount had issues - you may need to manually run:")
+            print(f"  sudo umount -f \"{self.mounted_path}\"")
+            print(f"  sudo losetup -D")
         
         return success
     
@@ -279,7 +404,7 @@ class BitLockerMounter:
         """Main run function - returns to menu when done"""
         print()  # Add spacing from main menu
         
-        # Check root (but don't exit, just return)
+        # Check root
         if not self.check_root():
             input(tag_gt() + "Press Enter to return to main menu...")
             return
@@ -304,9 +429,9 @@ class BitLockerMounter:
         
         # Open file manager
         self.open_file_manager()
-        print()  # Add blank line after file manager message
+        print()
         
-        # Ask if user wants to unmount (with colored y/n)
+        # Ask if user wants to unmount
         while True:
             print(tag_question() + f"Do you want to unmount? ({GREEN}y{RESET}/{RED}n{RESET}): ", end='')
             choice = input().lower().strip()
@@ -315,18 +440,17 @@ class BitLockerMounter:
                 break
             elif choice in ['n', 'no']:
                 self.show_info("Files will remain mounted")
-                self.show_info(f"You can access them at: {os.path.join(self.current_dir, self.mounted_dir)}")
+                self.show_info(f"Location: {self.mounted_path}")
+                self.show_info("To unmount later, run: sudo umount -f \"" + self.mounted_path + "\"")
                 break
             else:
                 print(tag_exclamation() + "Please enter y or n")
-        
 
-# No main function - this will be called from sokonalysis menu
+# Function to call from sokonalysis main menu
 def mount_bitlocker_suboption():
     """Function to call from sokonalysis main menu"""
     mounter = BitLockerMounter()
     mounter.run()
 
-# If run directly, still work without the warning messages
 if __name__ == "__main__":
     mount_bitlocker_suboption()
