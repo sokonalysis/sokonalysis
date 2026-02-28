@@ -2,7 +2,7 @@
 """
 Mount BitLocker-encrypted Disk Image
 Sub-option for sokonalysis - returns to main menu when done
-SIMPLIFIED VERSION - Guarantees file manager opens
+UNIVERSAL VERSION - Works on Kali, Parrot, Ubuntu, Debian, etc.
 SOKONALYSIS - Created by Soko James
 """
 
@@ -163,9 +163,11 @@ class BitLockerMounter:
             pass
     
     def mount_bitlocker(self):
-        """Mount the BitLocker image"""
+        """Mount the BitLocker image - UNIVERSAL METHOD"""
         print()
         self.show_info("Mounting BitLocker image: " + YELLOW + self.disk_image + RESET)
+        print()
+        self.show_info(f"Detected distribution: {GREEN}{self.distro}{RESET}")
         print()
         
         # Unmount if needed
@@ -173,7 +175,7 @@ class BitLockerMounter:
         
         # Create directories
         self.create_directories()
-        print()
+        print()  # Add blank line after directory creation
         
         # Step 1: Run dislocker
         self.show_info("Unlocking with dislocker...")
@@ -189,7 +191,7 @@ class BitLockerMounter:
             return False
         
         self.show_success("BitLocker unlocked successfully")
-        print()
+        print()  # Add blank line after success
         
         # Check if dislocker-file exists
         dislocker_file = os.path.join(self.dislocker_dir, 'dislocker-file')
@@ -200,53 +202,72 @@ class BitLockerMounter:
         file_size = os.path.getsize(dislocker_file)
         self.show_minus(f"dislocker-file size: {self.format_size(file_size)}")
         
-        # Step 2: Mount the dislocker-file
+        # Step 2: Mount the dislocker-file - DISTRO-SPECIFIC METHOD
         self.show_info("Mounting filesystem...")
-        print()
+        print()  # Add blank line before mount
         
         mounted_path = os.path.join(self.current_dir, self.mounted_dir)
         
-        # Try mounting methods silently
+        # Try different mount methods based on distro
         mount_success = False
         
-        # Method 1: Simple loop mount
+        # Method 1: Simple loop mount (works on Kali)
         if not mount_success:
-            result = subprocess.run(['mount', '-o', 'loop', dislocker_file, mounted_path], 
-                                  capture_output=True, text=True)
+            self.show_info("Trying method 1: Simple loop mount...")
+            cmd2 = ['mount', '-o', 'loop', dislocker_file, mounted_path]
+            result = subprocess.run(cmd2, capture_output=True, text=True)
             if result.returncode == 0:
                 mount_success = True
+                self.show_success("Mounted with loop device")
         
-        # Method 2: ntfs-3g with loop
+        # Method 2: ntfs-3g with loop (works on most systems)
         if not mount_success:
-            result = subprocess.run(['mount', '-t', 'ntfs-3g', '-o', 'loop', dislocker_file, mounted_path], 
-                                  capture_output=True, text=True)
+            self.show_info("Trying method 2: ntfs-3g with loop...")
+            cmd2 = ['mount', '-t', 'ntfs-3g', '-o', 'loop', dislocker_file, mounted_path]
+            result = subprocess.run(cmd2, capture_output=True, text=True)
             if result.returncode == 0:
                 mount_success = True
+                self.show_success("Mounted with ntfs-3g + loop")
         
-        # Method 3: ntfs-3g directly
+        # Method 3: ntfs-3g with uid/gid (works on Parrot)
         if not mount_success:
-            result = subprocess.run(['ntfs-3g', '-o', 'ro,allow_other', dislocker_file, mounted_path], 
-                                  capture_output=True, text=True)
+            self.show_info("Trying method 3: ntfs-3g with permissions...")
+            cmd2 = ['ntfs-3g', '-o', 'ro,allow_other', dislocker_file, mounted_path]
+            result = subprocess.run(cmd2, capture_output=True, text=True)
             if result.returncode == 0:
                 mount_success = True
+                self.show_success("Mounted with ntfs-3g + permissions")
+        
+        # Method 4: mount with uid/gid (universal fallback)
+        if not mount_success:
+            self.show_info("Trying method 4: mount with uid/gid...")
+            uid = os.getuid()
+            gid = os.getgid()
+            cmd2 = ['mount', '-o', f'loop,ro,uid={uid},gid={gid}', dislocker_file, mounted_path]
+            result = subprocess.run(cmd2, capture_output=True, text=True)
+            if result.returncode == 0:
+                mount_success = True
+                self.show_success("Mounted with uid/gid options")
         
         if not mount_success:
-            self.show_error("Failed to mount filesystem!")
+            self.show_error("Failed to mount filesystem with all methods!")
+            print(tag_x() + result.stderr)
             return False
         
         self.show_success("Filesystem mounted successfully")
-        print()
+        print()  # Add blank line after mount
         
         # Show mounted path
         print(BLUE + "_________________________________________________________________\n")
         self.show_minus(f"Mounted Path: {YELLOW}{mounted_path}{RESET}")
+        self.show_minus(f"Distribution: {GREEN}{self.distro}{RESET}")
         
-        # Count files
+        # Test access
         try:
             files = os.listdir(mounted_path)
-            self.show_minus(f"Files found: {GREEN}{len(files)}{RESET}")
+            self.show_success(f"Found {len(files)} files/directories")
         except:
-            pass
+            self.show_error("Warning: Cannot list files - may need different permissions")
         
         print(BLUE + "_________________________________________________________________")
         print()
@@ -254,77 +275,69 @@ class BitLockerMounter:
         return True
     
     def open_file_manager(self):
-        """Open the mounted directory - GUARANTEED TO OPEN"""
+        """Open the mounted directory in file manager - UNIVERSAL METHOD"""
         mounted_path = os.path.join(self.current_dir, self.mounted_dir)
-        original_user = os.environ.get('SUDO_USER')
         
-        print()
-        self.show_info("Opening file manager...")
+        # Try different file managers
+        file_managers = [
+            ['nautilus', mounted_path],   # GNOME
+            ['dolphin', mounted_path],    # KDE
+            ['nemo', mounted_path],       # Cinnamon
+            ['thunar', mounted_path],     # XFCE
+            ['pcmanfm', mounted_path],    # LXDE/LXQT
+            ['caja', mounted_path],       # MATE
+            ['xdg-open', mounted_path]    # Default
+        ]
         
-        # DETECT DESKTOP ENVIRONMENT
-        desktop = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
+        opened = False
         
-        # Choose the BEST file manager for this system
-        if 'kde' in desktop:
-            # KDE - use dolphin
-            fm_cmd = ['dolphin', mounted_path]
-            fm_name = 'dolphin'
-        elif 'xfce' in desktop:
-            # XFCE - use thunar
-            fm_cmd = ['thunar', mounted_path]
-            fm_name = 'thunar'
-        elif 'mate' in desktop or self.distro == 'parrot':
-            # MATE or Parrot - use caja
-            fm_cmd = ['caja', mounted_path]
-            fm_name = 'caja'
-        elif 'cinnamon' in desktop:
-            # Cinnamon - use nemo
-            fm_cmd = ['nemo', mounted_path]
-            fm_name = 'nemo'
-        elif 'gnome' in desktop or self.distro in ['kali', 'ubuntu']:
-            # GNOME - use nautilus
-            fm_cmd = ['nautilus', mounted_path]
-            fm_name = 'nautilus'
-        else:
-            # Default to xdg-open
-            fm_cmd = ['xdg-open', mounted_path]
-            fm_name = 'xdg-open'
+        # On Parrot, try sudo -u for file manager first
+        if self.distro == 'parrot' and not opened:
+            original_user = os.environ.get('SUDO_USER')
+            if original_user:
+                self.show_info(f"Attempting to open as {original_user}...")
+                for fm in file_managers:
+                    try:
+                        # Check if file manager exists
+                        which_result = subprocess.run(['which', fm[0]], capture_output=True, text=True)
+                        if which_result.returncode == 0:
+                            cmd = ['sudo', '-u', original_user] + fm
+                            subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            self.show_success(f"Opened with {fm[0]} as {original_user}")
+                            opened = True
+                            time.sleep(1)
+                            break
+                    except:
+                        continue
         
-        # Check if the chosen file manager exists
-        try:
-            subprocess.run(['which', fm_cmd[0]], capture_output=True, check=True)
-            fm_exists = True
-        except:
-            fm_exists = False
-            # Fallback to xdg-open
-            fm_cmd = ['xdg-open', mounted_path]
-            fm_name = 'xdg-open'
+        # Try normal opening (works on Kali and others)
+        if not opened:
+            for fm in file_managers:
+                try:
+                    # Check if file manager exists
+                    which_result = subprocess.run(['which', fm[0]], capture_output=True, text=True)
+                    if which_result.returncode == 0:
+                        subprocess.Popen(fm, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        self.show_success(f"Opened with {fm[0]}")
+                        opened = True
+                        time.sleep(1)
+                        break
+                except:
+                    continue
         
-        # OPEN THE FILE MANAGER
-        try:
-            if original_user and original_user != 'root':
-                # Running as sudo - open as original user
-                cmd = ['sudo', '-u', original_user] + fm_cmd
-                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            else:
-                # Running as normal user
-                subprocess.Popen(fm_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
-            self.show_success(f"Opened with {fm_name}")
-            time.sleep(2)  # Give it time to open
-            
-        except Exception as e:
-            self.show_error(f"Failed to open file manager: {e}")
-            # Show manual instructions
-            self.show_minus(f"Access files at: {YELLOW}{mounted_path}{RESET}")
+        if not opened:
+            self.show_error("Could not open file manager automatically")
+            print()
+            self.show_info("Access manually:")
             print(f"  {GREEN}cd \"{mounted_path}\"{RESET}")
+            print(f"  {GREEN}ls -la \"{mounted_path}\"{RESET}")
             print(f"  {GREEN}xdg-open \"{mounted_path}\"{RESET}")
+            print()
         
-        print()
-        return True
+        return opened
     
     def unmount(self):
-        """Unmount the BitLocker volumes"""
+        """Unmount the BitLocker volumes - UNIVERSAL METHOD"""
         print()
         self.show_info("Unmounting...")
         
@@ -333,39 +346,55 @@ class BitLockerMounter:
         
         success = True
         
+        # Try multiple unmount methods
         if os.path.ismount(mounted_path):
-            # Try normal unmount
+            self.show_minus("Unmounting filesystem...")
+            
+            # Method 1: Normal unmount
             result = subprocess.run(['umount', mounted_path], capture_output=True)
-            if result.returncode != 0:
-                # Try force unmount
+            if result.returncode == 0:
+                self.show_success(f"Unmounted: {mounted_path}")
+            else:
+                # Method 2: Force unmount
+                self.show_info("Trying force unmount...")
                 result = subprocess.run(['umount', '-f', mounted_path], capture_output=True)
-                if result.returncode != 0:
-                    # Try lazy unmount
+                if result.returncode == 0:
+                    self.show_success(f"Force unmounted: {mounted_path}")
+                else:
+                    # Method 3: Lazy unmount
+                    self.show_info("Trying lazy unmount...")
                     result = subprocess.run(['umount', '-l', mounted_path], capture_output=True)
-                    if result.returncode != 0:
+                    if result.returncode == 0:
+                        self.show_success(f"Lazy unmounted: {mounted_path}")
+                    else:
                         self.show_error(f"Failed to unmount {mounted_path}")
                         success = False
-                    else:
-                        self.show_success(f"Unmounted: {mounted_path}")
-                else:
-                    self.show_success(f"Unmounted: {mounted_path}")
-            else:
-                self.show_success(f"Unmounted: {mounted_path}")
         
-        # Clean up
+        # Unmount dislocker directory if mounted
+        if os.path.ismount(dislocker_path):
+            subprocess.run(['umount', '-f', dislocker_path], capture_output=True)
+            self.show_minus("Unmounted dislocker directory")
+        
+        # Detach loop devices
         subprocess.run(['losetup', '-D'], capture_output=True)
         
         if success:
-            self.show_success("✅ Unmount completed")
+            self.show_success("Unmount completed successfully")
         else:
-            self.show_error("❌ Unmount failed")
+            self.show_error("Some volumes could not be unmounted")
+            self.show_info(f"Try manually: sudo umount -f \"{mounted_path}\"")
         
         return success
     
     def run(self):
-        """Main run function"""
+        """Main run function - returns to menu when done"""
+        print()  # Add spacing from main menu
+        
+        # Show distro info
+        self.show_info(f"Running on: {GREEN}{self.distro}{RESET}")
         print()
         
+        # Check root (but don't exit, just return)
         if not self.check_root():
             input(tag_gt() + "Press Enter to return to main menu...")
             return
@@ -388,25 +417,31 @@ class BitLockerMounter:
             input(tag_gt() + "Press Enter to return to main menu...")
             return
         
-        # Open file manager - GUARANTEED
+        # Open file manager
         self.open_file_manager()
+        print()  # Add blank line after file manager message
         
-        # Ask to unmount
+        # Ask if user wants to unmount (with colored y/n)
         while True:
-            print(tag_question() + f"Unmount? ({GREEN}y{RESET}/{RED}n{RESET}): ", end='')
+            print(tag_question() + f"Do you want to unmount? ({GREEN}y{RESET}/{RED}n{RESET}): ", end='')
             choice = input().lower().strip()
             if choice in ['y', 'yes']:
                 self.unmount()
                 break
             elif choice in ['n', 'no']:
-                self.show_info(f"Mounted at: {os.path.join(self.current_dir, self.mounted_dir)}")
+                self.show_info("Files will remain mounted")
+                self.show_info(f"You can access them at: {os.path.join(self.current_dir, self.mounted_dir)}")
                 break
             else:
                 print(tag_exclamation() + "Please enter y or n")
+        
 
+# No main function - this will be called from sokonalysis menu
 def mount_bitlocker_suboption():
+    """Function to call from sokonalysis main menu"""
     mounter = BitLockerMounter()
     mounter.run()
 
+# If run directly, still work without the warning messages
 if __name__ == "__main__":
     mount_bitlocker_suboption()
