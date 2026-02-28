@@ -41,9 +41,11 @@ class BitLockerCracker:
         self.john_path = "john"
         self.disk_image = None
         self.hash_file = None
+        self.hashcat_file = None
         self.default_wordlist = "wordlist.txt"
         self.current_dir = os.getcwd()
         self.temp_dir = None
+        self.cracked_password = None
         
     def show_error(self, message):
         """Display error message in red with [x] tag"""
@@ -71,7 +73,7 @@ class BitLockerCracker:
     
     def check_tools(self):
         """Check if required tools are available"""
-        # Check for john
+        # Check for john (still needed for hash extraction reference)
         try:
             result = subprocess.run([self.john_path, "--version"], 
                                   capture_output=True, text=True, timeout=2)
@@ -126,7 +128,8 @@ class BitLockerCracker:
         
         # Create temporary file for hash
         self.temp_dir = tempfile.mkdtemp(prefix="bitlocker_hash_")
-        self.hash_file = os.path.join(self.temp_dir, "bitlocker.hash")
+        self.hash_file = os.path.join(self.temp_dir, "bitlocker.john")
+        self.hashcat_file = os.path.join(self.temp_dir, "bitlocker.hashcat")
         
         try:
             # Run bitlocker2john
@@ -136,31 +139,62 @@ class BitLockerCracker:
             
             if result.returncode == 0 and result.stdout:
                 # Extract the hash lines
-                hash_lines = []
+                john_lines = []
+                hashcat_lines = []
+                
                 for line in result.stdout.split('\n'):
                     line = line.strip()
                     if line and ('$bitlocker$' in line or '$FVE$' in line):
+                        # For John (with filename)
                         if ':' not in line:
-                            line = f"{os.path.basename(disk_image_path)}:{line}"
-                        hash_lines.append(line)
+                            john_line = f"{os.path.basename(disk_image_path)}:{line}"
+                            john_lines.append(john_line)
+                        else:
+                            john_lines.append(line)
+                        
+                        # For Hashcat (without filename)
+                        # Remove any existing filename prefix
+                        if ':' in line:
+                            hashcat_line = line.split(':', 1)[1]
+                        else:
+                            hashcat_line = line
+                        hashcat_lines.append(hashcat_line)
                 
-                if hash_lines:
+                if john_lines:
+                    # Save John format hash
                     with open(self.hash_file, 'w') as f:
-                        for hash_line in hash_lines:
+                        for hash_line in john_lines:
+                            f.write(hash_line + '\n')
+                    
+                    # Save Hashcat format hash
+                    with open(self.hashcat_file, 'w') as f:
+                        for hash_line in hashcat_lines:
                             f.write(hash_line + '\n')
                     
                     # Also save to current directory with disk image name
                     base_name = os.path.basename(disk_image_path)
                     if '.' in base_name:
                         base_name = base_name.split('.')[0]
-                    local_hash = f"{base_name}_hash.txt"
                     
-                    with open(local_hash, 'w') as f:
-                        for hash_line in hash_lines:
+                    # Save John format locally
+                    local_john = f"{base_name}_john.txt"
+                    with open(local_john, 'w') as f:
+                        for hash_line in john_lines:
                             f.write(hash_line + '\n')
                     
-                    self.show_success("Hash extracted successfully!")
-                    print(tag_minus() + f"Hash saved to: " + YELLOW + f"{local_hash}" + RESET)
+                    # Save Hashcat format locally
+                    local_hashcat = f"{base_name}_hashcat.txt"
+                    with open(local_hashcat, 'w') as f:
+                        for hash_line in hashcat_lines:
+                            f.write(hash_line + '\n')
+                    
+                    # Run hashcat directly (removed success messages)
+                    print(tag_asterisk() + "Starting hashcat attack...")
+                    print()
+                    
+                    if self.run_hashcat(local_hashcat):
+                        return True  # Signal that password was found and we should exit
+                    
                     return True
                 else:
                     self.show_error("No BitLocker hash found in output")
@@ -175,6 +209,122 @@ class BitLockerCracker:
         
         self.cleanup()
         return False
+    
+    def run_hashcat(self, hash_file):
+        """Run hashcat attack"""
+        # Ask for wordlist
+        print(BLUE + "_______________________ " + GREEN + "Wordlist Option" + BLUE + " _________________________")
+        print()
+        print(YELLOW + "[1]" + RESET + " Use default wordlist")
+        print(YELLOW + "[2]" + RESET + " Use custom wordlist")
+        print(BLUE + "_________________________________________________________________")
+        print()
+        
+        choice = input(tag_gt() + "Select option (1-2, default=1): ").strip() or "1"
+        print()  # Add spacing after input
+        
+        wordlist = self.default_wordlist
+        if choice == "2":
+            wl = input(tag_gt() + "Enter path to custom wordlist: ").strip()
+            print()  # Add spacing after input
+            if wl and os.path.exists(wl):
+                wordlist = wl
+            else:
+                self.show_error(f"Wordlist not found: {wl}")
+                return False
+        
+        if not os.path.exists(wordlist):
+            self.show_error(f"Wordlist not found: {wordlist}")
+            return False
+        
+        word_count = self.count_words(wordlist)
+        print(tag_gt() + f"Using wordlist: " + CYAN + f"{wordlist}" + RESET)
+        print(tag_gt() + f"Word count: " + CYAN + f"{word_count:,}" + RESET)
+        print()
+        
+        # Build hashcat command
+        cmd = [
+            'hashcat',
+            '-m', '22100',           # BitLocker mode
+            '-a', '0',                # Wordlist attack
+            '--potfile-path=bitlocker.pot',  # Save cracked passwords
+            '-O',                      # Optimized kernel
+            '-w', '3',                  # Workload profile
+            '--force',                  # Force on CPU
+            hash_file,
+            wordlist
+        ]
+        
+        print(tag_gt() + "Running hashcat... " + RED + "(this may take a while)" + RESET)
+        print()
+        
+        try:
+            start = time.time()
+            
+            # Run hashcat
+            process = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True
+            )
+            
+            # Check the potfile directly for cracked passwords
+            potfile = "bitlocker.pot"
+            self.cracked_password = None
+            
+            if os.path.exists(potfile):
+                with open(potfile, 'r') as f:
+                    for line in f:
+                        if ':' in line:
+                            # Format is hash:password
+                            parts = line.strip().split(':', 1)
+                            if len(parts) == 2:
+                                self.cracked_password = parts[1]
+                                break
+            
+            elapsed = time.time() - start
+            
+            if self.cracked_password:
+                print()
+                print(BLUE + "_________________________________________________________________")
+                print()
+                print(tag_minus() + "Cracked Password Results: " + GREEN + self.cracked_password + RESET)
+                print()
+                print(BLUE + "_________________________________________________________________")
+                print()
+                
+                # Save to file
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                outfile = f"cracked_bitlocker_{timestamp}.txt"
+                with open(outfile, 'w') as f:
+                    f.write(f"Disk Image: {self.disk_image}\n")
+                    f.write(f"Password: {self.cracked_password}\n")
+                    f.write(f"Hash: {hash_file}\n")
+                    f.write(f"Wordlist: {wordlist}\n")
+                    f.write(f"Time: {time.ctime()}\n")
+                
+                return True
+            else:
+                print()
+                print(tag_minus() + " No password found in wordlist")
+                print(tag_asterisk() + " Try a different wordlist or attack mode")
+            
+            print()
+            print(tag_minus() + f"Finished in " + YELLOW + f"{elapsed:.1f} seconds" + RESET)
+            print()
+            
+            return False
+            
+        except KeyboardInterrupt:
+            print()
+            self.show_error("Stopped by user")
+            print()
+            return False
+        except Exception as e:
+            print()
+            self.show_error(f"Error: {e}")
+            print()
+            return False
     
     def list_disk_images(self):
         """List disk images in current directory"""
@@ -212,8 +362,10 @@ class BitLockerCracker:
             print()
             
             choice = input(tag_gt() + "Select option (1-2): ").strip()
+            print()  # Add spacing after input
             if choice == "1":
                 path = input(tag_gt() + "Enter full path: ").strip()
+                print()  # Add spacing after input
                 if os.path.exists(path):
                     return path
                 else:
@@ -228,11 +380,13 @@ class BitLockerCracker:
         
         try:
             choice = int(input(tag_gt() + f"Select disk image (1-{len(disk_images)+2}): "))
+            print()  # Add spacing after input
             
             if 1 <= choice <= len(disk_images):
                 return disk_images[choice-1]
             elif choice == len(disk_images) + 1:
                 path = input(tag_gt() + "Enter full path: ").strip()
+                print()  # Add spacing after input
                 if os.path.exists(path):
                     return path
                 else:
@@ -244,236 +398,6 @@ class BitLockerCracker:
             self.show_error("Invalid choice")
             return None
     
-    def select_attack_mode(self):
-        """Select attack mode"""
-        print(tag_asterisk() + "Disk Image: " + YELLOW + f"{self.disk_image}" + RESET)
-        print()
-        print(BLUE + "\n____________________________ " + GREEN + "Options" + BLUE + " ____________________________")
-        print()
-
-        print(YELLOW + "[1]" + RESET + " Wordlist Attack (using default wordlist)")
-        print(YELLOW + "[2]" + RESET + " Wordlist Attack (custom wordlist)")
-        print(YELLOW + "[3]" + RESET + " Single Crack Mode")
-        print(YELLOW + "[4]" + RESET + " Incremental Mode (brute force)")
-        print(YELLOW + "[5]" + RESET + " Show cracked passwords")
-        print(YELLOW + "[6]" + RESET + " Select different disk image")
-        print(YELLOW + "[7]" + RESET + " Exit")
-        print(BLUE + "_________________________________________________________________")
-        print()
-        
-        try:
-            return int(input(tag_gt() + "Select option (1-7): "))
-        except:
-            self.show_error("Please enter a number")
-            return None
-    
-    def run_john_command(self, cmd, attack_name):
-        """Run a John the Ripper command - stops after finding first password"""
-        # Remove --max-crack=1 if present (some John versions don't support it)
-        cmd = [arg for arg in cmd if "--max-crack" not in arg]
-        
-        print(tag_asterisk() + f"{attack_name} on: " + YELLOW + f"{self.disk_image}" + RESET)
-        print()
-        print(tag_gt() + "Command: " + CYAN + f"{' '.join(cmd)}" + RESET)
-        print()
-        print(tag_asterisk() + "Starting attack... " + RED + "Press Ctrl+C to stop" + RESET)
-        print()
-        
-        try:
-            start = time.time()
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1
-            )
-            
-            password_found = False
-            output_lines = []
-            
-            for line in iter(process.stdout.readline, ''):
-                if line.strip():
-                    output_lines.append(line)
-                    
-                    # Check if this line contains a cracked password (format: "password (filename)")
-                    if '(' in line and ')' in line and not line.startswith(' '):
-                        # This is likely a cracked password line
-                        print(tag_plus() + " " + GREEN + line.strip() + RESET)
-                        password_found = True
-                        # Give it a moment to finish writing
-                        time.sleep(0.5)
-                        # Terminate the process
-                        process.terminate()
-                        break
-                    elif "cracked" in line.lower() or "password hash cracked" in line.lower():
-                        print(tag_plus() + " " + GREEN + line.strip() + RESET)
-                        password_found = True
-                    elif "warning" in line.lower():
-                        # Don't show warnings about max-crack
-                        if "max-crack" not in line.lower():
-                            print(tag_exclamation() + " " + ORANGE + line.strip() + RESET)
-                    elif "error" in line.lower() or "failed" in line.lower():
-                        print(tag_x() + " " + RED + line.strip() + RESET)
-                    elif "session aborted" in line.lower():
-                        print(tag_x() + " " + RED + line.strip() + RESET)
-                    elif "no password hashes left" in line.lower():
-                        print(tag_minus() + " " + CYAN + line.strip() + RESET)
-                    elif "max cracks reached" not in line.lower():
-                        # Filter out other common noise
-                        if not any(x in line.lower() for x in ['guesses:', 'remaining:', 'format', 'default input']):
-                            print(line.strip())
-            
-            # If we didn't find a password and process is still running, wait for it
-            if not password_found and process.poll() is None:
-                process.wait()
-            
-            elapsed = time.time() - start
-            print()
-            print(tag_minus() + f"Finished in " + YELLOW + f"{elapsed:.1f} seconds" + RESET)
-            
-            return password_found
-            
-        except KeyboardInterrupt:
-            print()
-            process.terminate()
-            self.show_error("Stopped by user")
-            return False
-        except Exception as e:
-            print()
-            self.show_error(f"Error: {e}")
-            return False
-    
-    def run_wordlist_attack(self, custom_wordlist=None):
-        """Run wordlist attack"""
-        wordlist = custom_wordlist or self.default_wordlist
-        
-        if not os.path.exists(wordlist):
-            self.show_error("Wordlist not found")
-            return False
-        
-        cmd = [self.john_path, self.hash_file, "--format=bitlocker", "--wordlist=" + wordlist]
-        
-        print()
-        print(BLUE + "_____________________________ " + GREEN + "Rules" + BLUE + " _____________________________")
-        print()
-        print(YELLOW + "[1]" + RESET + " No rules (fastest)")
-        print(YELLOW + "[2]" + RESET + " Standard rules (recommended)")
-        print(YELLOW + "[3]" + RESET + " All rules (slow but thorough)")
-        print(BLUE + "_________________________________________________________________")
-        print()
-        
-        choice = input(tag_gt() + "Select rule option (1-3, default=2): ").strip() or "2"
-        
-        if choice == "2":
-            cmd.append("--rules")
-        elif choice == "3":
-            cmd.append("--rules=All")
-        
-        password_found = self.run_john_command(cmd, "Wordlist Attack")
-        return password_found
-    
-    def run_single_mode(self):
-        """Run single crack mode"""
-        cmd = [self.john_path, self.hash_file, "--single", "--format=bitlocker"]
-        password_found = self.run_john_command(cmd, "Single Crack Mode")
-        return password_found
-    
-    def run_incremental_mode(self):
-        """Run incremental mode"""
-        print()
-        print(BLUE + "________________________ " + GREEN + "Character Sets" + BLUE + " ________________________")
-        print()
-        print(YELLOW + "[1]" + RESET + " Digits only (0-9)")
-        print(YELLOW + "[2]" + RESET + " Lowercase letters (a-z)")
-        print(YELLOW + "[3]" + RESET + " Alphanumeric (a-z, A-Z, 0-9)")
-        print(YELLOW + "[4]" + RESET + " All characters")
-        print(YELLOW + "[5]" + RESET + " Cancel")
-        print(BLUE + "_________________________________________________________________")
-        print()
-        
-        try:
-            choice = int(input(tag_gt() + "Select character set (1-5): "))
-            if choice == 5:
-                return False
-        except:
-            self.show_error("Invalid choice")
-            return False
-        
-        modes = {1: "Digits", 2: "Lower", 3: "Alnum", 4: "All"}
-        mode = modes.get(choice, "Alnum")
-        
-        print()
-        self.show_warning("This may take a VERY long time!")
-        confirm = input(tag_question() + "Continue with brute force? (y/n): ").lower()
-        
-        if confirm != 'y':
-            print(tag_asterisk() + "Cancelled")
-            return False
-        
-        cmd = [self.john_path, self.hash_file, "--incremental=" + mode, "--format=bitlocker"]
-        password_found = self.run_john_command(cmd, f"Incremental Mode ({mode})")
-        return password_found
-    
-    def show_results(self):
-        """Show cracked passwords"""
-        print(tag_asterisk() + "Checking for cracked passwords...")
-        print()
-        
-        cmd = [self.john_path, self.hash_file, "--show", "--format=bitlocker"]
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.stdout:
-                # Parse the output to extract the password
-                lines = result.stdout.strip().split('\n')
-                password_found = False
-                password_value = ""
-                
-                for line in lines:
-                    if ':' in line and not line.startswith(' '):
-                        # This is a cracked password line like "filename:password"
-                        parts = line.split(':', 1)
-                        if len(parts) > 1:
-                            password_value = parts[1].strip()
-                            password_found = True
-                            break
-                
-                if password_found:
-                    print(BLUE + "_________________________________________________________________")
-                    print()
-                    print(tag_minus() + "Cracked Password Results: " + GREEN + password_value + RESET)
-                    print()
-                    print(BLUE + "_________________________________________________________________")
-                    
-                    # Save results to file
-                    timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    filename = f"cracked_bitlocker_{timestamp}.txt"
-                    
-                    with open(filename, "w") as f:
-                        f.write(f"Disk Image: {self.disk_image}\n")
-                        f.write(f"Time: {time.ctime()}\n")
-                        f.write("=" * 50 + "\n")
-                        f.write(result.stdout)
-                    
-                    print()
-                    print(tag_plus() + f" Results saved to: {filename}")
-                    print()
-                    print(BLUE + "_________________________________________________________________")
-                    
-                    return True
-                else:
-                    print(tag_minus() + "No passwords cracked yet")
-            else:
-                print(tag_minus() + "No passwords cracked yet")
-                
-        except Exception as e:
-            self.show_error(f"Error showing results: {e}")
-        
-        print(BLUE + "\n_________________________________________________________________")
-        return False
-    
     def cleanup(self):
         """Clean up temporary files"""
         if self.temp_dir and os.path.exists(self.temp_dir):
@@ -481,6 +405,7 @@ class BitLockerCracker:
                 shutil.rmtree(self.temp_dir)
                 self.temp_dir = None
                 self.hash_file = None
+                self.hashcat_file = None
             except:
                 pass
     
@@ -489,6 +414,7 @@ class BitLockerCracker:
         if not self.check_tools():
             print(tag_exclamation() + "Required tools not found. Please install john and bitlocker2john.")
             input(tag_gt() + "Press Enter to exit...")
+            print()
             return
         
         while True:
@@ -498,70 +424,12 @@ class BitLockerCracker:
                 return
             
             print()
-            if not self.extract_hash(self.disk_image):
-                continue
+            password_found = self.extract_hash(self.disk_image)
             
-            while True:
-                print()
-                choice = self.select_attack_mode()
-                password_found = False
-                
-                if choice == 1:
-                    password_found = self.run_wordlist_attack()
-                    if password_found:
-                        self.show_results()
-                        self.cleanup()
-                        return  # Exit completely
-                    else:
-                        self.show_results()
-                        break  # Return to main menu if no password found
-                elif choice == 2:
-                    wl = input(tag_gt() + "Enter path to custom wordlist: ").strip()
-                    if wl:
-                        if os.path.exists(wl):
-                            password_found = self.run_wordlist_attack(wl)
-                            if password_found:
-                                self.show_results()
-                                self.cleanup()
-                                return  # Exit completely
-                            else:
-                                self.show_results()
-                                break  # Return to main menu if no password found
-                        else:
-                            self.show_error(f"Wordlist not found: {wl}")
-                    else:
-                        self.show_error("No wordlist specified")
-                elif choice == 3:
-                    password_found = self.run_single_mode()
-                    if password_found:
-                        self.show_results()
-                        self.cleanup()
-                        return  # Exit completely
-                    else:
-                        self.show_results()
-                        break  # Return to main menu if no password found
-                elif choice == 4:
-                    password_found = self.run_incremental_mode()
-                    if password_found:
-                        self.show_results()
-                        self.cleanup()
-                        return  # Exit completely
-                    else:
-                        self.show_results()
-                        break  # Return to main menu if no password found
-                elif choice == 5:
-                    if self.show_results():
-                        self.cleanup()
-                        return  # Exit completely if passwords were shown
-                    break
-                elif choice == 6:
-                    self.cleanup()
-                    break
-                elif choice == 7:
-                    self.cleanup()
-                    return
-                else:
-                    self.show_error("Invalid choice")
+            # If password was found, exit program
+            if password_found is True:
+                self.cleanup()
+                return
 
 def main():
     """Main function"""
