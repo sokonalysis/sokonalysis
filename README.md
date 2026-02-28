@@ -187,18 +187,14 @@ g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -l
 ./sokonalysis
 ````
 <img width="801" height="369" alt="Image" src="https://github.com/user-attachments/assets/e820ae6f-bb1a-47c4-aa63-d9f53d1b77b3" />
-<img width="802" height="537" alt="Image" src="https://github.com/user-attachments/assets/0e85c138-0a19-44d5-a13d-043db89b34a0" />
+
 
 
 ### GUI
 ````bash
 python3 sokonalysis_gui.py
 ````
-<img width="403" height="316" alt="Image" src="https://github.com/user-attachments/assets/75378425-eea7-4a1d-8a0e-cbfffd5750d0" />
-
-<img width="402" height="314" alt="Image" src="https://github.com/user-attachments/assets/bb4c0440-b63e-48bf-85d4-20700fc5884d" />
-
-<img width="404" height="314" alt="Image" src="https://github.com/user-attachments/assets/33349e08-6bde-4b2d-8c5c-bcdc6964dc6d" />
+<img width="796" height="616" alt="image" src="https://github.com/user-attachments/assets/db8544e8-a761-421c-b685-8d5d73330aae" />
 
 
 ## Update
@@ -224,19 +220,22 @@ solves a question manually.
    a) You have received a message UTLAIKNP encrypted with the key (33,7). Find the private keys that should be used to decrypt the message and work out the clear text.
 
    `STEP 1` <br>
-   Utilize option 8 to check the help menu and try to understand the RSA algorithm.
+   Utilize option 2 and select option 3 to check the help menu and try to understand the RSA algorithm.
 
-   <img width="798" height="572" alt="Image" src="https://github.com/user-attachments/assets/27a61ad7-6edb-4d9d-a3f9-d1dbba8ec67c" />
+   <img width="796" height="616" alt="image" src="https://github.com/user-attachments/assets/e992e13a-3065-4bdd-84a3-3479c085b525" />
+
 
    `STEP 2` <br>
    Based on the encryption key given (33,7), we can conclude to say that the Public Key (n,e) is n = 33 and e = 7. Now, we compute n we get the product of p and q, for which they are two large prime numbers such as 11 and 3 which gives us 33. Let's now proceed to the RSA algorithm by selecting option 2.
 
-   <img width="801" height="656" alt="Image" src="https://github.com/user-attachments/assets/debf131e-9541-446d-b755-931431f1a5a5" />
+   <img width="800" height="623" alt="image" src="https://github.com/user-attachments/assets/c2a93f04-7967-4844-beb0-1ef42fb2e42f" />
+
 
    `STEP 3` <br>
    Now, let's assume as if we are encrypting a message with the given Public Key (33,7) so that we can retrive the Private Key (n,d).
 
-   <img width="796" height="197" alt="Image" src="https://github.com/user-attachments/assets/b71ce952-55c6-4d20-93dd-fc96083e2583" />
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/a821f78f-d040-4c9e-9f4b-88ffd4fa0f00" />
+
 
    `STEP 4` <br>
    There we go, we've obtained the Private Key (33,3). Restart the program, welcome back!!! Let's utilize option 4 to convert the cipher text letters to numbers because the program can only decryp numerical values.
@@ -251,9 +250,10 @@ solves a question manually.
    <img width="801" height="309" alt="Image" src="https://github.com/user-attachments/assets/d0bb4f2e-0253-44d8-9094-17384e5a9b66" />
 
 3. ### CTF Level
-   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberTalents](https://cybertalents.com/) etc.. sokonalysis can be used to solve these challenges, but with v2.2 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
+   Cryptography is a popular category in most Capture The Flag platforms like [Hack The Box (HTB)](https://account.hackthebox.com/login), [PicoCTF](https://play.picoctf.org/), [CyberTalents](https://cybertalents.com/), [ZedCTF](https://zedctf.web.app ) etc.. sokonalysis can be used to solve these challenges, but with v3.5 only few algorithms are working. sokonalysis will also provide a framework that will link the user to all popular Cryptographic tools used for CTF, thereby reducing the time of finding the right tools to use.
 
-   <img width="800" height="425" alt="Image" src="https://github.com/user-attachments/assets/9423dd1c-03d8-4ecd-8ecc-2de091b61ecf" />
+   <img width="828" height="652" alt="image" src="https://github.com/user-attachments/assets/dd14a234-c900-4131-82c8-e16b2116d195" />
+
 
     Let’s jump into these challenges!!!
 
