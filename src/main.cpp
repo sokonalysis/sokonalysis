@@ -241,7 +241,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                    Last update 22 February 2026                           " << RESET << endl;
+        cout << WHITE << "                    Last update 28 February 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -1995,9 +1995,11 @@ int main() {
                                     cout << "     " << GREEN << "Tools" << RESET << "\n";
                                     cout << endl;
                                     cout << "     You need to be running Linux to use these options and\n";
-                                    cout << "     you need to have John The Ripper.\n"; 
-                                    cout << "     You can install it with:\n"; 
+                                    cout << "     you need to have John The Ripper, Hashcat, Disklocker.\n"; 
+                                    cout << "     You can install the tools with:\n"; 
                                     cout << "     sudo apt install john -y\n"; 
+                                    cout << "     sudo apt install dislocker -y\n"; 
+                                    cout << "     sudo apt install hashcat -y\n"; 
 
                         }
 
