@@ -186,6 +186,17 @@ g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -l
 ````bash
 ./sokonalysis
 ````
+
+#### Global Execution
+After building the tool, you can install it to a system directory like /usr/local/bin so it's available everywhere
+
+````bash
+sudo cp sokonalysis /usr/local/bin/
+````
+````bash
+sudo chmod +x /usr/local/bin/sokonalysis
+````
+
 <img width="801" height="369" alt="Image" src="https://github.com/user-attachments/assets/e820ae6f-bb1a-47c4-aa63-d9f53d1b77b3" />
 
 
