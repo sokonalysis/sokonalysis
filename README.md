@@ -192,13 +192,24 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 After building the tool, you can install it to a system directory like /usr/local/bin so it's available everywhere
 
 ````bash
-sudo cp sokonalysis /usr/local/bin/
+sudo mkdir -p /usr/local/bin/sokonalysis/
 ````
 ````bash
-sudo chmod +x /usr/local/bin/sokonalysis
+sudo cp -r sokonalysis/* /usr/local/bin/sokonalysis/
+````
+````bash
+sudo chmod +x /usr/local/bin/sokonalysis/src/sokonalysis
+````
+````bash
+sudo ln -sf /usr/local/bin/sokonalysis/src/sokonalysis /usr/local/bin/sokonalysis-toolkit
 ````
 
-<img width="801" height="369" alt="Image" src="https://github.com/user-attachments/assets/e820ae6f-bb1a-47c4-aa63-d9f53d1b77b3" />
+##### Global Run
+````bash
+sokonalysis-toolkit
+````
+
+<img width="939" height="504" alt="image" src="https://github.com/user-attachments/assets/6a11ae97-8d3c-49d3-acf4-902c19f901c8" />
 
 
 
@@ -221,6 +232,8 @@ git pull
 ````
 
 ## Usage
+<img width="939" height="504" alt="image" src="https://github.com/user-attachments/assets/74fa9f25-6936-4833-8840-af8ac339cc73" />
+
 
 [Official sokonalysis YouTube Guide Playlist](https://youtube.com/playlist?list=PLbkdoTM3A8aOFijcnaxCZGhZklM5RsbaL&si=Yoo6r6xL3Y5DtohM)
 
