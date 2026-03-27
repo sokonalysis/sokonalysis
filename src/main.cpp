@@ -225,8 +225,6 @@ void displayLogo4() {
         std::cout << line << std::endl;
     }
     
-    std::cout << "\n\n";
-    
     // Create loading bar animation
     const int total_width = 50;
     const int total_time_ms = 3000; // 3 seconds
