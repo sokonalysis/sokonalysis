@@ -192,6 +192,68 @@ void displayLogo3() {
     std::cout << RESET;
 }
 
+void displayLogo4() {
+    const std::string logo[] = {
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⡿⠋⠉⠀⠀⠀⠉⠙⠻⣿⣿⣿⣿⣿⣿⡿⠋⠁⠀⠀⠀⠉⠛⢿⣿⣿⣿⣿⣷⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⡏⠀⠀⠀⣠⣤⣄⡀⠀⠀⢹⣿⣿⣿⣿⡟⠀⠀⣴⣶⣷⣶⡄⠀⠈⢿⣿⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⠀⠀⠀⢸⣿⣿⣿⣷⣤⣤⣴⣿⣿⣿⣿⡇⠀⢸⣿⣿⣿⣿⣿⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣇⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⣿⣿⣿⣇⣀⡈⠉⠀⠀⠈⠉⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⣷⣄⣀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⡿⣷⣄⠀⠀⠀⠀⠀⠈⠻⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀⠀⠀⠈⣿⣿⣿⣿⣿⡇⠀⢀⣿⡆⠀⠀⠀⠀⠀⠀⢹⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣯⠀⠀⠈⠻⣿⣿⣿⠇⠀⠀⢀⣿⣿⣻⣿⣿⣿⣷⣿⡿⠁⠀⠀⠀⠀⠀⠀⠈⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⣿⣿⡿⠋⠻⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⣿⣶⣤⣤⣤⣤⣴⣶⣯⣾⡿⣫⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣫⣿⡿⢋⡺⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⣾⡿⢋⡴⣛⢛⣼⣿⣿⣿⣿⣶⣦⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⠀⠀⠀",
+        "        ⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣝⢗⣽⣿⣿⣿⡟⠡⠦⠌⣿⡌⠋⣰⡏⠤⠦⠹⣿⣿⣿⡏⠀⠀⠀",
+        "        ⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠙⣷⡘⠛⢛⡿⢡⣆⠹⣇⠘⠛⣻⣿⣿⣿⠃⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠈⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀",
+        "        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+    };
+    
+    // Clear screen for better visualization (optional)
+    // std::system("clear"); // For Linux/Mac
+    // std::system("cls");   // For Windows
+    
+    // Display the logo
+    for (const auto& line : logo) {
+        std::cout << line << std::endl;
+    }
+    
+    std::cout << "\n\n";
+    
+    // Create loading bar animation
+    const int total_width = 50;
+    const int total_time_ms = 3000; // 3 seconds
+    const int steps = 100; // 100 steps for percentage
+    
+    for (int i = 0; i <= steps; i++) {
+        int filled_width = (total_width * i) / steps;
+        
+        // Print loading bar
+        std::cout << "\r[";
+        for (int j = 0; j < total_width; j++) {
+            if (j < filled_width) {
+                std::cout << "█";
+            } else {
+                std::cout << "░";
+            }
+        }
+        std::cout << "] " << std::setw(3) << i << "% ";
+        std::cout.flush();
+        
+        // Sleep for the appropriate duration to complete in 3 seconds
+        std::this_thread::sleep_for(std::chrono::milliseconds(total_time_ms / steps));
+    }
+    
+    std::cout << std::endl << std::endl;
+}
+
 void pauseConsole() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cin.get();
@@ -237,11 +299,15 @@ int main() {
 
         cout << endl;
         clearScreen();
+        displayLogo4();
+
+        cout << endl;
+        clearScreen();
         displayLogo3();
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                    Last update 28 February 2026                           " << RESET << endl;
+        cout << WHITE << "                      Last update 27 March 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
