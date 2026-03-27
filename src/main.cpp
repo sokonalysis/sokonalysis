@@ -282,6 +282,12 @@ void clearScreen() {
 #endif
 }
 
+bool goBack() {
+             string input;
+             cin >> input;
+             return (input == "0" || input == "00" || input == "back" || input == "Back" || input == "BACK");
+        }
+
 
 int main() {
     EnableVirtualTerminalProcessing();
@@ -335,6 +341,9 @@ int main() {
 
         if (choice == "1" || choice == "01" || choice == "Symetric" || choice == "symetric"){
             string sym_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
             cout << BLUE << "______________________" << RESET<< GREEN << " Symmetric Algorithms "<< RESET << BLUE << " ____________________" << RESET << endl;
             cout << endl;
@@ -343,14 +352,23 @@ int main() {
             cout << YELLOW << "[3]" << RESET << " Hill Cipher" << endl;
             cout << YELLOW << "[4]" << RESET << " Advanced Encryption Standard (AES)" << endl;
             cout << YELLOW << "[5]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
             cin >> sym_choice;
 
+            if (sym_choice == "0" || sym_choice == "00" || sym_choice == "back" || sym_choice == "Back" || sym_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
 
-            if (sym_choice == "1" || sym_choice == "01" || sym_choice == "Caesar") {
+
+            else if (sym_choice == "1" || sym_choice == "01" || sym_choice == "Caesar") {
                 string sub_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
                 cout << BLUE << "______________________" << RESET<< GREEN << " Caesar Cipher Options "<< RESET << BLUE << " ___________________" << RESET << endl;
                 cout << endl;
@@ -358,13 +376,19 @@ int main() {
                 cout << YELLOW << "[2]" << RESET << " Brute Force Caesar" << endl;
                 cout << YELLOW << "[3]" << RESET << " Polyalphabetic Caesar" << endl;
                 cout << YELLOW << "[4]" << RESET << " Help" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
                 cin >> sub_choice;
                 cout << endl;
+
+                if (sub_choice == "0" || sub_choice == "00" || sub_choice == "back" || sub_choice == "Back" || sub_choice == "BACK") {
+                    inMenu = false;
+                    break;
+                }
         
-                if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Caesar") {
+                else if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Caesar") {
                     // Ask the user for the shift mapping style
                     int mapping;
                     cout << endl;
@@ -458,6 +482,9 @@ int main() {
 
                 else if (sub_choice == "3" || sub_choice == "03" || sub_choice == "Caesar Polyalphabetic") {  // Caesar Polyalphabetic option
                     string poly_choice;
+                    bool inMenu = true;
+    
+                    while (inMenu) {
                     cout << endl;
 
                     cout << BLUE << "_____________" << RESET<< GREEN << " Polyalphabetic Caesar Cipher Options "<< RESET << BLUE << "______________" << RESET << endl;
@@ -466,12 +493,18 @@ int main() {
                     cout << YELLOW << "[2]" << RESET << " Vigenere Cipher (keyword-based)" << endl;
                     cout << YELLOW << "[3]" << RESET << " Polyaphabetic Cipher (sequence-based)" << endl;
                     cout << YELLOW << "[4]" << RESET << " Help" << endl;
+                    cout << YELLOW << "[0]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
                     cin >> poly_choice;
 
-                    if (poly_choice == "1" || poly_choice == "01" || poly_choice == "Basic" || poly_choice == "basic"){   
+                    if (poly_choice == "0" || poly_choice == "00" || poly_choice == "back" || poly_choice == "Back" || poly_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                    }
+
+                    else if (poly_choice == "1" || poly_choice == "01" || poly_choice == "Basic" || poly_choice == "basic"){   
                         // Ask the user for the shift mapping style
                         int mapping;
                         cout << endl;
@@ -669,6 +702,7 @@ int main() {
                         cout << endl;
                     }
                 }
+            }
 
                 else if (sub_choice == "04" || sub_choice == "4" || sub_choice == "Help" || sub_choice == "help"){
                     // Stage 2: Show Caesar Cipher
@@ -725,9 +759,13 @@ int main() {
                     cout << endl;
                 }
             }
+        }
         
             else if (sym_choice == "2" || sym_choice == "02" || sym_choice == "Transposition") {
                 string sub_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
 
                 cout << BLUE << "_________________" << RESET<< GREEN << " Transposition Cipher Options "<< RESET << BLUE << "__________________" << RESET << endl;
@@ -736,12 +774,18 @@ int main() {
                 cout << YELLOW << "[2]" << RESET << " Columnar Transposition Cipher" << endl;
                 cout << YELLOW << "[3]" << RESET << " Rail Fence Cipher" << endl;
                 cout << YELLOW << "[4]" << RESET << " Help" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
                 cin >> sub_choice;
 
-                if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Transposion") {
+                if (sub_choice == "0" || sub_choice == "00" || sub_choice == "back" || sub_choice == "Back" || sub_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                }
+
+                else if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Transposion") {
                     string action;
                     cout << endl;
 
@@ -932,6 +976,7 @@ int main() {
                     cout << endl;
                 }
             }
+        }
 
             else if (sym_choice == "3" || sym_choice == "03" || sym_choice == "Hill") {
                 cout << endl;
@@ -960,9 +1005,14 @@ int main() {
                 cout << endl;
             }
         }   
+    }
     
         else if (choice == "2" || choice == "Asymetric" || choice == "asymetric"){
             string asym_choice;
+            cout << endl;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
 
             cout << BLUE << "_____________________" << RESET<< GREEN << " Asymmetric Algorithms "<< RESET << BLUE << "_____________________" << RESET << endl;
@@ -970,12 +1020,18 @@ int main() {
             cout << YELLOW << "[1]" << RESET << " Rivest Shamir Adleman (RSA)" << endl;
             cout << YELLOW << "[2]" << RESET << " Diffie Hellman" << endl;
             cout << YELLOW << "[3]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
             cin >> asym_choice;
 
-            if (asym_choice == "1" || asym_choice == "01" || asym_choice == "RSA") {
+            if (asym_choice == "0" || asym_choice == "00" || asym_choice == "back" || asym_choice == "Back" || asym_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+
+            else if (asym_choice == "1" || asym_choice == "01" || asym_choice == "RSA") {
                 // Ask the user for the shift mapping style
                 int mapping;
                 cout << endl;
@@ -1126,18 +1182,27 @@ int main() {
 
             else if (asym_choice == "02" || asym_choice == "2"){
                 string diffie_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
 
                 cout << BLUE << "____________________" << RESET<< GREEN << " Diffie Hellman Options "<< RESET << BLUE << "_____________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " Basic Operation" << endl;
                 cout << YELLOW << "[2]" << RESET << " Man-In-The-Middle (MITM) Attack" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
                 cin >> diffie_choice;
 
-                if (diffie_choice == "01" || diffie_choice == "1"){
+                if (diffie_choice == "0" || diffie_choice == "00" || diffie_choice == "back" || diffie_choice == "Back" || diffie_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                }
+
+                else if (diffie_choice == "01" || diffie_choice == "1"){
                 int p, g; // public values
                 int a, b; // private secrets
 
@@ -1214,6 +1279,7 @@ int main() {
                 mitm.simulate(g, p, A_pub, B_pub);
             }
             }
+        }
 
             else if (asym_choice == "03" || asym_choice == "3" || asym_choice == "Help" || asym_choice == "help"){
                 // Stage 1: Show RSA Algorithm
@@ -1279,9 +1345,13 @@ int main() {
                 cout << endl;
             }
         }
+    }
 
         else if (choice == "3" || choice == "03" || choice == "Hashing" || choice == "hashing"){
             string hash_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
             cout << BLUE << "_______________________" << RESET<< GREEN << " Hashing Algorithms "<< RESET << BLUE << " _____________________" << RESET << endl;
             cout << endl;
@@ -1290,12 +1360,18 @@ int main() {
             cout << YELLOW << "[3]" << RESET << " Hash Identifier" << endl;
             cout << YELLOW << "[4]" << RESET << " Hash Reversor" << endl;
             cout << YELLOW << "[5]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
             cin >> hash_choice;
 
-            if (hash_choice == "1" || hash_choice == "01" || hash_choice == "MD5" || hash_choice == "md5"){
+            if (hash_choice == "0" || hash_choice == "00" || hash_choice == "back" || hash_choice == "Back" || hash_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+
+            else if (hash_choice == "1" || hash_choice == "01" || hash_choice == "MD5" || hash_choice == "md5"){
                 string action;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "PRESS: " << RED << "G " << RESET<< "to Generate a hash or " << GREEN << "R " << RESET << "to Reverse the hash: ";
@@ -1327,12 +1403,13 @@ int main() {
                     std::cout << YELLOW << "[2]" << RESET << " Use local wordlist\n" << RESET;
                     std::cout << YELLOW << "[3]" << RESET << " Use online API\n";
                     std::cout << YELLOW << "[4]" << RESET << " Help\n";
+                    std::cout << YELLOW << "[0]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     std::cout << YELLOW << "[>] " << RESET << "Enter option: ";
                     std::cin >> method;
                     cout << endl;
-                
+
                     if (method == "1") {
                         std::cout << GREEN << "[-] " << RESET << "Opening your browser..." << std::endl;
                         openDCodeWithHash(inputHash);
@@ -1377,7 +1454,7 @@ int main() {
                     else {
                         std::cout << RED << "[!] Invalid method choice." << RESET << std::endl;
                     }
-                }
+            }
 
                 else {
                     cout << endl;
@@ -1394,6 +1471,7 @@ int main() {
                     cout << YELLOW << "[1]" << RESET << " SHA-1" << endl;
                     cout << YELLOW << "[2]" << RESET << " SHA-256" << endl;
                     cout << YELLOW << "[3]" << RESET << " Help" << endl;
+                    cout << YELLOW << "[0]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -1577,10 +1655,10 @@ int main() {
                         std::cout << std::endl;
                         std::cout << BLUE << "_____________________ " << RESET << GREEN << "Supported Hash Types" << RESET << BLUE << " _____________________\n" << RESET;
                         std::cout << endl;
-                        std::cout << YELLOW << "[1]" << RESET << " md5"     << YELLOW << "             [5]" << RESET <<  " sha1"     << YELLOW << "            [9]" << RESET <<  " mysql5" << endl;
-                        std::cout << YELLOW << "[2]" << RESET << " sha256"  << YELLOW << "          [6]" << RESET <<  " sha384"   << YELLOW << "          [10]" << RESET <<  " ripemd160" << endl;
-                        std::cout << YELLOW << "[3]" << RESET << " sha512"  << YELLOW << "          [7]" << RESET <<  " ntlm"     << YELLOW << "            [11]" << RESET <<  " whirlpool" << endl;
-                        std::cout << YELLOW << "[4]" << RESET << " lm"      << YELLOW << "              [8]" << RESET <<  " mysql"    << endl;      
+                        std::cout << YELLOW << "[01]" << RESET << " md5"     << YELLOW << "             [05]" << RESET <<  " sha1"     << YELLOW << "                [09]" << RESET <<  " mysql5" << endl;
+                        std::cout << YELLOW << "[02]" << RESET << " sha256"  << YELLOW << "          [06]" << RESET <<  " sha384"   << YELLOW << "              [10]" << RESET <<  " ripemd160" << endl;
+                        std::cout << YELLOW << "[03]" << RESET << " sha512"  << YELLOW << "          [07]" << RESET <<  " ntlm"     << YELLOW << "                [11]" << RESET <<  " whirlpool" << endl;
+                        std::cout << YELLOW << "[04]" << RESET << " lm"      << YELLOW << "              [08]" << RESET <<  " mysql" << endl;      
                         std::cout << BLUE << "_________________________________________________________________\n" << RESET;
 
                         std::cout << std::endl;
@@ -1616,9 +1694,13 @@ int main() {
                             cout << endl;
                     }
         }
+    }
 
         else if (choice == "4" || choice == "04" || choice == "Other" || choice == "Other") {
             string sub_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
             cout << BLUE << "_____________________" << RESET<< GREEN << " Other Algorithms "<< RESET << BLUE << "__________________________" << RESET << endl;
             cout << endl;
@@ -1626,19 +1708,29 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Modulus" << endl;
             cout << YELLOW << "[3]" << RESET << " Hexadecimal" << endl;
             cout << YELLOW << "[4]" << RESET << " Character Counter" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
             cin >> sub_choice;
             cout << endl;
 
-            if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Letter" || sub_choice == "Converter") {
+            if (sub_choice == "0" || sub_choice == "00" || sub_choice == "back" || sub_choice == "Back" || sub_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+            
+            else if (sub_choice == "1" || sub_choice == "01" || sub_choice == "Letter" || sub_choice == "Converter") {
                 string convertOption;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
                 cout << BLUE << "___________________" << RESET<< GREEN << " Choose conversion type "<< RESET << BLUE << "______________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " Letters to Numbers" << endl;
                 cout << YELLOW << "[2]" << RESET << " Numbers to Letters" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
 
                 cout << endl;
@@ -1647,6 +1739,11 @@ int main() {
                 cin >> convertOption;
         
                 cout << endl;
+
+                if (convertOption == "0" || convertOption == "00" || convertOption == "back" || convertOption == "Back" || convertOption == "BACK") {
+                    inMenu = false;
+                    break;
+                }
         
                 if (convertOption == "1") {
                     // Ask the user for the shift mapping style
@@ -1721,6 +1818,7 @@ int main() {
                     cout << endl;
                 }
             }
+            }
 
             else if (sub_choice == "2" || sub_choice == "02" || sub_choice == "Modulus") {
                 int a, b;
@@ -1747,19 +1845,28 @@ int main() {
 
             else if (sub_choice == "3" || sub_choice == "03" || sub_choice == "Other" || sub_choice == "Hexadecimal") { 
                 string hex_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
 
                 cout << endl;
                 cout << BLUE << "___________________" << RESET<< GREEN << " Hexadecimal Algorithms "<< RESET << BLUE << "______________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " Checksum" << endl;
                 cout << YELLOW << "[2]" << RESET << " Conversion" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
 
                 cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
                 cin >> hex_choice;
 
-                if (hex_choice == "1" || hex_choice == "01" || hex_choice == "checksum") {
+                if (hex_choice == "0" || hex_choice == "00" || hex_choice == "back" || hex_choice == "Back" || hex_choice == "BACK") {
+                    inMenu = false;
+                    break;
+                }
+
+                else if (hex_choice == "1" || hex_choice == "01" || hex_choice == "checksum") {
                     int blockCount;
 
                     cout << endl;
@@ -1800,18 +1907,27 @@ int main() {
         
                 else if (hex_choice == "2" || hex_choice == "02" || hex_choice == "conversion") {
                     string conv_choice;
+                    bool inMenu = true;
+    
+                    while (inMenu) {
                     cout << endl;
                     cout << BLUE << "_____________________" << RESET<< GREEN << " Types of Conversion "<< RESET << BLUE << "_______________________" << RESET << endl;
                     cout << endl;
                     cout << YELLOW << "[1]" << RESET << " Text to Hexadecimal" << endl;
                     cout << YELLOW << "[2]" << RESET << " Hexadecimal to Text" << endl;
+                    cout << YELLOW << "[0]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Choose conversion type: ";
                     cin >> conv_choice;
                     cin.ignore();
+
+                    if (conv_choice == "0" || conv_choice == "00" || conv_choice == "back" || conv_choice == "Back" || conv_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                    }
         
-                    if (conv_choice == "1" || conv_choice == "01" || conv_choice == "text") {
+                    else if (conv_choice == "1" || conv_choice == "01" || conv_choice == "text") {
                         string inputText;
                         cout << endl;
                         cout << YELLOW << "[>] " << RESET<< "Enter text to convert to hexadecimal: ";
@@ -1840,6 +1956,7 @@ int main() {
                         cout << RED << "[x] " << RESET << "Invalid conversion type. Please select 1 or 2." << endl;
                         cout << endl;
                     }
+                }
                 }        
 
                 else {
@@ -1847,6 +1964,7 @@ int main() {
                         cout << RED << "[x] " << RESET << "Invalid sub-choice. Please select a valid option." << endl;
                         cout << endl;
                 }
+            }
             }
 
             else if (sub_choice == "4" || sub_choice == "04" || sub_choice == "Character" || sub_choice == "Counter") {
@@ -1869,9 +1987,13 @@ int main() {
                 cout << endl;
             }
         }
+    }
 
         else if (choice == "5" || choice == "05" || choice == "Advanced" || choice == "advanced"){
             string adv_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
 
             cout << BLUE << "______________________" << RESET<< GREEN << " Corporate Services "<< RESET << BLUE << "______________________" << RESET << endl;
@@ -1880,6 +2002,7 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Crack Operating Systems User Passwords" << endl;
             cout << YELLOW << "[3]" << RESET << " Crack Wi-Fi Passwords Using a Handshake File" << endl;
             cout << YELLOW << "[4]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1887,9 +2010,16 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
             std::cout << std::endl;
 
+            if (adv_choice == "0" || adv_choice == "00" || adv_choice == "back" || adv_choice == "Back" || adv_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
             
-            if (adv_choice == "01" || adv_choice == "1"){
+            else if (adv_choice == "01" || adv_choice == "1"){
             string sub_adv_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
 
             cout << BLUE << "_____________________" << RESET<< GREEN << " Protected Files/Docs "<< RESET << BLUE << "______________________" << RESET << endl;
@@ -1900,6 +2030,7 @@ int main() {
             cout << YELLOW << "[4]" << RESET << " 7z File Password Remover" << endl;
             cout << YELLOW << "[5]" << RESET << " PDF File Password Remover" << endl;
             cout << YELLOW << "[6]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1907,7 +2038,12 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
             std::cout << std::endl;
 
-            if (sub_adv_choice == "01" || sub_adv_choice == "1"){
+            if (sub_adv_choice == "0" || sub_adv_choice == "00" || sub_adv_choice == "back" || sub_adv_choice == "Back" || sub_adv_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+
+            else if (sub_adv_choice == "01" || sub_adv_choice == "1"){
                 #ifdef _WIN32
                                     system("py -3 office2john.py");
                         #else
@@ -1973,9 +2109,13 @@ int main() {
             }
  
             }
+        }
 
             else if (adv_choice == "02" || adv_choice == "2"){
             string sub_adv_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
 
             cout << BLUE << "_________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "____________________" << RESET << endl;
@@ -1984,6 +2124,7 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
             cout << YELLOW << "[3]" << RESET << " Windows Bitlocker" << endl;
             cout << YELLOW << "[4]" << RESET << " Help" << endl;
+            cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -1991,7 +2132,12 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
             std::cout << std::endl;
 
-            if (sub_adv_choice == "01" || sub_adv_choice == "1"){
+            if (sub_adv_choice == "0" || sub_adv_choice == "00" || sub_adv_choice == "back" || sub_adv_choice == "Back" || sub_adv_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+
+            else if (sub_adv_choice == "01" || sub_adv_choice == "1"){
                 #ifdef _WIN32
                                     system("py -3 linux_pass.py");
                         #else
@@ -2009,6 +2155,9 @@ int main() {
 
             else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
                 string bitlocker_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
 
                 cout << BLUE << "_____________________" << RESET<< GREEN << " Windows Bitlocker "<< RESET << BLUE << "_________________________" << RESET << endl;
@@ -2016,6 +2165,7 @@ int main() {
                 cout << YELLOW << "[1]" << RESET << " Crack Windows Bitlocker Password From An Image File" << endl;
                 cout << YELLOW << "[2]" << RESET << " Mount BitLocker Image File with Known Password" << endl;
                 cout << YELLOW << "[3]" << RESET << " Help" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2023,7 +2173,12 @@ int main() {
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
                 std::cout << std::endl;
 
-                if (bitlocker_choice == "01" || bitlocker_choice == "1"){
+                if (bitlocker_choice == "0" || bitlocker_choice == "00" || bitlocker_choice == "back" || bitlocker_choice == "Back" || bitlocker_choice == "BACK") {
+                    inMenu = false;
+                    break;
+                }
+
+                else if (bitlocker_choice == "01" || bitlocker_choice == "1"){
 
                 #ifdef _WIN32
                                     system("py -3 bitlocker2john.py");
@@ -2073,6 +2228,7 @@ int main() {
                 cout << endl;
                 }
             }
+        }
 
             else if (sub_adv_choice == "04" || sub_adv_choice == "4" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
                                     cout << "     " << GREEN << "Requirements" << RESET << "\n";
@@ -2101,6 +2257,7 @@ int main() {
             }
  
             }
+        }
 
             else if (adv_choice == "03"  || adv_choice == "3"){
                 #ifdef _WIN32
@@ -2136,22 +2293,27 @@ int main() {
                 cout << endl;
             }
         }
+    }
 
         else if (choice == "6" || choice == "06" || choice == "CTF" || choice == "ctf") {
             string sub_choice;
+            bool inMenu = true;
+    
+            while (inMenu) {
             cout << endl;
 
             cout << BLUE << "________________________" << RESET<< GREEN << " CTF Algorithms "<< RESET << BLUE << "_________________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[01]" << RESET << " RSA                              " << RESET << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
-            cout << YELLOW << "[02]" << RESET << " FactorDB                         " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
-            cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
-            cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
-            cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
-            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[15]" << RESET << " Zipped File Password Crack" << endl;
-            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[16]" << RESET << " Steganography" << endl;
-            cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[17]" << RESET << " ADFGX/ADFGVX" << endl;
-            cout << YELLOW << "[09]" << RESET << " AES                              " << RESET << YELLOW << "[18]" << RESET << " Help" << endl;
+            cout << YELLOW << "[01]" << RESET << " RSA                              " << RESET << YELLOW << "[11]" << RESET << " Diffie-Hellman" << endl;
+            cout << YELLOW << "[02]" << RESET << " FactorDB                         " << RESET << YELLOW << "[12]" << RESET << " XOR" << endl;
+            cout << YELLOW << "[03]" << RESET << " Substitution Cipher              " << RESET << YELLOW << "[13]" << RESET << " Hash" << endl;
+            cout << YELLOW << "[04]" << RESET << " Morse Code                       " << RESET << YELLOW << "[14]" << RESET << " Zlib Decompression (DEFLATE)" << endl;
+            cout << YELLOW << "[05]" << RESET << " Base64 Decoder                   " << RESET << YELLOW << "[15]" << RESET << " Zipped File Password Crack" << endl;
+            cout << YELLOW << "[06]" << RESET << " ROT13                            " << RESET << YELLOW << "[16]" << RESET << " Steganography" << endl;
+            cout << YELLOW << "[07]" << RESET << " Convertion                       " << RESET << YELLOW << "[17]" << RESET << " ADFGX/ADFGVX" << endl;
+            cout << YELLOW << "[08]" << RESET << " Framework                        " << RESET << YELLOW << "[18]" << RESET << " Help" << endl;
+            cout << YELLOW << "[09]" << RESET << " AES                              " << RESET << YELLOW << "[00]" << RESET << " Back" << endl;
+            cout << YELLOW << "[10]" << RESET << " ChaCha20" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
             cout << YELLOW << "[>] " << RESET<< "Select an algorithm: ";
@@ -2159,8 +2321,19 @@ int main() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Clear input buffer
             std::cout << std::endl;
 
+            if (sub_choice == "0" || sub_choice == "00" || sub_choice == "back" || sub_choice == "Back" || sub_choice == "BACK") {
+                inMenu = false;
+                break;
+            }
+            
+            cout << endl;
+
             if (sub_choice == "1" || sub_choice == "01" || sub_choice == "RSA" || sub_choice == "rsa") {
                     string rsa_choice;
+                    bool inMenu = true;
+    
+                    while (inMenu) {
+                    cout << endl;
 
                     cout << BLUE << "_________________________" << RESET<< GREEN << " RSA Options "<< RESET << BLUE << "___________________________" << RESET << endl;
                     cout << endl;
@@ -2189,14 +2362,20 @@ int main() {
                     cout << YELLOW << "[23]" << RESET << GREEN << " Multi-layer      " << RESET << "Decrypt c with n and multiple e's +1" << endl;
                     cout << YELLOW << "[24]" << RESET << GREEN << " PEM Keys         " << RESET << "Decrypt c with a .pem key" << endl;
                     cout << YELLOW << "[25]" << RESET << GREEN << " Key generation   " << RESET << "Calculate RSA values p,q,n,e,d & phi (m)" << endl;
+                    cout << YELLOW << "[00]" << RESET << GREEN << " Back             " << RESET << "Go back to the CTF options" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
                     cin >> rsa_choice;
                     std::cin.ignore();
                     cout << endl;
+
+                    if (rsa_choice == "0" || rsa_choice == "00" || rsa_choice == "back" || rsa_choice == "Back" || rsa_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                    }
                 
-                    if (rsa_choice == "1" || rsa_choice == "01") {
+                    else if (rsa_choice == "1" || rsa_choice == "01") {
                             std::string e, p, q, c;
 
                             std::cout << YELLOW << "[>] " << RESET << "Enter public exponent (e): ";
@@ -2688,6 +2867,10 @@ int main() {
                                         int choice;
                                         mpz_class val1, val2;
                                         std::string temp;
+                                        bool inMenu = true;
+    
+                                        while (inMenu) {
+                                        std::cout << std::endl;
 
                                         std::cout << BLUE << "____________________" << RESET << GREEN << " RSA Calculation Options " << RESET << BLUE << "____________________" << RESET << std::endl;
                                         std::cout << std::endl;
@@ -2695,6 +2878,7 @@ int main() {
                                         std::cout << YELLOW << "[2]" << RESET << " Input p and n\n";
                                         std::cout << YELLOW << "[3]" << RESET << " Input q and n\n";
                                         std::cout << YELLOW << "[4]" << RESET << " Input n only (partial solve)\n";
+                                        std::cout << YELLOW << "[0]" << RESET << " Back" << endl;
                                         std::cout << BLUE << "_________________________________________________________________\n" << RESET;
                                         std::cout << std::endl;
                                         std::cout << YELLOW << "[>]" << RESET << " Choose input option: ";
@@ -2702,6 +2886,9 @@ int main() {
                                         std::cout << std::endl;
 
                                         switch (choice) {
+                                            case 0:
+                                                inMenu = false;
+                                                break;
                                             case 1:
                                                 std::cout << YELLOW << "[>]" << RESET << " Enter p: "; std::cin >> temp; val1.set_str(temp, 10);
                                                 std::cout << YELLOW << "[>]" << RESET << " Enter q: "; std::cin >> temp; val2.set_str(temp, 10);
@@ -2760,14 +2947,15 @@ int main() {
                                                 std::cout << BLUE << "_________________________________________________________________\n" << RESET;
                                             }
                                         }
+                                    }
 
                                         else {
                                                 cout << endl;
                                                 cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
                                                 cout << endl;
                                         }
-
-            }                
+                                    }
+        }               
 
             else if (sub_choice == "2" || sub_choice == "02" || sub_choice == "FactorDB" || sub_choice == "factordb") {
                         std::string n;
@@ -2782,11 +2970,15 @@ int main() {
 
             else if (sub_choice == "3" || sub_choice == "03" || sub_choice == "Substitution" || sub_choice == "substitution") {
                 cout << BLUE << "_________________" << RESET<< GREEN << " Substitution Cipher Options "<< RESET << BLUE << "___________________" << RESET << endl;
+                bool inMenu = true;
+    
+                while (inMenu) {
                 cout << endl;
                 std::cout << YELLOW << "[1]" << RESET << " Encrypt with known key\n";
                 std::cout << YELLOW << "[2]" << RESET << " Decrypt with known key\n";
                 std::cout << YELLOW << "[3]" << RESET << " Decrypt using frequency analysis (unknown key)\n";
                 std::cout << YELLOW << "[4]" << RESET << " Know Header Attack\n";
+                std::cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 std::cout << YELLOW << "[>] " RESET << "Choose an option: ";
@@ -2800,6 +2992,9 @@ int main() {
                 std::cin.ignore(); // clear newline
             
                 switch (choice) {
+                    case 0:
+                        inMenu = false;
+                        break;
                     case 1: {
                         cout << endl;
                         std::cout << YELLOW << "[>] " RESET << "Enter plaintext: ";
@@ -2861,6 +3056,7 @@ int main() {
                             std::cout << RED << "[!]" << RESET << " Invalid option.\n";
                     }
             }
+        }
 
             else if (sub_choice == "4" || sub_choice == "04" || sub_choice == "morse" || sub_choice == "Morse") {
                 std::string input;
@@ -2876,12 +3072,16 @@ int main() {
             }
             
             else if (sub_choice == "5" || sub_choice == "05" || sub_choice == "base64"){
+                bool inMenu = true;
+    
+                while (inMenu) {
                 string base64_choice;
 
                 cout << BLUE << "________________________" << RESET<< GREEN << " Base64 Options "<< RESET << BLUE << "_________________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " Decode Base64 String" << endl;
                 cout << YELLOW << "[2]" << RESET << " Decode Corrupted Base64 String" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -2889,7 +3089,12 @@ int main() {
                 std::cin.ignore();
                 cout << endl;
 
-                if (base64_choice == "1"){
+                if (base64_choice == "0" || base64_choice == "00" || base64_choice == "back" || base64_choice == "Back" || base64_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                }
+
+                else if (base64_choice == "1"){
                         std::string input;
                         std::cout << YELLOW << "[>]" << RESET << " Enter Base64-encoded input: ";
                         std::getline(std::cin, input);
@@ -2909,6 +3114,7 @@ int main() {
                         cout << RED << "[!] Invalid option selected." << RESET << endl;
                 }
             }
+        }
             
             else if (sub_choice == "6" || sub_choice == "06" || sub_choice == "ROT13" || sub_choice == "rot13") {
                         std::string input;
@@ -2944,20 +3150,29 @@ int main() {
 
             else if (sub_choice == "8" || sub_choice == "08" || sub_choice == "Framework" || sub_choice == "framework") {
                    string framework_choice;
-
+                   bool inMenu = true;
+    
+                   while (inMenu) {
+                
                     cout << BLUE << "______________________" << RESET<< GREEN << " Framework Options "<< RESET << BLUE << "________________________" << RESET << endl;
                     cout << endl;
                     cout << YELLOW << "[1]" << RESET << " Popular Cryptography Websites" << endl;
                     cout << YELLOW << "[2]" << RESET << " Popular Cryptography Tools" << endl;
                     cout << YELLOW << "[3]" << RESET << " Popular Cryptography CTF Tools" << endl;
                     cout << YELLOW << "[4]" << RESET << " Popular CTF Sites" << endl;
+                    cout << YELLOW << "[0]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
                     cin >> framework_choice;
-                    cout << endl;  
+                    cout << endl; 
                     
-                    if (framework_choice == "1") {
+                    if (framework_choice == "0" || framework_choice == "00" || framework_choice == "back" || framework_choice == "Back" || framework_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                     }   
+                    
+                    else if (framework_choice == "1") {
                             showPopularWebsites();
                     } 
                     
@@ -2977,6 +3192,7 @@ int main() {
                             cout << RED << "[!] Invalid option selected." << RESET << endl;
                     }
             }
+        }
 
             else if (sub_choice == "09" || sub_choice == "9" || sub_choice == "aes" || sub_choice == "AES"){
                 string aes_choice;
@@ -3042,6 +3258,7 @@ int main() {
                     cout << BLUE << "__________________" << RESET<< GREEN << " Diffie-Hellman Options "<< RESET << BLUE << "_______________________" << RESET << endl;
                     cout << endl;
                     cout << YELLOW << "[01]" << RESET << GREEN << " Small Subgroup Attack     " << RESET << "Decrypt c using p, g, A & B" << endl;
+                    cout << YELLOW << "[00]" << RESET << " Back" << endl;
                     cout << BLUE << "_________________________________________________________________\n" << RESET;
                     cout << endl;
                     cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -3090,6 +3307,7 @@ int main() {
                 cout << BLUE << "______________________" << RESET<< GREEN << " Hashing Options "<< RESET << BLUE << "__________________________" << RESET << endl;
                 cout << endl;
                 cout << YELLOW << "[1]" << RESET << " Hash-Reversal (Known Pattern Attack)" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
@@ -3125,6 +3343,9 @@ int main() {
 
             else if (sub_choice == "16"){
                 string steg_choice;
+                bool inMenu = true;
+    
+                while (inMenu) {
 
                 cout << BLUE << "___________________" << RESET<< GREEN << " Steganography Options "<< RESET << BLUE << "_______________________" << RESET << endl;
                 cout << endl;
@@ -3132,12 +3353,18 @@ int main() {
                 cout << YELLOW << "[2]" << RESET << " Whitespace Cipher (Invisible)" << endl;
                 cout << YELLOW << "[3]" << RESET << " Hidden Content (Excel)" << endl;
                 cout << YELLOW << "[4]" << RESET << " Steghide (Embed/Extract Data From Image/Audio File)" << endl;
+                cout << YELLOW << "[0]" << RESET << " Back" << endl;
                 cout << BLUE << "_________________________________________________________________\n" << RESET;
                 cout << endl;
                 cout << YELLOW << "[>] " << RESET<< "Select an option: ";
                 cin >> steg_choice;
                 std::cin.ignore();
                 cout << endl;
+
+                if (steg_choice == "0" || steg_choice == "00" || steg_choice == "back" || steg_choice == "Back" || steg_choice == "BACK") {
+                        inMenu = false;
+                        break;
+                }  
 
                 if (steg_choice == "1" || steg_choice == "01") {
                     cout << "Please wait..." << endl;
@@ -3177,6 +3404,7 @@ int main() {
                 }
 
             }
+        }
 
              else if (sub_choice == "17"){
                         #ifdef _WIN32
@@ -3216,6 +3444,7 @@ int main() {
             }
 
         }
+    }
 
         else {
             cout << RED << "[x] " << RESET << "Invalid Option Selected" << endl;
