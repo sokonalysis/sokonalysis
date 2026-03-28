@@ -221,9 +221,11 @@ void displayLogo4() {
     // std::system("cls");   // For Windows
     
     // Display the logo
+    std::cout << GREEN;
     for (const auto& line : logo) {
         std::cout << line << std::endl;
     }
+    std::cout << RESET;
     
     // Create loading bar animation
     const int total_width = 50;
