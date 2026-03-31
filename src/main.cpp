@@ -313,7 +313,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                      Last update 27 March 2026                           " << RESET << endl;
+        cout << WHITE << "                      Last update 31 March 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -2003,7 +2003,8 @@ int main() {
             cout << YELLOW << "[1]" << RESET << " Crack Passwords On Protected Files/Documents" << endl;
             cout << YELLOW << "[2]" << RESET << " Crack Operating Systems User Passwords" << endl;
             cout << YELLOW << "[3]" << RESET << " Crack Wi-Fi Passwords Using a Handshake File" << endl;
-            cout << YELLOW << "[4]" << RESET << " Help" << endl;
+            cout << YELLOW << "[4]" << RESET << " Mount Windows VHDX Bitlocker Drive" << endl;
+            cout << YELLOW << "[5]" << RESET << " Help" << endl;
             cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
@@ -2269,7 +2270,16 @@ int main() {
                         #endif
             }
 
-            else if (adv_choice == "04" || adv_choice == "4" || adv_choice == "Help" || adv_choice == "help"){ 
+            else if (adv_choice == "04" || adv_choice == "4"){ 
+                    #ifdef _WIN32
+                                    system("py -3 bitlocker_vhdx_cracker.py");
+                        #else
+                                    system("python3 bitlocker_vhdx_cracker.py");
+                        #endif
+                }
+
+
+            else if (adv_choice == "05" || adv_choice == "5" || adv_choice == "Help" || adv_choice == "help"){ 
                                     cout << "     " << GREEN << "Requirements" << RESET << "\n";
                                     cout << endl;
                                     cout << "     Make sure you have a wordlist in this directory\n";
