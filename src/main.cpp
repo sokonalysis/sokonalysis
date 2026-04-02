@@ -313,7 +313,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                      Last update 31 March 2026                           " << RESET << endl;
+        cout << WHITE << "                      Last update 1 April 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -998,7 +998,7 @@ int main() {
                     cout << "     Symmetric-key algorithms are algorithms for cryptography\n";
                     cout << "     that use the same cryptographic keys for both the\n";
                     cout << "     encryption of plaintext and the decryption of ciphertext.\n";
-
+                    pauseConsole();
             }
 
             else {
@@ -1450,6 +1450,7 @@ int main() {
                         cout << "     for a local wordlist. You can download it via the GitHub\n"; 
                         cout << "     installation guide lines or add one and rename it to\n"; 
                         cout << "     wordlist.txt\n"; 
+                        pauseConsole();
 
                     }
 
@@ -1620,6 +1621,7 @@ int main() {
                                     cout << "     which requires a local wordlist. You can download it\n"; 
                                     cout << "     via the GitHub installation guide lines or add one and\n"; 
                                     cout << "     rename it to wordlist.txt\n"; 
+                                    pauseConsole();
 
                         }
                     
@@ -1687,7 +1689,7 @@ int main() {
                         cout << "     A hashing algorithm is a mathematical function that\n";
                         cout << "     transforms input data of any size into a fixed-length\n";
                         cout << "     string of characters called a hash value or message digest.\n"; 
-
+                        pauseConsole();
                     }
 
                      else {
@@ -2102,6 +2104,7 @@ int main() {
                                     cout << "     sub-tools such as office2john, zip2john, rar2john\n"; 
                                     cout << "     and 7z2john. You can install it with:\n"; 
                                     cout << "     sudo apt install john -y\n"; 
+                                    pauseConsole();
 
                         }
 
@@ -2222,6 +2225,7 @@ int main() {
                                     cout << "     sudo apt install john -y\n"; 
                                     cout << "     sudo apt install dislocker -y\n"; 
                                     cout << "     sudo apt install hashcat -y\n"; 
+                                    pauseConsole();
 
                         }
 
@@ -2249,6 +2253,7 @@ int main() {
                                     cout << "     impacket-secretsdump installed. You can install it with:\n"; 
                                     cout << "     sudo apt install impacket-scripts\n"; 
                                     cout << "     sudo apt install john -y\n"; 
+                                    pauseConsole();
 
                         }
 
@@ -2296,6 +2301,7 @@ int main() {
                                     cout << "     sudo apt install impacket-scripts -y\n"; 
                                     cout << "     sudo apt install john -y\n"; 
                                     cout << "     sudo apt install aircrack-ng -y\n";
+                                    pauseConsole();
 
                         }
 
@@ -3165,7 +3171,7 @@ int main() {
                    bool inMenu = true;
     
                    while (inMenu) {
-                
+                    cout << endl;
                     cout << BLUE << "______________________" << RESET<< GREEN << " Framework Options "<< RESET << BLUE << "________________________" << RESET << endl;
                     cout << endl;
                     cout << YELLOW << "[1]" << RESET << " Popular Cryptography Websites" << endl;
@@ -3447,7 +3453,7 @@ int main() {
                                     cout << "     You need to be running Linux to use these options and\n";
                                     cout << "     you need to have John The Ripper installed. You can \n"; 
                                     cout << "     install it with: sudo apt install john -y\n"; 
-
+                                    pauseConsole();
             } 
 
             else {
