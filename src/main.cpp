@@ -313,7 +313,7 @@ int main() {
 
         cout << endl;
         cout << CYAN  << "                  sokonalysis created by Soko James                      " << RESET << endl;
-        cout << WHITE << "                      Last update 1 April 2026                           " << RESET << endl;
+        cout << WHITE << "                      Last update 28 April 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"<< RESET;
         cout << endl;
@@ -2126,10 +2126,11 @@ int main() {
 
             cout << BLUE << "_________________" << RESET<< GREEN << " Operating System Passwords "<< RESET << BLUE << "____________________" << RESET << endl;
             cout << endl;
-            cout << YELLOW << "[1]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
-            cout << YELLOW << "[2]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
-            cout << YELLOW << "[3]" << RESET << " Windows Bitlocker" << endl;
-            cout << YELLOW << "[4]" << RESET << " Help" << endl;
+            cout << YELLOW << "[1]" << RESET << " Crack Linux User Password on your LIVE machine" << endl;
+            cout << YELLOW << "[2]" << RESET << " Crack Linux User Password using the passwd and shadow file" << endl;
+            cout << YELLOW << "[3]" << RESET << " Crack Windows User Password using the SYSTEM and SAM file" << endl;
+            cout << YELLOW << "[4]" << RESET << " Windows Bitlocker" << endl;
+            cout << YELLOW << "[5]" << RESET << " Help" << endl;
             cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
@@ -2145,13 +2146,21 @@ int main() {
 
             else if (sub_adv_choice == "01" || sub_adv_choice == "1"){
                 #ifdef _WIN32
+                                    system("py -3 unshadow_merge.py");
+                        #else
+                                    system("python3 unshadow_merge.py");
+                        #endif
+            }
+
+            else if (sub_adv_choice == "02" || sub_adv_choice == "2"){
+                #ifdef _WIN32
                                     system("py -3 linux_pass.py");
                         #else
                                     system("python3 linux_pass.py");
                         #endif
             }
 
-            else if (sub_adv_choice == "02" || sub_adv_choice == "2"){
+            else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
                 #ifdef _WIN32
                                     system("py -3 windows_pass.py");
                         #else
@@ -2159,7 +2168,7 @@ int main() {
                         #endif
             }
 
-            else if (sub_adv_choice == "03" || sub_adv_choice == "3"){
+            else if (sub_adv_choice == "04" || sub_adv_choice == "4"){
                 string bitlocker_choice;
                 bool inMenu = true;
     
@@ -2237,7 +2246,7 @@ int main() {
             }
         }
 
-            else if (sub_adv_choice == "04" || sub_adv_choice == "4" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
+            else if (sub_adv_choice == "05" || sub_adv_choice == "5" || sub_adv_choice == "Help" || sub_adv_choice == "help"){ 
                                     cout << "     " << GREEN << "Requirements" << RESET << "\n";
                                     cout << endl;
                                     cout << "     Make sure you have a wordlist in this directory\n";
