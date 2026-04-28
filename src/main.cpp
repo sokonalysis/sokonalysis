@@ -1361,7 +1361,8 @@ int main() {
             cout << YELLOW << "[2]" << RESET << " Secure Hash Algorithm (SHA)" << endl;
             cout << YELLOW << "[3]" << RESET << " Hash Identifier" << endl;
             cout << YELLOW << "[4]" << RESET << " Hash Reversor" << endl;
-            cout << YELLOW << "[5]" << RESET << " Help" << endl;
+            cout << YELLOW << "[5]" << RESET << " Hash Reversor (Wordlist Slipiting)" << endl;
+            cout << YELLOW << "[6]" << RESET << " Help" << endl;
             cout << YELLOW << "[0]" << RESET << " Back" << endl;
             cout << BLUE << "_________________________________________________________________\n" << RESET;
             cout << endl;
@@ -1682,6 +1683,15 @@ int main() {
                      }
 
                      else if (hash_choice == "05" || hash_choice == "5" || hash_choice == "Help" || hash_choice == "help"){
+                        #ifdef _WIN32
+                                    system("py -3 hash_reverser_by_splitting_wordlist.py");
+                        #else
+                                    system("python3 hash_reverser_by_splitting_wordlist.py");
+                        #endif
+                     }
+
+
+                     else if (hash_choice == "06" || hash_choice == "6" || hash_choice == "Help" || hash_choice == "help"){
 
                         cout << endl;
                         cout << "     " << GREEN << "Hashing Algorithm" << RESET << "\n";
