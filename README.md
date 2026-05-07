@@ -16,8 +16,7 @@ sokonalysis from the word cryptanalysis is a cryptographic tool developed by Sok
   - [Linux](#linux)
 
 # Command Line Interface (CLI)
-<img width="830" height="574" alt="image" src="https://github.com/user-attachments/assets/c40737a9-acc4-4689-8791-c00502659565" />
-
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/8230389e-4e25-40f9-b336-ba80e006174b" />
 
 ## Windows
 ### MSYS2
