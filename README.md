@@ -4,12 +4,7 @@
 
 ###### The Cipher Toolkit Build For All Skill Levels 
 
-# Table of Contents
-- [Command Line Interface (CLI)](#command-line-interface-cli)
-  - [Windows](#windows)
-  - [Linux](#linux)
-- [Graphical User Interface (GUI)](#graphical-user-interface-gui)
-  - [Linux](#linux)
+
 
 # Command Line Interface (CLI)
 <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/8230389e-4e25-40f9-b336-ba80e006174b" />
