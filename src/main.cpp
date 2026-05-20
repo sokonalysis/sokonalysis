@@ -287,10 +287,10 @@ void about()
          << RESET;
     cout << endl;
     cout << "         The Cipher Toolkit Built For All Skill Levels\n";
-    cout << "                        By Soko James\n";
+    cout << "                  By Soko James & Phiri Rosaria\n";
     cout << endl;
     cout << "    Copyright (C) 2024-2026 Kapasa Makasa University (KMU)\n";
-    cout << "               Version 3.5 Linux & Windows CLI/GUI\n";
+    cout << "               Version 3.5.0 Linux & Windows CLI\n";
     cout << BLUE << "_________________________________________________________________\n"
          << RESET;
     pauseConsole();
@@ -336,7 +336,7 @@ int main()
         displayLogo3();
 
         cout << endl;
-        cout << CYAN << "                  sokonalysis created by Soko James                      " << RESET << endl;
+        cout << CYAN << "             The Cipher Toolkit Built For All Skill Levels                 " << RESET << endl;
         cout << WHITE << "                      Last update 28 April 2026                           " << RESET << endl;
         cout << endl;
         cout << BLUE << "\n_____________________ " << GREEN << "SOKONALYSIS TOOL MENU" << RESET << BLUE << " _____________________\n"
