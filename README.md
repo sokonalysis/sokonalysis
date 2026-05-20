@@ -7,7 +7,9 @@
 
 
 # Command Line Interface (CLI)
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/8230389e-4e25-40f9-b336-ba80e006174b" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/56d9f410-a181-487b-b16a-bb2e7679b6e5" />
+
+
 
 ## Windows
 ### MSYS2
