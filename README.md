@@ -142,7 +142,8 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 
 
 # Graphical User Interface (GUI)
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/272ed250-e50e-464e-8b9c-c7517271a5a2" />
+<img width="1150" height="757" alt="image" src="https://github.com/user-attachments/assets/b657b5ed-9fa4-428b-90ff-13c2e89a5cde" />
+
 
 #### Linux
 ````bash
