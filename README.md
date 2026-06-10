@@ -155,4 +155,19 @@ sokonalysis
 ````
 <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/946e5858-feb2-4888-bb46-820cfc32b5e3" />
 
+#### Windows
+#### Downlaod
+Download via https://github.com/sokonalysis/sokonalysis/releases/download/v3.5.0/sokonalysis.exe 
+
+##### Requirements
+###### John The Ripper
+1. Download it on https://github.com/openwall/john-packages/releases and select winX64_1_JtR.zip
+2. Once the downlaod is complete, extract the zip file
+3. Navigate to the extracted JtR folder, and navigate to C:\Users\James Soko\Downloads\JtR\run
+4. Open Environmental Manager and add the path
+
+   <img width="746" height="809" alt="image" src="https://github.com/user-attachments/assets/bb70e476-a99a-48b5-95a9-748c4f1fb36d" />
+
+   
+
 
