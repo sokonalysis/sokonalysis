@@ -145,7 +145,8 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 <img width="1430" height="932" alt="image" src="https://github.com/user-attachments/assets/a5339483-1158-471c-ac02-aadc3c03e53b" />
 
 
-#### Linux
+## Download
+### Linux
 ````bash
 wget https://github.com/sokonalysis/sokonalysis/releases/download/v3.5.0/sokonalysis_3.5.0_all.deb && sudo dpkg -i sokonalysis_3.5.0_all.deb
 ````
@@ -154,6 +155,32 @@ wget https://github.com/sokonalysis/sokonalysis/releases/download/v3.5.0/sokonal
 sokonalysis
 ````
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f25c499a-e9af-4ade-860f-c85dc0c55d78" />
+
+
+
+### Windows
+1. Download the .exe installer via GitHub Releases
+2. Double click on the .exe installer, tick **Create desktop a shortcut** and **press Next**
+   
+   <img width="589" height="451" alt="1" src="https://github.com/user-attachments/assets/bbc4e898-cfcd-4444-b75c-78522397916e" />
+
+3. Press **Install**
+   
+   <img width="586" height="451" alt="2" src="https://github.com/user-attachments/assets/23ebed2b-cc56-4ee5-be3a-f7d1e362d3b1" />
+
+4. Wait for the installation process to finish
+   
+   <img width="587" height="453" alt="3" src="https://github.com/user-attachments/assets/f4a44c93-90e1-43bf-a82c-812c7d2d8cd8" />
+
+5. Press **Finish**
+   
+   <img width="590" height="453" alt="4" src="https://github.com/user-attachments/assets/f1fc0431-875a-4bc1-99bf-9c715ddf45a0" />
+
+
+
+
+
+   
 
 
    
