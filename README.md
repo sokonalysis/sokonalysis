@@ -159,22 +159,48 @@ sokonalysis
 
 
 ### Windows
-1. Download the .exe installer via GitHub Releases
-2. Double click on the .exe installer, tick **Create desktop a shortcut** and **press Next**
+#### Download and Installation 
+1. **Download** the **.exe** installer via **GitHub Releases**
+2. Select your preferred installation mode
    
-   <img width="589" height="451" alt="1" src="https://github.com/user-attachments/assets/bbc4e898-cfcd-4444-b75c-78522397916e" />
+   <img width="259" height="181" alt="0" src="https://github.com/user-attachments/assets/05999401-98b4-4612-8ba8-75c33d2e4bbb" />
 
-3. Press **Install**
+3. Select the destination path where to store the application files or leave it as default
    
-   <img width="586" height="451" alt="2" src="https://github.com/user-attachments/assets/23ebed2b-cc56-4ee5-be3a-f7d1e362d3b1" />
+   <img width="493" height="379" alt="0 1" src="https://github.com/user-attachments/assets/9209c239-c3cf-4fdc-84bb-93e7a43d6bdc" />
 
-4. Wait for the installation process to finish
+4. Start menu folder
    
-   <img width="587" height="453" alt="3" src="https://github.com/user-attachments/assets/f4a44c93-90e1-43bf-a82c-812c7d2d8cd8" />
+   <img width="491" height="375" alt="0 2" src="https://github.com/user-attachments/assets/9d9f8835-5ee4-460d-9093-4cdb06fc6e0b" />
 
-5. Press **Finish**
+5. Double click on the .exe installer, tick **Create desktop a shortcut** and **press Next**
+
+   <img width="494" height="379" alt="1" src="https://github.com/user-attachments/assets/036b18cf-34c7-4644-bc13-c1e7f3fe5204" />
+
+
+6. Press **Install**
    
-   <img width="590" height="453" alt="4" src="https://github.com/user-attachments/assets/f1fc0431-875a-4bc1-99bf-9c715ddf45a0" />
+   <img width="493" height="377" alt="2" src="https://github.com/user-attachments/assets/e335d627-a73f-4a3b-baca-c830b3583d78" />
+
+
+7. Wait for the installation process to finish
+   
+   <img width="491" height="378" alt="3" src="https://github.com/user-attachments/assets/e8c2fa7a-1f7a-44f3-8230-865c959b00d4" />
+
+
+8. Press **Finish**
+   
+   <img width="493" height="380" alt="4" src="https://github.com/user-attachments/assets/13eee142-2b3f-4fc9-8532-029dafaccd42" />
+
+
+#### Starting The Application 
+1. Double click on the **Desktop shortcut** or search for sokonalysis then press **Open**
+
+   <img width="380" height="397" alt="Open App" src="https://github.com/user-attachments/assets/43ee7519-7b16-470d-b8f3-b53178b4f7fb" />
+
+2. Wait for the application to finish loading
+
+   <img width="957" height="540" alt="Loading" src="https://github.com/user-attachments/assets/3a3f4d1f-070f-4ae8-b566-49cc1e49cde4" />
 
 
 
