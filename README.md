@@ -142,20 +142,19 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 
 
 # Graphical User Interface (GUI)
-<img width="1430" height="932" alt="image" src="https://github.com/user-attachments/assets/a5339483-1158-471c-ac02-aadc3c03e53b" />
+<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/b2da5e03-4f69-43ac-8993-b23c12037c55" />
 
 
 ## Download
 ### Linux
 ````bash
-wget https://github.com/sokonalysis/sokonalysis/releases/download/v3.5.0/sokonalysis_3.5.0_all.deb && sudo dpkg -i sokonalysis_3.5.0_all.deb
+wget https://github.com/sokonalysis/sokonalysis/releases/download/v4.0.0/sokonalysis_4.0.0_all.deb && sudo dpkg -i sokonalysis_4.0.0_all.deb
 ````
 #### Execution 
 ````bash
 sokonalysis
 ````
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f25c499a-e9af-4ade-860f-c85dc0c55d78" />
-
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1441a46e-74ef-4e79-ad86-1300226304f2" />
 
 
 ### Windows
