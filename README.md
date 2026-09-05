@@ -6,6 +6,12 @@
 
 
 
+
+https://github.com/user-attachments/assets/f8731b3c-3f81-4b6d-8e3c-9796764cf3f9
+
+
+
+
 # Command Line Interface (CLI)
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/56d9f410-a181-487b-b16a-bb2e7679b6e5" />
 
