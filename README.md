@@ -6,8 +6,16 @@
 
 
 
+
+https://github.com/user-attachments/assets/f8731b3c-3f81-4b6d-8e3c-9796764cf3f9
+
+
+
+
 # Command Line Interface (CLI)
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/8230389e-4e25-40f9-b336-ba80e006174b" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/56d9f410-a181-487b-b16a-bb2e7679b6e5" />
+
+
 
 ## Windows
 ### MSYS2
@@ -140,16 +148,72 @@ g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -
 
 
 # Graphical User Interface (GUI)
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/272ed250-e50e-464e-8b9c-c7517271a5a2" />
+<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/b2da5e03-4f69-43ac-8993-b23c12037c55" />
 
-#### Linux
+
+## Download
+### Linux
 ````bash
-wget https://github.com/sokonalysis/sokonalysis/releases/download/v3.5.0/sokonalysis_3.5.0_all.deb && sudo dpkg -i sokonalysis_3.5.0_all.deb
+wget https://github.com/sokonalysis/sokonalysis/releases/download/v4.0.0/sokonalysis_4.0.0_all.deb && sudo dpkg -i sokonalysis_4.0.0_all.deb
 ````
 #### Execution 
 ````bash
 sokonalysis
 ````
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/946e5858-feb2-4888-bb46-820cfc32b5e3" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1441a46e-74ef-4e79-ad86-1300226304f2" />
+
+
+### Windows
+#### Download and Installation 
+1. **Download** the **.exe** installer via **GitHub Releases**
+2. Select your preferred installation mode
+   
+   <img width="259" height="181" alt="0" src="https://github.com/user-attachments/assets/05999401-98b4-4612-8ba8-75c33d2e4bbb" />
+
+3. Select the destination path where to store the application files or leave it as default
+   
+   <img width="493" height="379" alt="0 1" src="https://github.com/user-attachments/assets/9209c239-c3cf-4fdc-84bb-93e7a43d6bdc" />
+
+4. Start menu folder
+   
+   <img width="491" height="375" alt="0 2" src="https://github.com/user-attachments/assets/9d9f8835-5ee4-460d-9093-4cdb06fc6e0b" />
+
+5. Double click on the .exe installer, tick **Create desktop a shortcut** and **press Next**
+
+   <img width="494" height="379" alt="1" src="https://github.com/user-attachments/assets/036b18cf-34c7-4644-bc13-c1e7f3fe5204" />
+
+
+6. Press **Install**
+   
+   <img width="493" height="377" alt="2" src="https://github.com/user-attachments/assets/e335d627-a73f-4a3b-baca-c830b3583d78" />
+
+
+7. Wait for the installation process to finish
+   
+   <img width="491" height="378" alt="3" src="https://github.com/user-attachments/assets/e8c2fa7a-1f7a-44f3-8230-865c959b00d4" />
+
+
+8. Press **Finish**
+   
+   <img width="493" height="380" alt="4" src="https://github.com/user-attachments/assets/13eee142-2b3f-4fc9-8532-029dafaccd42" />
+
+
+#### Starting The Application 
+1. Double click on the **Desktop shortcut** or search for sokonalysis then press **Open**
+
+   <img width="380" height="397" alt="Open App" src="https://github.com/user-attachments/assets/43ee7519-7b16-470d-b8f3-b53178b4f7fb" />
+
+2. Wait for the application to finish loading
+
+   <img width="957" height="540" alt="Loading" src="https://github.com/user-attachments/assets/3a3f4d1f-070f-4ae8-b566-49cc1e49cde4" />
+
+
+
+
+
+   
+
+
+   
 
 

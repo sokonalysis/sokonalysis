@@ -13,7 +13,6 @@ import tempfile
 import shutil
 import re
 import pwd
-import spwd
 import getpass
 from pathlib import Path
 
