@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads - sokonalysis</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="main">
+        <div class="container">
+            <h1>Downloads</h1>
+            
+            <!-- GUI Release Tree -->
+            <section class="section">
+                <h2>GUI Releases</h2>
+                <div class="release-tree">
+                    <div class="release-item">
+                        <div class="release-info">
+                            <i class="fab fa-linux release-icon"></i>
+                            <div>
+                                <div class="release-name">sokonalysis_4.0.0_all.deb</div>
+                                <div class="release-meta">Linux GUI Package</div>
+                            </div>
+                        </div>
+                        <div class="release-meta">
+                            <span class="download-count">
+                                <i class="fas fa-download"></i> 1,234 downloads
+                            </span>
+                            <a href="https://github.com/sokonalysis/sokonalysis/releases/download/v4.0.0/sokonalysis_4.0.0_all.deb" class="btn btn-primary btn-sm">Download</a>
+                        </div>
+                    </div>
+                    <div class="release-item">
+                        <div class="release-info">
+                            <i class="fab fa-windows release-icon"></i>
+                            <div>
+                                <div class="release-name">sokonalysis_4.0.0_setup.exe</div>
+                                <div class="release-meta">Windows GUI Installer</div>
+                            </div>
+                        </div>
+                        <div class="release-meta">
+                            <span class="download-count">
+                                <i class="fas fa-download"></i> 2,456 downloads
+                            </span>
+                            <a href="https://github.com/sokonalysis/sokonalysis/releases" class="btn btn-primary btn-sm">Download</a>
+                        </div>
+                    </div>
+                    <div class="release-item">
+                        <div class="release-info">
+                            <i class="fas fa-code-branch release-icon"></i>
+                            <div>
+                                <div class="release-name">Source Code (zip)</div>
+                                <div class="release-meta">v4.0.0</div>
+                            </div>
+                        </div>
+                        <div class="release-meta">
+                            <span class="download-count">
+                                <i class="fas fa-download"></i> 567 downloads
+                            </span>
+                            <a href="https://github.com/sokonalysis/sokonalysis/archive/refs/tags/v4.0.0.zip" class="btn btn-secondary btn-sm">Download</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- CLI Installation -->
+            <section class="section">
+                <h2>CLI Installation</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="windows">Windows</button>
+                    <button class="tab-btn" data-tab="linux">Linux</button>
+                </div>
+                
+                <!-- Windows Tab -->
+                <div class="tab-content active" id="windows">
+                    <h3>MSYS2 Setup</h3>
+                    <p>Download <a href="https://github.com/msys2/msys2-installer/releases/download/2024-12-08/msys2-x86_64-20241208.exe">MSYS2</a> and install, then run:</p>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -Syu</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -Su</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S base-devel mingw-w64-x86_64-toolchain git</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>MSYS2 MINGW64 Terminal</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S mingw-w64-x86_64-gcc</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S mingw-w64-x86_64-nlohmann-json</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S mingw-w64-x86_64-gmp</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S mingw-w64-x86_64-curl</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S mingw-w64-x86_64-openssl</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Clone Repository</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>git clone https://github.com/sokonalysis/sokonalysis.git
+cd sokonalysis
+cd src</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Wordlist</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>curl -L -o wordlist.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Crypto++</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>pacman -S --needed make git
+git clone https://github.com/weidai11/cryptopp.git
+cd cryptopp
+make CXX=g++ -j$(nproc)
+cd ..</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Build & Run</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+./sokonalysis</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Linux Tab -->
+                <div class="tab-content" id="linux">
+                    <h3>Clone Repository</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>git clone https://github.com/sokonalysis/sokonalysis.git
+cd sokonalysis
+cd src</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Requirements</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>sudo apt update
+sudo apt install libcrypto++-dev libcrypto++-doc libcrypto++-utils
+sudo apt install libcrypto++-dev libssl-dev libcurl4-openssl-dev libgmp-dev libgmpxx4ldbl g++
+sudo apt install libgmp-dev libmpfr-dev libmpc-dev
+sudo apt install nlohmann-json3-dev</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Virtual Environment</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>python3 -m venv pythonvenv
+source pythonvenv/bin/activate
+pip install -r requirements.txt</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Wordlist</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>curl -L -o wordlist.txt https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt</code></pre>
+                        </div>
+                    </div>
+                    
+                    <h3>Build & Run</h3>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-block">
+                            <button class="copy-btn">Copy</button>
+                            <pre><code>g++ -I/usr/include/cryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+# OR
+g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+./sokonalysis</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

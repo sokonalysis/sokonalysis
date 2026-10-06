@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI Guide - sokonalysis</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+    <div id="header"></div>
+
+    <main class="container section">
+        <h1>CLI Guide</h1>
+        
+        <!-- Windows Section -->
+        <section class="section-sm">
+            <h2>Windows (MSYS2)</h2>
+            <div class="code-block">
+                <h3>1. Install MSYS2</h3>
+                <pre><code>pacman -Syu
+pacman -Su
+pacman -S base-devel mingw-w64-x86_64-toolchain git</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <h3>2. Install Dependencies</h3>
+                <pre><code>pacman -S mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-nlohmann-json
+pacman -S mingw-w64-x86_64-gmp
+pacman -S mingw-w64-x86_64-curl
+pacman -S mingw-w64-x86_64-openssl</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <h3>3. Build</h3>
+                <pre><code>git clone https://github.com/sokonalysis/sokonalysis.git
+cd sokonalysis/src
+g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+./sokonalysis</code></pre>
+            </div>
+        </section>
+        
+        <!-- Linux Section -->
+        <section class="section-sm">
+            <h2>Linux</h2>
+            <div class="code-block">
+                <h3>1. Install Requirements</h3>
+                <pre><code>sudo apt update
+sudo apt install libcrypto++-dev libssl-dev libcurl4-openssl-dev libgmp-dev libgmpxx4ldbl g++</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <h3>2. Build & Run</h3>
+                <pre><code>git clone https://github.com/sokonalysis/sokonalysis.git
+cd sokonalysis/src
+g++ -Icryptopp -std=c++17 *.cpp -lcryptopp -lssl -lcrypto -lcurl -lgmp -lgmpxx -o sokonalysis
+./sokonalysis</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer"></div>
+    <script src="../js/main.js"></script>
+</body>
+</html>
