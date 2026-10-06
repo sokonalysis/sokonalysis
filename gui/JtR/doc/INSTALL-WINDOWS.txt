@@ -1,0 +1,60 @@
+Please, read INSTALL for general information about installing John on your
+system.
+
+== Preamble
+
+    Whenever you feel like giving up, think of all the people that would love
+    to see you fail.
+
+== How to install on Windows
+
+    The steps listed below might work unchanged (untested).
+
+=== Preconditions and Required stuff
+
+    Install CygWin (see https://cygwin.com/install.html):
+
+    - Download the setup-x86_64.exe program
+
+    - Open the Command Prompt in Windows (see [1])
+
+    - Install required CygWin packages by running the below commands from the
+      directory where you have the CygWin setup program:
+      - setup-x86_64.exe -q -P gcc-core -P libgcc1 -P make -P perl
+      - setup-x86_64.exe -q -P libssl-devel -P libbz2-devel
+      - setup-x86_64.exe -q -P libgmp-devel -P zlib-devel
+      - setup-x86_64.exe -q -P libOpenCL-devel -P libcrypt-devel
+
+    - Open a CygWin terminal using the Windows menu or a desktop shortcut.
+
+=== Get latest bleeding-edge Jumbo and build
+
+==== Download latest snapshot of source
+
+    Download https://github.com/openwall/john/archive/bleeding-jumbo.zip
+    Unzip it to your preferred directory
+
+==== Build
+
+    - Inside a CygWin terminal
+
+    - Go to the folder you unzipped John the Ripper source code. E.g.:
+      cd ../../john-bleeding-jumbo/src
+
+    - Build
+      ./configure && make -s clean && make -sj4
+      make windows-package
+
+=== Test your build
+
+    ../run/john --test=0
+
+=== Benchmark your build
+
+    ../run/john --test
+
+
+
+Foot notes:
+
+[1] https://www.howtogeek.com/235101/10-ways-to-open-the-command-prompt-in-windows-10/

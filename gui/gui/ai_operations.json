@@ -1,0 +1,255 @@
+{
+  "operations": {
+    "crack": {
+      "keywords": ["crack", "break", "decrypt", "decode", "solve", "unlock"],
+      "description": "Break ciphertext to recover plaintext",
+      "needs_input": true,
+      "needs_cipher_type": true,
+      "mappings": {
+        "caesar": {
+          "options": ["Brute Force Decrypt", "Basic Shift"],
+          "brute_force": {
+            "tool": "Caesar Cipher",
+            "sub_tool": "Brute Force Decrypt",
+            "action": "navigate_caesar_bruteforce",
+            "needs_wordlist": true
+          },
+          "basic": {
+            "tool": "Caesar Cipher",
+            "sub_tool": "Basic Shift",
+            "action": "navigate_caesar_basic",
+            "needs_shift": true
+          }
+        },
+        "vigenere": {
+          "options": ["Keyword-based", "Kasiski Examination", "Friedman Test", "Hybrid Approach"],
+          "keyword": {
+            "tool": "Vigenere",
+            "sub_tool": "Keyword-based",
+            "action": "navigate_vigenere_keyword"
+          }
+        },
+        "substitution": {
+          "options": ["Decrypt with Known Key", "Frequency Analysis"],
+          "frequency": {
+            "tool": "Substitution Cipher",
+            "sub_tool": "Frequency Analysis",
+            "action": "navigate_substitution_frequency",
+            "needs_quadgram": true
+          }
+        },
+        "transposition": {
+          "options": ["Basic Transposition", "Columnar Transposition", "Rail Fence"],
+          "action": "navigate_transposition"
+        },
+        "base64": {
+          "tool": "Base64",
+          "action": "navigate_base64",
+          "no_options": true
+        },
+        "morse": {
+          "tool": "Morse Code",
+          "sub_tool": "Text Translator",
+          "action": "navigate_morse_text",
+          "no_options": true
+        }
+      }
+    },
+    "encrypt": {
+      "keywords": ["encrypt", "encode", "lock", "secure", "protect"],
+      "description": "Convert plaintext to ciphertext",
+      "needs_input": true,
+      "needs_cipher_type": true,
+      "mappings": {
+        "caesar": {
+          "options": ["Basic Shift"],
+          "basic": {
+            "tool": "Caesar Cipher",
+            "sub_tool": "Basic Shift",
+            "action": "navigate_caesar_basic",
+            "needs_shift": true
+          }
+        },
+        "substitution": {
+          "options": ["Encrypt with Known Key"],
+          "action": "navigate_substitution_encrypt"
+        },
+        "base64": {
+          "tool": "Base64",
+          "action": "navigate_base64",
+          "no_options": true
+        },
+        "morse": {
+          "tool": "Morse Code",
+          "sub_tool": "Text Translator",
+          "action": "navigate_morse_text",
+          "no_options": true
+        }
+      }
+    },
+    "decrypt": {
+      "keywords": ["decrypt", "decode", "unlock", "reveal", "decipher"],
+      "description": "Convert ciphertext back to plaintext",
+      "needs_input": true,
+      "needs_cipher_type": true,
+      "mappings": {
+        "caesar": {
+          "options": ["Brute Force Decrypt", "Basic Shift"],
+          "basic": {
+            "tool": "Caesar Cipher",
+            "sub_tool": "Basic Shift",
+            "action": "navigate_caesar_basic",
+            "needs_shift": true
+          }
+        },
+        "base64": {
+          "tool": "Base64",
+          "action": "navigate_base64",
+          "no_options": true
+        }
+      }
+    },
+    "hash": {
+      "keywords": ["hash", "hashing", "digest", "checksum", "fingerprint"],
+      "description": "Compute or crack hash values",
+      "needs_input": true,
+      "mappings": {
+        "md5": {
+          "tool": "MD5 Hash",
+          "action": "navigate_md5",
+          "needs_wordlist": true
+        },
+        "sha": {
+          "options": ["SHA-1", "SHA-256", "SHA-512"],
+          "tool": "SHA Hash",
+          "action": "navigate_sha",
+          "needs_wordlist": true
+        }
+      }
+    },
+    "reverse": {
+      "keywords": ["reverse", "invert", "undo", "flip", "mirror"],
+      "description": "Reverse a hash to find original input",
+      "needs_input": true,
+      "mappings": {
+        "hash": {
+          "tool": "Hash Reverse",
+          "action": "navigate_hash_reverse",
+          "needs_wordlist": true
+        }
+      }
+    },
+    "embed": {
+      "keywords": ["embed", "hide", "conceal", "steganography", "stego"],
+      "description": "Hide data within files",
+      "needs_input": true,
+      "needs_file": true,
+      "mappings": {
+        "steganography": {
+          "tool": "Steganography",
+          "sub_tool": "Embed Data",
+          "action": "navigate_steganography_embed"
+        }
+      }
+    },
+    "extract": {
+      "keywords": ["extract", "retrieve", "pull", "recover", "unhide"],
+      "description": "Extract hidden data from files",
+      "needs_input": true,
+      "needs_file": true,
+      "mappings": {
+        "steganography": {
+          "tool": "Steganography",
+          "sub_tool": "Extract Data",
+          "action": "navigate_steganography_extract",
+          "needs_wordlist": true
+        }
+      }
+    },
+    "verify": {
+      "keywords": ["verify", "check", "validate", "confirm", "integrity"],
+      "description": "Verify file integrity using hash",
+      "needs_input": true,
+      "mappings": {
+        "file": {
+          "tool": "Verify File Integrity",
+          "action": "navigate_verify_hash"
+        }
+      }
+    }
+  },
+  "file_handlers": {
+    ".zip": {
+      "tool": "Zip File",
+      "category": "Documents",
+      "action": "navigate_crack_zip",
+      "needs_wordlist": true
+    },
+    ".rar": {
+      "tool": "Rar File",
+      "category": "Documents",
+      "action": "navigate_crack_rar",
+      "needs_wordlist": true
+    },
+    ".7z": {
+      "tool": "7z File",
+      "category": "Documents",
+      "action": "navigate_crack_7z",
+      "needs_wordlist": true
+    },
+    ".pdf": {
+      "tool": "PDF File",
+      "category": "Documents",
+      "action": "navigate_crack_pdf",
+      "needs_wordlist": true
+    },
+    ".docx": {
+      "tool": "Office Document",
+      "category": "Documents",
+      "action": "navigate_crack_office",
+      "needs_wordlist": true
+    },
+    ".xlsx": {
+      "tool": "Office Document",
+      "category": "Documents",
+      "action": "navigate_crack_office",
+      "needs_wordlist": true
+    },
+    ".pptx": {
+      "tool": "Office Document",
+      "category": "Documents",
+      "action": "navigate_crack_office",
+      "needs_wordlist": true
+    },
+    ".png": {
+      "tool": "Steganography",
+      "category": "CTF",
+      "action": "navigate_steganography",
+      "options": ["Embed Data", "Extract Data"]
+    },
+    ".jpg": {
+      "tool": "Steganography",
+      "category": "CTF",
+      "action": "navigate_steganography",
+      "options": ["Embed Data", "Extract Data"]
+    },
+    ".wav": {
+      "tool": "Steganography",
+      "category": "CTF",
+      "action": "navigate_steganography",
+      "options": ["Embed Data", "Extract Data"]
+    },
+    ".hccapx": {
+      "tool": "Handshake Cracking",
+      "category": "Advanced",
+      "action": "navigate_wifi",
+      "needs_wordlist": true
+    },
+    ".cap": {
+      "tool": "Handshake Cracking",
+      "category": "Advanced",
+      "action": "navigate_wifi",
+      "needs_wordlist": true
+    }
+  }
+}

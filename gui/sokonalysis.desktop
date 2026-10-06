@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=sokonalysis
+Comment=The Cipher Toolkit Built For All Skill Levels
+Exec=/usr/local/bin/sokonalysis
+Icon=/usr/local/share/icons/sokonalysis.png
+Terminal=false
+Type=Application
+Categories=Utility;Security;
+Keywords=cipher;crypto;security;hashing;encryption;decryption;

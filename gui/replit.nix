@@ -1,0 +1,29 @@
+{pkgs}: {
+  deps = [
+    pkgs.novnc
+    pkgs.x11vnc
+    pkgs.xorg.xcbutilcursor
+    pkgs.libgcc
+    pkgs.xorg.xcbutil
+    pkgs.xorg.libXfixes
+    pkgs.xorg.libXtst
+    pkgs.xorg.libXi
+    pkgs.xorg.xcbutilrenderutil
+    pkgs.xorg.xcbutilkeysyms
+    pkgs.xorg.xcbutilimage
+    pkgs.xorg.xcbutilwm
+    pkgs.libxkbcommon
+    pkgs.libmpc
+    pkgs.mpfr
+    pkgs.gmp
+    pkgs.freetype
+    pkgs.fontconfig
+    pkgs.glib
+    pkgs.libGL
+    pkgs.xorg.libXrender
+    pkgs.xorg.libXext
+    pkgs.xorg.libX11
+    pkgs.xorg.libxcb
+    pkgs.xorg.xorgserver
+  ];
+}

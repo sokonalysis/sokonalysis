@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# Sokonalysis post-installation script
+
+# Read version from version.txt
+VERSION=$(cat /usr/share/sokonalysis/version.txt 2>/dev/null | tr -d '[:space:]')
+if [ -z "$VERSION" ]; then
+    VERSION="unknown"
+fi
+
+# Create symlink
+ln -sf /usr/share/sokonalysis/sokonalysis /usr/local/bin/sokonalysis 2>/dev/null || true
+
+# Set proper permissions
+chmod 755 /usr/share/sokonalysis/sokonalysis
+chmod 755 /usr/local/bin/sokonalysis
+
+# Update desktop database
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database /usr/share/applications 2>/dev/null || true
+fi
+
+echo ""
+echo "sokonalysis v${VERSION} installed successfully!"
+echo "  Run: sokonalysis"
+echo ""
+
+exit 0

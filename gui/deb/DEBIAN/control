@@ -1,0 +1,14 @@
+Package: sokonalysis
+Version: 4.0.0
+Architecture: amd64
+Maintainer: Soko James <s0k0j4m3s@gmail.com>
+Depends: steghide, stegseek, john, hashcat, libxcb-cursor0, libgl1, libegl1, openssl
+Description: The Cipher Toolkit Built For All Skill Levels
+ sokonalysis is a professional cryptographic analysis toolkit
+ featuring symmetric & asymmetric ciphers, hashing tools,
+ CTF utilities, and advanced cryptoanalysis capabilities.
+ .
+ Built with PyInstaller - no Python installation required.
+Section: utils
+Priority: optional
+Homepage: https://github.com/sokonalysis/sokonalysis

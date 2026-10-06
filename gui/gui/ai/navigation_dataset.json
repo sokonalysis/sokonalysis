@@ -1,0 +1,218 @@
+{
+  "version": 1,
+  "intents": [
+    {
+      "name": "toggle_theme",
+      "action": "toggle_theme",
+      "payload": "",
+      "reply": "Theme switched!",
+      "phrases": [
+        "switch theme", "change theme", "toggle theme",
+        "dark mode", "light mode", "go dark", "go light",
+        "make it dark", "make it light",
+        "switch to dark", "switch to light",
+        "switch to dark mode", "switch to light mode",
+        "enable dark mode", "enable light mode",
+        "turn on dark mode", "turn on light mode",
+        "i want dark mode", "i want light mode",
+        "night mode", "day mode",
+        "change the theme", "change my theme",
+        "please switch theme", "flip theme",
+        "switch mode", "toggle mode", "theme"
+      ]
+    },
+    {
+      "name": "layout_compact",
+      "action": "layout",
+      "payload": "compact",
+      "reply": "Switched to <b>Compact</b> layout!",
+      "phrases": [
+        "compact layout", "compact mode", "switch to compact",
+        "make it compact", "smaller layout", "slim layout",
+        "compact view", "shrink layout"
+      ]
+    },
+    {
+      "name": "layout_wide",
+      "action": "layout",
+      "payload": "wide",
+      "reply": "Switched to <b>Wide</b> layout!",
+      "phrases": [
+        "wide layout", "wide mode", "switch to wide",
+        "make it wide", "bigger layout", "maximize layout",
+        "fullscreen layout", "expand layout",
+        "wide view", "bigger window"
+      ]
+    },
+    {
+      "name": "layout_default",
+      "action": "layout",
+      "payload": "default",
+      "reply": "Switched to <b>Default</b> layout.",
+      "phrases": [
+        "default layout", "reset layout", "normal layout",
+        "standard layout", "revert layout", "restore layout"
+      ]
+    },
+    {
+      "name": "show_home",
+      "action": "show_landing",
+      "payload": "",
+      "reply": "Going Home...",
+      "phrases": [
+        "home", "go home", "landing", "landing page", "main page",
+        "start page", "main menu", "main screen", "go back",
+        "take me home", "back to home", "back to start"
+      ]
+    },
+    {
+      "name": "show_user_guide",
+      "action": "show_user_guide",
+      "payload": "",
+      "reply": "Opening <b>User Guide</b>...",
+      "phrases": [
+        "user guide", "user manual", "help guide", "manual",
+        "documentation", "how to use", "show me the guide",
+        "open the guide", "open guide", "open user guide",
+        "open manual", "read the manual"
+      ]
+    },
+    {
+      "name": "show_license",
+      "action": "show_license",
+      "payload": "",
+      "reply": "Opening <b>License</b>...",
+      "phrases": [
+        "license", "licence", "licensing", "show license",
+        "open license", "what license", "view license",
+        "open licence", "show licence"
+      ]
+    },
+    {
+      "name": "show_about",
+      "action": "show_about",
+      "payload": "",
+      "reply": "Opening <b>About</b>...",
+      "phrases": [
+        "about", "about page", "show about", "open about",
+        "version", "what version", "build info", "app info",
+        "about this app", "about sokonalysis"
+      ]
+    },
+    {
+      "name": "check_updates",
+      "action": "check_updates",
+      "payload": "",
+      "reply": "Checking for updates...",
+      "phrases": [
+        "update", "upgrade", "check for updates", "new version",
+        "is there an update", "update app", "get latest version",
+        "any updates", "upgrade app", "check updates"
+      ]
+    },
+    {
+      "name": "config_wordlist",
+      "action": "show_config",
+      "payload": "wordlist",
+      "reply": "Opening <b>Wordlist Configuration</b>...",
+      "phrases": [
+        "open wordlist", "configure wordlist", "wordlist config",
+        "wordlist settings", "show wordlist config",
+        "set up wordlist", "change wordlist",
+        "load wordlist", "choose wordlist", "wordlist menu"
+      ]
+    },
+    {
+      "name": "config_quadgram",
+      "action": "show_config",
+      "payload": "json",
+      "reply": "Opening <b>Quadgram Configuration</b>...",
+      "phrases": [
+        "open quadgram", "configure quadgram", "quadgram config",
+        "open ngram", "json config", "configure json",
+        "set up quadgram", "quadgram settings",
+        "open json", "configure quadgram", "load quadgram"
+      ]
+    },
+    {
+      "name": "config_john",
+      "action": "show_config",
+      "payload": "john",
+      "reply": "Opening <b>John the Ripper Configuration</b>...",
+      "phrases": [
+        "open john", "configure john", "john config",
+        "john settings", "john the ripper config",
+        "set up john", "change john config",
+        "john ripper config", "configure john the ripper"
+      ]
+    },
+    {
+      "name": "list_categories",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORIES__",
+      "phrases": [
+        "categories", "category", "list categories",
+        "all tools", "list tools", "show tools",
+        "what tools", "tools list", "menu",
+        "show categories", "browse tools",
+        "list all tools", "show all tools"
+      ]
+    },
+    {
+      "name": "category_symmetric",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORY_DETAIL:symmetric__",
+      "phrases": [
+        "symmetric", "symmetric tools", "symmetric category",
+        "symmetric ciphers", "symmetric crypto",
+        "open symmetric", "show symmetric"
+      ]
+    },
+    {
+      "name": "category_asymmetric",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORY_DETAIL:asymmetric__",
+      "phrases": [
+        "asymmetric", "asymmetric tools", "asymmetric category",
+        "public key", "public key crypto",
+        "asymmetric crypto", "open asymmetric"
+      ]
+    },
+    {
+      "name": "category_hashing",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORY_DETAIL:hashing__",
+      "phrases": [
+        "hashing tools", "hash tools", "hashing category",
+        "hash category", "list hash tools",
+        "open hashing", "show hashing", "hashing menu"
+      ]
+    },
+    {
+      "name": "category_advanced",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORY_DETAIL:advanced__",
+      "phrases": [
+        "advanced tools", "advanced category", "advanced menu",
+        "advanced features", "expert tools",
+        "open advanced", "show advanced"
+      ]
+    },
+    {
+      "name": "category_ctf",
+      "action": null,
+      "payload": null,
+      "reply": "__CATEGORY_DETAIL:ctf__",
+      "phrases": [
+        "ctf", "ctf tools", "ctf category", "ctf menu",
+        "capture the flag", "ctf challenges",
+        "open ctf", "show ctf", "ctf section"
+      ]
+    }
+  ]
+}
