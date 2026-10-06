@@ -43,7 +43,7 @@ git config --global user.name "SokoJames"
 git init
 ````
 ````bash
-git remote add origin git@github.com:sokonalysis/sokonalysis-GUI.git
+git remote add origin git@github.com:sokonalysis/sokonalysis.git 
 ````
 ````bash
 git add .
@@ -69,7 +69,7 @@ git push -u origin main
 
 ## Repository Download 
 ````bash
-git clone git@github.com:sokonalysis/sokonalysis-GUI.git
+git clone git@github.com:sokonalysis/sokonalysis.git
 ````
 
 ## Requirements
@@ -110,6 +110,11 @@ git commit -m "You comment for a recent update"
 ````
 ````bash
 git push -u origin main --force
+````
+
+If it fails, and requests for your GitHub username and password use
+````bash
+git remote set-url origin git@github.com:sokonalysis/sokonalysis.git
 ````
 
 ## App Development
