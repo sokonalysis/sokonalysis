@@ -1,87 +1,131 @@
 #!/bin/bash
 set -e
 
+# ---------------------------------------------------------------
+# sokonalysis build script (PyInstaller + .deb)
+# Run this from the gui/ folder, inside the build venv.
+#
+# Optional environment variables:
+#   PYTHON=python3.12   Python interpreter to use (default: python)
+#   KEEP_BUILD=1        Keep build/ and *.spec after the build (debugging)
+# ---------------------------------------------------------------
+
+PYTHON="${PYTHON:-python}"
+
 # Read version from version.txt
 if [ ! -f "version.txt" ]; then
     echo "Error: version.txt not found!"
     exit 1
 fi
-VERSION=$(cat version.txt | tr -d '[:space:]')
-PACKAGE="sokonalysis_${VERSION}_all"
+VERSION=$(tr -d '[:space:]' < version.txt)
+ARCH=$(dpkg --print-architecture)
+PACKAGE="sokonalysis_${VERSION}_${ARCH}"
 APP_DIR="/usr/share/sokonalysis"
 
 echo "======================================"
-echo " Building sokonalysis v${VERSION}"
+echo " Building sokonalysis v${VERSION} (${ARCH})"
 echo "======================================"
 
-# Update control file with correct version
-sed -i "s/__VERSION__/${VERSION}/g" deb/DEBIAN/control
+# Warn about very new Python versions (PyInstaller hooks/wheels often lag behind)
+PYVER=$("$PYTHON" -c 'import sys; print("%d.%d" % sys.version_info[:2])')
+echo "Using Python ${PYVER} ($("$PYTHON" -c 'import sys; print(sys.executable)'))"
+case "$PYVER" in
+    3.13|3.14|3.15)
+        echo "  ⚠ Python ${PYVER} is very new. Python 3.12 is the safest choice for PyInstaller builds."
+        ;;
+esac
+
+# Make sure PyInstaller is available in this interpreter
+if ! "$PYTHON" -m PyInstaller --version >/dev/null 2>&1; then
+    echo "Error: PyInstaller is not installed for ${PYTHON}. Run: pip install pyinstaller"
+    exit 1
+fi
+
+# Update control file (safe to run repeatedly, unlike a one-time placeholder swap)
+sed -i "s/^Version:.*/Version: ${VERSION}/" deb/DEBIAN/control
+sed -i "s/^Architecture:.*/Architecture: ${ARCH}/" deb/DEBIAN/control
 
 # Step 1: Build GUI executable
 echo ""
 echo "[1/2] Building GUI executable with PyInstaller..."
 
-# Build the PyInstaller command with optional files
-PYINSTALLER_CMD="pyinstaller --clean --onefile \
-    --name sokonalysis \
-    --add-data \"assets:assets\" \
-    --add-data \"version.txt:.\" \
-    --add-data \"LICENSE:.\" \
-    --add-data \"EN.json:.\" \
-    --add-data \"assets/docs/guide.pdf:assets/docs\" \
-    --add-data \"assets/symbols:assets/symbols\""
+# Helper: is a Python module installed in this environment?
+has_module() {
+    "$PYTHON" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$1') else 1)" 2>/dev/null
+}
+
+# Using a bash array (not eval) so paths with spaces work correctly
+PYI_ARGS=(
+    --clean
+    --onefile
+    --name sokonalysis
+    --add-data "assets:assets"
+    --add-data "version.txt:."
+    --add-data "LICENSE:."
+    --add-data "EN.json:."
+    --add-data "assets/docs/guide.pdf:assets/docs"
+    --add-data "assets/symbols:assets/symbols"
+)
 
 # Add ai_operations.json if it exists
 if [ -f "gui/ai_operations.json" ]; then
-    PYINSTALLER_CMD="$PYINSTALLER_CMD --add-data \"gui/ai_operations.json:gui\""
     echo "  ✓ ai_operations.json found"
 else
     echo "  ⚠ ai_operations.json not found - creating empty file"
     mkdir -p gui
     echo '{"operations": {}, "file_handlers": {}}' > gui/ai_operations.json
-    PYINSTALLER_CMD="$PYINSTALLER_CMD --add-data \"gui/ai_operations.json:gui\""
 fi
+PYI_ARGS+=(--add-data "gui/ai_operations.json:gui")
 
 # Add english_words.json if it exists
 if [ -f "gui/english_words.json" ]; then
-    PYINSTALLER_CMD="$PYINSTALLER_CMD --add-data \"gui/english_words.json:gui\""
     echo "  ✓ english_words.json found"
 else
     echo "  ⚠ english_words.json not found - creating empty file"
     mkdir -p gui
     echo '[]' > gui/english_words.json
-    PYINSTALLER_CMD="$PYINSTALLER_CMD --add-data \"gui/english_words.json:gui\""
 fi
+PYI_ARGS+=(--add-data "gui/english_words.json:gui")
 
 # Add gui/ai/ data files if they exist
 if [ -d "gui/ai" ]; then
-    PYINSTALLER_CMD="$PYINSTALLER_CMD --add-data \"gui/ai:gui/ai\""
+    PYI_ARGS+=(--add-data "gui/ai:gui/ai")
     echo "  ✓ gui/ai/ data files found"
 fi
 
-# Add hidden imports
-PYINSTALLER_CMD="$PYINSTALLER_CMD \
-    --hidden-import PySide6.QtCore \
-    --hidden-import PySide6.QtGui \
-    --hidden-import PySide6.QtWidgets \
-    --hidden-import matplotlib \
-    --hidden-import matplotlib.backends.backend_qt5agg \
-    --hidden-import Crypto \
-    --hidden-import distro \
-    --hidden-import zipfile \
-    --hidden-import hashlib \
-    --hidden-import subprocess \
-    --hidden-import json \
-    --hidden-import re \
-    --hidden-import ast \
-    --hidden-import random \
-    --icon assets/logo.png \
-    --noconsole \
-    main.py"
+# ---------------------------------------------------------------
+# PyMuPDF fix: newer PyMuPDF loads ONNX model/yaml files at import
+# time (pymupdf.layout). PyInstaller doesn't bundle those data
+# files automatically, which caused:
+#   FileNotFoundError: .../pymupdf/layout/resources/onnx/layout_rf*.yaml
+# --collect-all pulls in the package's code, data files and binaries.
+# ---------------------------------------------------------------
+for mod in pymupdf pymupdf_layout onnxruntime; do
+    if has_module "$mod"; then
+        PYI_ARGS+=(--collect-all "$mod")
+        echo "  ✓ Collecting all files for: $mod"
+    fi
+done
 
+# Hidden imports (standard library modules are detected automatically,
+# so they are intentionally not listed here)
+PYI_ARGS+=(
+    --hidden-import fitz
+    --hidden-import PySide6.QtCore
+    --hidden-import PySide6.QtGui
+    --hidden-import PySide6.QtWidgets
+    --hidden-import matplotlib
+    --hidden-import matplotlib.backends.backend_qt5agg
+    --hidden-import matplotlib.backends.backend_qtagg
+    --hidden-import Crypto
+    --hidden-import distro
+    --icon assets/logo.png
+    --noconsole
+    main.py
+)
 
 # Execute PyInstaller
-eval $PYINSTALLER_CMD
+"$PYTHON" -m PyInstaller "${PYI_ARGS[@]}"
 
 # Step 2: Build .deb package
 echo ""
@@ -104,6 +148,7 @@ chmod 755 "${PACKAGE}/DEBIAN/postinst"
 # Copy PyInstaller executable
 if [ -f "dist/sokonalysis" ]; then
     cp dist/sokonalysis "${PACKAGE}${APP_DIR}/"
+    chmod 755 "${PACKAGE}${APP_DIR}/sokonalysis"
 else
     echo "Error: dist/sokonalysis not found!"
     exit 1
@@ -140,7 +185,6 @@ if [ -d "assets/symbols/morse" ]; then
     echo "  ✓ Morse code symbols: ${MORSE_COUNT} images"
 else
     echo "  ⚠ No Morse code symbols found in assets/symbols/morse/"
-    mkdir -p "assets/symbols/morse"
 fi
 
 # Verify Pigpen symbols
@@ -150,7 +194,6 @@ if [ -d "assets/symbols/pigpen" ]; then
     echo "  ✓ Pigpen symbols: ${PIGPEN_COUNT} images"
 else
     echo "  ⚠ No Pigpen symbols found in assets/symbols/pigpen/"
-    mkdir -p "assets/symbols/pigpen"
 fi
 
 # Verify Navy symbols
@@ -160,7 +203,6 @@ if [ -d "assets/symbols/navy" ]; then
     echo "  ✓ Navy signal symbols: ${NAVY_COUNT} images"
 else
     echo "  ⚠ No Navy signal symbols found in assets/symbols/navy/"
-    mkdir -p "assets/symbols/navy"
 fi
 
 # Copy guide PDF
@@ -205,17 +247,22 @@ exec /usr/share/sokonalysis/sokonalysis "$@"
 LAUNCHER
 chmod 755 "${PACKAGE}/usr/local/bin/sokonalysis"
 
-# Build the .deb
-dpkg-deb --build "${PACKAGE}"
+# Build the .deb (--root-owner-group avoids wrong file ownership inside the package)
+dpkg-deb --root-owner-group --build "${PACKAGE}"
 
-# Cleanup
+# Cleanup (dist/ is kept so you can test ./dist/sokonalysis directly)
 rm -rf "${PACKAGE}"
-rm -rf build dist *.spec
+if [ "${KEEP_BUILD:-0}" != "1" ]; then
+    rm -rf build *.spec
+fi
 
 echo ""
 echo "======================================"
 echo " Done: ${PACKAGE}.deb"
 echo "======================================"
+echo ""
+echo "Test the raw binary first:   ./dist/sokonalysis"
+echo "Then install the package:    sudo dpkg -i ${PACKAGE}.deb"
 echo ""
 echo "The .deb contains:"
 echo "  - Standalone executable (no Python required)"

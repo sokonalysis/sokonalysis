@@ -8,7 +8,7 @@ from PySide6.QtGui import (
     QIcon, QPixmap, QImage, QDesktopServices, QPainter, QColor, QKeySequence,
     QPalette
 )
-import os, re, sys, fitz, subprocess, shutil, threading
+import os, re, sys, pymupdf, subprocess, shutil, threading
 
 
 class PdfPageWidget(QWidget):
@@ -413,9 +413,9 @@ class UserGuidePage(QWidget):
         """Open the PDF and read page sizes only (fast, no rasterizing)."""
         # guide.pdf's tagged-accessibility structure tree is malformed, which
         # is harmless but spams stderr, so silence MuPDF while we work.
-        fitz.TOOLS.mupdf_display_errors(False)
+        pymupdf.TOOLS.mupdf_display_errors(False)
         try:
-            self._doc = fitz.open(self._guide_path)
+            self._doc = pymupdf.open(self._guide_path)
             self._page_sizes = []
             for i in range(len(self._doc)):
                 r = self._doc.load_page(i).rect
@@ -424,7 +424,7 @@ class UserGuidePage(QWidget):
             self._doc = None
             self._show_error(f"Error loading guide: {e}")
         finally:
-            fitz.TOOLS.mupdf_display_errors(True)
+            pymupdf.TOOLS.mupdf_display_errors(True)
         return self._doc is not None
 
     def _show_error(self, text):
@@ -518,7 +518,7 @@ class UserGuidePage(QWidget):
 
     def _render_page(self, index):
         self._rendered.add(index)                 # mark first so failures don't loop
-        fitz.TOOLS.mupdf_display_errors(False)
+        pymupdf.TOOLS.mupdf_display_errors(False)
         try:
             page = self._doc.load_page(index)
             target_px = min(
@@ -526,7 +526,7 @@ class UserGuidePage(QWidget):
                 self.MAX_RENDER_WIDTH
             )
             scale = target_px / page.rect.width
-            pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
+            pix = page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), alpha=False)
             img = QImage(
                 pix.samples, pix.width, pix.height, pix.stride,
                 QImage.Format.Format_RGB888
@@ -540,7 +540,7 @@ class UserGuidePage(QWidget):
         except Exception:
             pass
         finally:
-            fitz.TOOLS.mupdf_display_errors(True)
+            pymupdf.TOOLS.mupdf_display_errors(True)
 
     # ------------------------------------------------------------------
     # Links (external URLs and internal jumps such as the table of contents)
@@ -554,13 +554,13 @@ class UserGuidePage(QWidget):
                 continue
             kind = link.get("kind")
             action = None
-            if kind == fitz.LINK_URI and link.get("uri"):
+            if kind == pymupdf.LINK_URI and link.get("uri"):
                 action = {"type": "uri", "uri": link["uri"]}
-            elif kind == fitz.LINK_GOTO and link.get("page", -1) >= 0:
+            elif kind == pymupdf.LINK_GOTO and link.get("page", -1) >= 0:
                 to = link.get("to")
                 action = {"type": "goto", "page": link["page"],
                           "y": float(to.y) if to is not None else 0.0}
-            elif kind == fitz.LINK_NAMED:
+            elif kind == pymupdf.LINK_NAMED:
                 name = link.get("nameddest") or link.get("name")
                 if name:
                     action = {"type": "named", "name": name}
@@ -738,16 +738,16 @@ class UserGuidePage(QWidget):
             infos = []
         page_area = page.rect.width * page.rect.height
         for info in infos:
-            r = fitz.Rect(info["bbox"]) & page.rect
+            r = pymupdf.Rect(info["bbox"]) & page.rect
             if r.is_empty or r.width * r.height > 0.85 * page_area:
                 continue                          # full-page scans: just invert
             x0, y0 = max(0, int(r.x0 * scale)), max(0, int(r.y0 * scale))
             x1 = min(img.width(), int(r.x1 * scale) + 1)
             y1 = min(img.height(), int(r.y1 * scale) + 1)
-            clip = fitz.Rect(x0 / scale, y0 / scale, x1 / scale, y1 / scale)
+            clip = pymupdf.Rect(x0 / scale, y0 / scale, x1 / scale, y1 / scale)
             try:
                 # alpha=True keeps transparent logos transparent
-                cp = page.get_pixmap(matrix=fitz.Matrix(scale, scale),
+                cp = page.get_pixmap(matrix=pymupdf.Matrix(scale, scale),
                                      clip=clip, alpha=True)
                 qi = QImage(cp.samples, cp.width, cp.height, cp.stride,
                             QImage.Format.Format_RGBA8888)

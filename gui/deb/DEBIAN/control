@@ -1,5 +1,5 @@
 Package: sokonalysis
-Version: 4.0.0
+Version: 4.5.0
 Architecture: amd64
 Maintainer: Soko James <s0k0j4m3s@gmail.com>
 Depends: steghide, stegseek, john, hashcat, libxcb-cursor0, libgl1, libegl1, openssl

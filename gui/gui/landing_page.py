@@ -1,4 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy, QLineEdit, QTextBrowser
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy,
+    QLineEdit, QTextBrowser
+)
 from PySide6.QtCore import Qt, QTimer, Signal, QSize
 from PySide6.QtGui import QPixmap, QDragEnterEvent, QDropEvent, QMovie
 from urllib.parse import unquote
@@ -34,7 +37,14 @@ class ClickableTextBrowser(QTextBrowser):
 
 
 class LandingPage(QWidget):
-    """Professional landing page with logo, categorized tool sections, and search."""
+    """Professional landing page with logo, categorized tool sections, and search.
+
+    Layout note: the page never scrolls. Instead it adapts to the window
+    height in "density" steps (0 = roomy ... 3 = tightest): logo, title,
+    spacing and the AI box get slightly smaller as the window gets shorter,
+    and the category cards size and shrink their text to fit what is left
+    (see CardGrid). The cards and the AI box therefore never collide.
+    """
     
     search_requested = Signal(str)
     
@@ -53,6 +63,10 @@ class LandingPage(QWidget):
         self._thinking_container = None
         self._ai_icon_movie = None
         self._ai_icon_idle = True
+        self._density = 0
+        self._min_density = 0          # raised by _verify_fit if the estimate was too optimistic
+        self._min_density_height = 0   # page height at which it was raised
+        self._params = None
         
         if LandingPage.app_start_time is None:
             LandingPage.app_start_time = datetime.now()
@@ -109,8 +123,11 @@ class LandingPage(QWidget):
     def _hide_thinking_container(self):
         """Hide and clean up thinking container."""
         if hasattr(self, '_thinking_container') and self._thinking_container:
-            self._thinking_container.hide()
-            self._thinking_container.deleteLater()
+            try:
+                self._thinking_container.hide()
+                self._thinking_container.deleteLater()
+            except RuntimeError:
+                pass
             self._thinking_container = None
     
     def _show_thinking_animation(self, message="Thinking..."):
@@ -224,16 +241,103 @@ class LandingPage(QWidget):
             "motto_font": int(12 * scale) if layout_manager.current == "wide" else 11,
         }
     
+    # ------------------------------------------------------------------
+    # Height adaptation (replaces scrolling)
+    # ------------------------------------------------------------------
+
+    def _ai_height(self, level):
+        """Fixed height of the AI assistant box at a given density level."""
+        if layout_manager.current == "compact":
+            base = 150
+        else:
+            response_max_h = 100
+            input_row_h = 34
+            vertical_chrome = 10 + 10 + 4
+            content_height = response_max_h + input_row_h + vertical_chrome
+            base = min(200, max(150, int(content_height * (1 + (layout_manager.font_scale() - 1) * 0.4))))
+        caps = {0: base, 1: 140, 2: 122, 3: 104}
+        return min(base, caps.get(level, 104))
+
+    def _density_params(self, level):
+        """Sizes/margins for the header, AI box and stats at a density level."""
+        v = self._get_dynamic_values()
+        compact = layout_manager.current == "compact"
+        stats_font = max(8, v["stats_font"] - 1) if compact else v["stats_font"]
+
+        d = {
+            "logo": v["logo_size"], "title": v["title_font"], "motto": v["motto_font"],
+            "show_motto": True,
+            "top": 20, "bottom": 30,
+            "search_top": 16, "sep_top": 16, "sep_bottom": 18,
+            "ai_m_top": 6 if compact else 12, "ai_m_bottom": 8 if compact else 12,
+            "stats_m": 4 if compact else 8, "stats_font": stats_font,
+        }
+        if level >= 1:
+            d.update(logo=min(d["logo"], 52), title=min(d["title"], 32), motto=min(d["motto"], 10),
+                     top=14, bottom=20, search_top=10, sep_top=10, sep_bottom=12)
+        if level >= 2:
+            d.update(logo=min(d["logo"], 40), title=min(d["title"], 26),
+                     top=10, bottom=12, search_top=8, sep_top=6, sep_bottom=8,
+                     ai_m_top=min(d["ai_m_top"], 4), ai_m_bottom=min(d["ai_m_bottom"], 4),
+                     stats_m=min(d["stats_m"], 3))
+        if level >= 3:
+            d.update(logo=min(d["logo"], 32), title=min(d["title"], 22), show_motto=False,
+                     top=6, bottom=8, search_top=6, sep_top=4, sep_bottom=4,
+                     ai_m_top=2, ai_m_bottom=2, stats_m=2)
+        return d
+
+    def _estimate_fixed_height(self, level):
+        """Height used by everything except the category cards (slightly generous)."""
+        p = self._density_params(level)
+        title_h = int(p["title"] * 1.5)
+        motto_h = int(p["motto"] * 1.6) if p["show_motto"] else 0
+        stats_h = int(p["stats_font"] * 1.7)
+        search_h = 46
+        return (p["top"] + p["bottom"] + p["logo"] + title_h + motto_h
+                + p["search_top"] + search_h
+                + 1 + p["sep_top"] + p["sep_bottom"]
+                + p["ai_m_top"] + p["ai_m_bottom"] + self._ai_height(level)
+                + 2 * p["stats_m"] + stats_h)
+
+    def _pick_density(self):
+        """Lowest density level that still leaves the cards a comfortable height."""
+        page_h = self.height()
+        if not self.isVisible() or page_h < 200:
+            # Not shown yet: estimate from the layout's planned window size
+            page_h = layout_manager.get_window_size()[1] - 70
+        wanted_cards_h = self._wanted_cards_height()
+        for level in range(4):
+            if page_h - self._estimate_fixed_height(level) >= wanted_cards_h:
+                return max(level, self._min_density)
+        return 3
+
+    def _wanted_cards_height(self):
+        return 150 if layout_manager.current == "compact" else 170
+
+    def _verify_fit(self):
+        """Self-check after a build: use the REAL space the cards got.
+
+        The density level is chosen from height estimates. If the real fonts
+        and widgets turned out taller than estimated, the cards got less room
+        than intended - step the page one level tighter and rebuild.
+        """
+        if not self.isVisible() or self.card_grid is None:
+            return
+        try:
+            cards_h = self.card_grid.height()
+        except RuntimeError:
+            return
+        if cards_h < self._wanted_cards_height() and self._density < 3:
+            self._min_density = self._density + 1
+            self._min_density_height = self.height()
+            self._on_layout_changed(layout_manager.current)
+
     def _on_layout_changed(self, layout_type):
         """Rebuild UI when layout changes."""
         saved_response = getattr(self, '_saved_ai_response', "")
 
         self.setUpdatesEnabled(False)
         try:
-            self._clear_layout(self.layout())
-            old_layout = self.layout()
-            if old_layout is not None:
-                QWidget().setLayout(old_layout)
             self._init_ui()
         finally:
             self.setUpdatesEnabled(True)
@@ -261,14 +365,21 @@ class LandingPage(QWidget):
             self._clear_layout(self.layout())
             old_layout = self.layout()
             QWidget().setLayout(old_layout)
-        
+
+        # Drop anything that points into the widgets that were just removed
+        self._stop_thinking_animation()
+        self._thinking_container = None
         self._ai_icon_movie = None
         self._ai_icon_idle = True
+
+        # Pick how compact the page must be to fit the current window height
+        self._density = self._pick_density()
+        p = self._density_params(self._density)
+        self._params = p
         
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.setSpacing(0)
-        layout.setContentsMargins(0, 20, 0, 30)
+        layout.setContentsMargins(0, p["top"], 0, p["bottom"])
         
         values = self._get_dynamic_values()
         
@@ -286,29 +397,30 @@ class LandingPage(QWidget):
         logo_path = self._find_logo()
         pixmap = QPixmap(logo_path)
         if not pixmap.isNull():
-            logo_size = values["logo_size"]
+            logo_size = p["logo"]
             scaled = pixmap.scaled(logo_size, logo_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             logo_label.setPixmap(scaled)
             logo_label.setFixedSize(logo_size, logo_size)
         else:
-            logo_label.setFixedSize(64, 64)
+            logo_label.setFixedSize(p["logo"], p["logo"])
         logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         logo_label.setStyleSheet("background: transparent;")
         logo_wrapper_layout.addWidget(logo_label)
         
         title = QLabel("sokonalysis")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_font = values["title_font"]
+        title_font = p["title"]
         title.setStyleSheet(f"font-size: {title_font}px; font-weight: 800; letter-spacing: 2px; background: transparent;")
         
         motto = QLabel("The Cipher Toolkit Built For All Skill Levels")
         motto.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        motto_font = values["motto_font"]
+        motto_font = p["motto"]
         motto.setStyleSheet(f"font-size: {motto_font}px; font-weight: 500; background: transparent; letter-spacing: 0.5px; color: {self.theme.current['text_tertiary']};")
         
         header_layout.addWidget(logo_wrapper)
         header_layout.addWidget(title)
-        header_layout.addWidget(motto)
+        if p["show_motto"]:
+            header_layout.addWidget(motto)
         
         t = self.theme.current
         icons_dir = os.path.join(sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.join(os.path.dirname(__file__), '..'), 'assets', 'icons')
@@ -316,7 +428,7 @@ class LandingPage(QWidget):
         
         # SEARCH
         search_wrapper = QHBoxLayout()
-        search_wrapper.setContentsMargins(values["search_margin"], 16, values["search_margin"], 0)
+        search_wrapper.setContentsMargins(values["search_margin"], p["search_top"], values["search_margin"], 0)
         
         search_container = QFrame()
         search_container.setObjectName("searchContainer")
@@ -354,7 +466,7 @@ class LandingPage(QWidget):
         sep = QFrame()
         sep.setObjectName("separator")
         sep.setFixedHeight(1)
-        sep.setStyleSheet(f"background-color:{t['border']};margin:16px 0px 18px 0px;")
+        sep.setStyleSheet(f"background-color:{t['border']};margin:{p['sep_top']}px 0px {p['sep_bottom']}px 0px;")
         sep_wrapper.addWidget(sep)
         
         # CATEGORIES
@@ -373,15 +485,10 @@ class LandingPage(QWidget):
         ai_wrapper = QHBoxLayout()
         
         if layout_manager.current == "compact":
-            ai_wrapper.setContentsMargins(20, 6, 20, 8)
-            ai_height = 150
+            ai_wrapper.setContentsMargins(20, p["ai_m_top"], 20, p["ai_m_bottom"])
         else:
-            ai_wrapper.setContentsMargins(values["ai_margin"], 12, values["ai_margin"], 12)
-            response_max_h = 100
-            input_row_h = 34
-            vertical_chrome = 10 + 10 + 4
-            content_height = response_max_h + input_row_h + vertical_chrome
-            ai_height = min(200, max(150, int(content_height * (1 + (layout_manager.font_scale() - 1) * 0.4))))
+            ai_wrapper.setContentsMargins(values["ai_margin"], p["ai_m_top"], values["ai_margin"], p["ai_m_bottom"])
+        ai_height = self._ai_height(self._density)
         
         ai_container = QFrame()
         ai_container.setFixedHeight(ai_height)
@@ -417,11 +524,16 @@ class LandingPage(QWidget):
             }}
         """)
         self.ai_response.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # The response area is short, so tighten the default block margins of
+        # the rendered HTML; otherwise headings waste most of the visible space.
+        self.ai_response.document().setDefaultStyleSheet(
+            "h1,h2,h3,h4,h5,h6{margin-top:2px;margin-bottom:3px;}"
+            "p{margin-top:0px;margin-bottom:3px;}"
+            "ul,ol{margin-top:2px;margin-bottom:2px;}"
+        )
         
-        if layout_manager.current == "compact":
-            self.ai_response.setMaximumHeight(70)
-        else:
-            self.ai_response.setMaximumHeight(100)
+        base_response_h = 70 if layout_manager.current == "compact" else 100
+        self.ai_response.setMaximumHeight(max(36, min(base_response_h, ai_height - 58)))
         
         if self._saved_ai_response:
             self.ai_response.setHtml(self._saved_ai_response)
@@ -482,11 +594,10 @@ class LandingPage(QWidget):
         stats_wrapper = QHBoxLayout()
         
         if layout_manager.current == "compact":
-            stats_wrapper.setContentsMargins(20, 4, 20, 4)
-            stats_font_size = max(8, values["stats_font"] - 1)
+            stats_wrapper.setContentsMargins(20, p["stats_m"], 20, p["stats_m"])
         else:
-            stats_wrapper.setContentsMargins(values["stats_margin"], 8, values["stats_margin"], 8)
-            stats_font_size = values["stats_font"]
+            stats_wrapper.setContentsMargins(values["stats_margin"], p["stats_m"], values["stats_margin"], p["stats_m"])
+        stats_font_size = p["stats_font"]
         
         stats_bar = QWidget()
         stats_bar.setStyleSheet("background:transparent;")
@@ -521,10 +632,14 @@ class LandingPage(QWidget):
         else:
             card_grid_wrapper.setContentsMargins(values["ai_margin"], 0, values["ai_margin"], 0)
         card_grid_wrapper.addWidget(self.card_grid)
-        layout.addLayout(card_grid_wrapper)
+        # Stretch = 1: the cards take all spare vertical space; the header and
+        # the AI box keep their own (density-adjusted) size, so they never overlap.
+        layout.addLayout(card_grid_wrapper, 1)
         
         layout.addLayout(ai_wrapper)
         layout.addLayout(stats_wrapper)
+
+        QTimer.singleShot(250, self._verify_fit)
     
     def _on_ai_icon_clicked(self, event=None):
         """Clear the AI response AND play the GIF once from the start."""
@@ -741,13 +856,17 @@ class LandingPage(QWidget):
     def resizeEvent(self, event):
         """Debounced resize handling."""
         super().resizeEvent(event)
-        if not hasattr(self, '_last_width'):
-            self._last_width = self.width()
-            return
+        if self._min_density and self.height() > self._min_density_height + 30:
+            self._min_density = 0
+        first = not hasattr(self, '_last_width')
+        width_changed = (not first) and abs(self.width() - self._last_width) > 50
+        # Rebuild when the window height crosses into a different density level
+        density_changed = self.isVisible() and self._pick_density() != self._density
 
-        if abs(self.width() - self._last_width) > 50:
+        if first or width_changed:
             self._last_width = self.width()
 
+        if width_changed or density_changed:
             if not hasattr(self, '_resize_debounce_timer'):
                 self._resize_debounce_timer = QTimer(self)
                 self._resize_debounce_timer.setSingleShot(True)
@@ -762,47 +881,30 @@ class LandingPage(QWidget):
         input_font = fonts["input"]
         response_font = fonts["body"]
         
-        values = self._get_dynamic_values()
-        stats_font_size = values["stats_font"]
-        logo_size = values["logo_size"]
-        title_font = values["title_font"]
-        motto_font = values["motto_font"]
+        # Use the sizes the page was actually built with (density-adjusted),
+        # otherwise toggling the theme would bring back the full-size header.
+        p = self._params or self._density_params(self._density)
+        stats_font_size = p["stats_font"]
+        logo_size = p["logo"]
+        title_font = p["title"]
+        motto_font = p["motto"]
         
-        if layout_manager.current == "wide":
-            for child in self.findChildren(QLabel):
-                if child.pixmap() is not None:
-                    logo_path = self._find_logo()
-                    if logo_path:
-                        pixmap = QPixmap(logo_path)
-                        if not pixmap.isNull():
-                            scaled = pixmap.scaled(logo_size, logo_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-                            child.setPixmap(scaled)
-                            child.setFixedSize(logo_size, logo_size)
-                    break
-        else:
-            for child in self.findChildren(QLabel):
-                if child.pixmap() is not None:
-                    logo_path = self._find_logo()
-                    if logo_path:
-                        pixmap = QPixmap(logo_path)
-                        if not pixmap.isNull():
-                            scaled = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-                            child.setPixmap(scaled)
-                            child.setFixedSize(64, 64)
-                    break
+        for child in self.findChildren(QLabel):
+            if child.pixmap() is not None:
+                logo_path = self._find_logo()
+                if logo_path:
+                    pixmap = QPixmap(logo_path)
+                    if not pixmap.isNull():
+                        scaled = pixmap.scaled(logo_size, logo_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                        child.setPixmap(scaled)
+                        child.setFixedSize(logo_size, logo_size)
+                break
         
-        if layout_manager.current == "wide":
-            for child in self.findChildren(QLabel):
-                if child.text() == "sokonalysis":
-                    child.setStyleSheet(f"font-size: {title_font}px; font-weight: 800; letter-spacing: 2px; background: transparent;")
-                elif child.text() == "The Cipher Toolkit Built For All Skill Levels":
-                    child.setStyleSheet(f"font-size: {motto_font}px; font-weight: 500; background: transparent; letter-spacing: 0.5px; color: {t['text_tertiary']};")
-        else:
-            for child in self.findChildren(QLabel):
-                if child.text() == "sokonalysis":
-                    child.setStyleSheet("font-size: 38px; font-weight: 800; letter-spacing: 2px; background: transparent;")
-                elif child.text() == "The Cipher Toolkit Built For All Skill Levels":
-                    child.setStyleSheet(f"font-size: 11px; font-weight: 500; background: transparent; letter-spacing: 0.5px; color: {t['text_tertiary']};")
+        for child in self.findChildren(QLabel):
+            if child.text() == "sokonalysis":
+                child.setStyleSheet(f"font-size: {title_font}px; font-weight: 800; letter-spacing: 2px; background: transparent;")
+            elif child.text() == "The Cipher Toolkit Built For All Skill Levels":
+                child.setStyleSheet(f"font-size: {motto_font}px; font-weight: 500; background: transparent; letter-spacing: 0.5px; color: {t['text_tertiary']};")
         
         for child in self.findChildren(QFrame, "searchContainer"):
             child.setStyleSheet(f"QFrame#searchContainer{{background-color:{t['surface0']};border:2px solid {t['border']};border-radius:20px;}}")
@@ -810,9 +912,6 @@ class LandingPage(QWidget):
         
         if self.card_grid:
             self.card_grid.refresh_theme(self.theme)
-        
-        if layout_manager.current == "compact":
-            stats_font_size = max(8, stats_font_size - 1)
         
         self.left_stat.setStyleSheet(f"color:{t['text_tertiary']};font-size:{stats_font_size}px;background:transparent;font-family:'JetBrains Mono',monospace;")
         self.center_stat.setStyleSheet(f"color:{t['text_tertiary']};font-size:{stats_font_size}px;background:transparent;font-family:'JetBrains Mono',monospace;")

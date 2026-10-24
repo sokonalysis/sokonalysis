@@ -7,6 +7,12 @@ from PySide6.QtGui import QPixmap, QColor
 from gui.layout_manager import layout_manager
 import os
 import sys
+import time
+
+
+# Card geometry constants
+_CARD_BORDER = 2              # 1px border on each side
+_CARD_SAFETY = 12             # extra pixels so text never touches the edge
 
 
 class CardGrid(QWidget):
@@ -23,9 +29,11 @@ class CardGrid(QWidget):
         self._last_width = None
         self._last_height = None
         self._force_single_row = force_single_row
+        self._applied_fonts = None   # (title_px, desc_px) actually used by the last build
+        self._animate_until = 0.0    # entrance animation only runs shortly after creation
         self._resize_timer = QTimer(self)
         self._resize_timer.setSingleShot(True)
-        self._resize_timer.setInterval(80)
+        self._resize_timer.setInterval(30)
         self._resize_timer.timeout.connect(self._on_resize_settled)
         self._setup_ui()
         layout_manager.layout_changed.connect(self._on_layout_changed)
@@ -56,16 +64,19 @@ class CardGrid(QWidget):
         if not self._card_data:
             return
         w, h = self.width(), self.height()
+        # Rebuild on ANY real size change. A loose threshold here left the cards
+        # a few pixels taller than the space available, so their bottom edge
+        # ran into the AI assistant box.
         if (self._last_width is None or 
-            abs(w - self._last_width) > 20 or 
-            abs(h - self._last_height) > 20):
+            abs(w - self._last_width) > 2 or 
+            abs(h - self._last_height) > 2):
             self._build_cards()
 
     def _get_dynamic_values(self):
         width = self.width() if self.width() > 0 else 1280
         
         if layout_manager.current == "compact":
-            base_scale = 0.65  # Changed from 0.55
+            base_scale = 0.65
         elif layout_manager.current == "wide":
             base_scale = 1.2
         else:
@@ -108,11 +119,13 @@ class CardGrid(QWidget):
         self._card_data = card_data
         self._theme = theme
         self._on_click = on_click
+        self._animate_until = time.monotonic() + 0.6
         self._build_cards()
         QTimer.singleShot(0, self._on_resize_settled)
 
     def _on_layout_changed(self, layout_type):
         if self._card_data:
+            self._animate_until = time.monotonic() + 0.6
             self._build_cards()
 
     def _float_indicator(self):
@@ -142,6 +155,38 @@ class CardGrid(QWidget):
             x = (scroll_width - indicator_size) // 2
             y = scroll_height - indicator_size - 20
             self._scroll_indicator.setGeometry(x, y, indicator_size, indicator_size)
+
+    # ------------------------------------------------------------------
+    # Text measurement: how tall must a card be so its text always fits?
+    # This is what makes the layout independent of the system font
+    # (Ubuntu's font is wider than Parrot's, so text wraps onto more lines).
+    # ------------------------------------------------------------------
+
+    def _measure_card_height(self, card_w, title_px, desc_px, card_spacing, margins=None):
+        """Exact height the tallest card needs at the given font sizes.
+
+        Instead of predicting the text size with QFontMetrics (which can be
+        off, because the labels get their real font from the stylesheet and
+        the app font), this builds a throwaway card through the SAME code
+        path as the real cards, lets Qt polish it, and asks its layout how
+        tall it must be at this width.
+        """
+        tallest = 0
+        for name, description in self._card_data:
+            card = self._create_card(
+                name, description, self._theme,
+                card_w, 10000, title_px, desc_px, card_spacing, margins
+            )
+            card.ensurePolished()
+            lay = card.layout()
+            h = lay.heightForWidth(card_w - _CARD_BORDER)
+            if h < 0:
+                h = lay.sizeHint().height()
+            tallest = max(tallest, h)
+            card.setParent(None)
+            card.deleteLater()
+
+        return tallest + _CARD_BORDER + _CARD_SAFETY
 
     def _build_cards(self):
         self.clear()
@@ -177,16 +222,44 @@ class CardGrid(QWidget):
 
         card_w = max(120, int((available_width - (cards_per_row - 1) * spacing) / cards_per_row))
         
+        margins = None   # None = default card padding (20, 24, 20, 20)
         if self._force_single_row:
-            if layout_manager.current == "compact":
-                card_h = max(120, min(200, int((available_height - bottom_margin) * 0.95)))
-            elif layout_manager.current == "wide":
-                card_h = 250  # Fixed height for wide mode - adjust this value
-            else:
-                card_h = max(180, min(200, int((available_height - bottom_margin) * 0.95)))
+            avail_h = max(0, available_height - bottom_margin)
+
+            # 1) Measure the real card. If it doesn't fit in the space we have,
+            #    shrink the fonts a pixel at a time (down to a readable floor).
+            min_title, min_desc = 9, 7
+            needed = self._measure_card_height(card_w, title_font_size, desc_font_size, card_spacing, margins)
+            while needed > avail_h and (title_font_size > min_title or desc_font_size > min_desc):
+                if desc_font_size > min_desc:
+                    desc_font_size -= 1
+                if title_font_size > min_title:
+                    title_font_size -= 1
+                needed = self._measure_card_height(card_w, title_font_size, desc_font_size, card_spacing, margins)
+
+            # 2) Still too tall (very short window): tighten the card padding.
+            top_m, bottom_m = 24, 20
+            while needed > avail_h and (top_m > 10 or bottom_m > 8):
+                top_m = max(10, top_m - 2)
+                bottom_m = max(8, bottom_m - 2)
+                margins = (20, top_m, 20, bottom_m)
+                needed = self._measure_card_height(card_w, title_font_size, desc_font_size, card_spacing, margins)
+
+            # 3) Card height: the original cap, never less than the text needs,
+            #    and NEVER more than the space available - a card must not
+            #    reach into the AI assistant box below it.
+            cap = 250 if layout_manager.current == "wide" else 200
+            card_h = max(needed, min(cap, avail_h))
+            card_h = max(1, min(card_h, avail_h)) if avail_h > 0 else needed
+
+            # No forced minimum height: the landing page adapts its own
+            # spacing to the window height (see LandingPage._pick_density).
+            self.setMinimumHeight(0)
         else:
             usable_height = available_height - bottom_margin - spacing - 50
             card_h = max(120, int(usable_height / 2))
+
+        self._applied_fonts = (title_font_size, desc_font_size)
 
         self._cards_container = QWidget()
         self._cards_container.setStyleSheet("background: transparent;")
@@ -211,14 +284,17 @@ class CardGrid(QWidget):
                     name, description, self._theme,
                     card_w, card_h,
                     title_font_size, desc_font_size,
-                    card_spacing
+                    card_spacing, margins
                 )
                 self._cards.append(card)
                 card._card_name = name
                 card.mousePressEvent = lambda event, c=card: self._on_card_click(c)
                 row_layout.addWidget(card)
 
-                self._animate_card_entrance(card, card_index)
+                if time.monotonic() < self._animate_until:
+                    self._animate_card_entrance(card, card_index)
+                else:
+                    card.setGraphicsEffect(card._shadow_effect)
                 card_index += 1
 
             cards_layout.addLayout(row_layout)
@@ -429,7 +505,7 @@ class CardGrid(QWidget):
         self._hover_anims[key] = (blur_anim, offset_anim, color_anim)
 
     def _create_card(self, name, description, theme, card_w, card_h,
-                     title_font, desc_font, spacing):
+                     title_font, desc_font, spacing, margins=None):
         t = theme.current
 
         card = QFrame()
@@ -438,7 +514,7 @@ class CardGrid(QWidget):
         card.setFixedSize(card_w, card_h)
 
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(20, 24, 20, 20)
+        card_layout.setContentsMargins(*(margins or (20, 24, 20, 20)))
         card_layout.setSpacing(spacing)
         card_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -527,9 +603,15 @@ class CardGrid(QWidget):
 
     def refresh_theme(self, theme):
         t = theme.current
-        values = self._get_dynamic_values()
-        title_font = values["card_font"]
-        desc_font = values["desc_font"]
+        # Use the fonts the last build actually applied (they may have been
+        # shrunk to fit), not the unshrunk defaults - otherwise toggling the
+        # theme would bring back the clipped text.
+        if self._applied_fonts:
+            title_font, desc_font = self._applied_fonts
+        else:
+            values = self._get_dynamic_values()
+            title_font = values["card_font"]
+            desc_font = values["desc_font"]
         
         for card in self._cards:
             card.setStyleSheet(f"""
