@@ -139,6 +139,7 @@ mkdir -p "${PACKAGE}/usr/local/bin"
 mkdir -p "${PACKAGE}/usr/local/share/icons"
 mkdir -p "${PACKAGE}/usr/share/applications"
 mkdir -p "${PACKAGE}${APP_DIR}/gui"
+mkdir -p "${PACKAGE}/usr/share/polkit-1/actions"
 
 # Copy DEBIAN control files
 cp deb/DEBIAN/control "${PACKAGE}/DEBIAN/"
@@ -233,6 +234,15 @@ if [ -f "sokonalysis.desktop" ]; then
     cp sokonalysis.desktop "${PACKAGE}/usr/share/applications/"
 fi
 
+# Copy polkit policy (clean "Authentication is required to run sokonalysis" prompt)
+if [ -f "packaging/org.sokonalysis.policy" ]; then
+    cp packaging/org.sokonalysis.policy "${PACKAGE}/usr/share/polkit-1/actions/"
+    chmod 644 "${PACKAGE}/usr/share/polkit-1/actions/org.sokonalysis.policy"
+    echo "  ✓ Polkit policy copied"
+else
+    echo "  ⚠ packaging/org.sokonalysis.policy not found - password prompt will show the full command"
+fi
+
 # Count toolbar icons
 ICON_COUNT=0
 if [ -d "assets/icons" ]; then
@@ -273,4 +283,5 @@ echo "  - Toolbar icons (${ICON_COUNT} images)"
 echo "  - Guide PDF"
 echo "  - AI Operations JSON"
 echo "  - English Words JSON"
+echo "  - Polkit policy (clean password prompt)"
 echo ""
