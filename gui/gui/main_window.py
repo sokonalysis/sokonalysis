@@ -6,6 +6,7 @@ import os
 import sys
 import platform
 
+from gui.tool_manager import tool_manager
 from gui.landing_page import LandingPage
 from gui.category_pages import (
     CategoryPage, get_symmetric_options, get_asymmetric_options,
@@ -23,6 +24,8 @@ from gui.config_page import ConfigPage
 from gui.sha_page import SHAPage
 from gui.sha_generate import SHAGeneratePage
 from gui.sha_reverse import SHAReversePage
+
+from gui.tools_config_page import ToolsConfigPage
 
 from gui.wifi_page import WiFiPage
 from gui.wifi_capture_page import WiFiCapturePage
@@ -225,6 +228,32 @@ class MainWindow(QMainWindow):
         saved_area = user_prefs.last_toolbar_area
         self.addToolBar(area_map.get(saved_area, Qt.ToolBarArea.LeftToolBarArea), self.header.get_toolbar())
         # ===== END HEADER =====
+
+        # ===== TOOLS CONFIG MENU ENTRY =====
+        try:
+            # Connect the tool manager to refresh cached pages when tools change
+            tool_manager.tools_updated.connect(self._refresh_tool_pages)
+
+            hdr = self.header
+            config_btn = None
+            for btn in hdr._menu_buttons:
+                if btn.text().strip() == "Config":
+                    config_btn = btn
+                    break
+
+            if config_btn is not None and config_btn.menu() is not None:
+                menu = config_btn.menu()
+                act = menu.addAction("Third-Party Tools...")
+                act.triggered.connect(self._show_tools_config)
+                
+                # Add to vertical expand list (for left-side toolbar mode)
+                if config_btn in hdr._expandable_data:
+                    hdr._expandable_data[config_btn].append(
+                        ("Third-Party Tools", "tools.png", self._show_tools_config)
+                    )
+        except Exception as e:
+            print(f"[tools] injection error: {e}")
+        # ===== END TOOLS CONFIG =====
         
         # ===== CREATE FOOTER =====
         self.footer = Footer(self, theme_manager)
@@ -1846,6 +1875,39 @@ class MainWindow(QMainWindow):
         else:
             self.category_pages[page_key].back_callback = lambda: self.stack.setCurrentWidget(previous_widget)
         self.stack.setCurrentWidget(self.category_pages[page_key])
+
+    
+
+    def _show_tools_config(self):
+        page_key = "tools_config"
+        previous_widget = self.stack.currentWidget()
+
+        if page_key not in self.category_pages:
+            page = ToolsConfigPage(
+                self.theme,
+                lambda: self.stack.setCurrentWidget(previous_widget)
+            )
+            self.category_pages[page_key] = page   # <-- restore
+            self.stack.addWidget(page)             # <-- restore
+        else:
+            self.category_pages[page_key].back_callback = (
+                lambda: self.stack.setCurrentWidget(previous_widget)
+            )
+        self.stack.setCurrentWidget(self.category_pages[page_key])
+
+    def _refresh_tool_pages(self):
+        """After saving tool paths, re-run existing detection on cached pages."""
+        for page in self.category_pages.values():
+            # CrackZipPage & friends expose _chk / _chk_z2j and a _ut() badge updater
+            if hasattr(page, "_chk") and hasattr(page, "john_ok"):
+                try:
+                    page.john_ok = page._chk("john")
+                    page.z2j_ok = page._chk_z2j()
+                    page._ut()   # badge update
+                    page._uq()   # requirements tab update
+                except Exception:
+                    pass
+
     
     def _on_wordlist_configured(self, wordlist_path, split_parts):
         self.shared_wordlist_path = wordlist_path
