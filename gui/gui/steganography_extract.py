@@ -7,23 +7,91 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QThread, Signal, QMimeData, QSize
 from PySide6.QtGui import QPixmap, QDrag, QPainter, QColor, QFont, QIcon
-import os, subprocess, time, re, shutil
+import os, subprocess, time, re, shutil, tempfile
 from datetime import datetime
 import sys
 from gui.layout_manager import layout_manager
 
 
+# ---------------------------------------------------------------------------
+# Content sniffing: figure out what kind of file was actually hidden, based
+# on its bytes rather than trusting a filename we made up ourselves.
+# ---------------------------------------------------------------------------
+
+_MAGIC_SIGNATURES = [
+    (b'\x89PNG\r\n\x1a\n', '.png', 'PNG image'),
+    (b'\xff\xd8\xff', '.jpg', 'JPEG image'),
+    (b'GIF87a', '.gif', 'GIF image'),
+    (b'GIF89a', '.gif', 'GIF image'),
+    (b'%PDF-', '.pdf', 'PDF document'),
+    (b'PK\x03\x04', '.zip', 'ZIP archive / Office document'),
+    (b'PK\x05\x06', '.zip', 'ZIP archive (empty)'),
+    (b'Rar!\x1a\x07\x00', '.rar', 'RAR archive'),
+    (b'Rar!\x1a\x07\x01\x00', '.rar', 'RAR archive'),
+    (b'\x1f\x8b\x08', '.gz', 'GZIP archive'),
+    (b'7z\xbc\xaf\x27\x1c', '.7z', '7-Zip archive'),
+    (b'ID3', '.mp3', 'MP3 audio'),
+    (b'\xff\xfb', '.mp3', 'MP3 audio'),
+    (b'\xff\xf3', '.mp3', 'MP3 audio'),
+    (b'OggS', '.ogg', 'OGG audio'),
+    (b'\x1aE\xdf\xa3', '.mkv', 'Matroska / WebM media'),
+    (b'BM', '.bmp', 'BMP image'),
+]
+
+
+def sniff_file(path):
+    """
+    Inspect a file's bytes and return (extension_guess, label, is_text).
+    extension_guess is None when the type can't be determined.
+    """
+    try:
+        with open(path, 'rb') as f:
+            head = f.read(64)
+    except OSError:
+        return None, 'Unknown', False
+
+    if not head:
+        return None, 'Empty file', True
+
+    # RIFF-based containers (WAV / AVI share the same outer header)
+    if head[:4] == b'RIFF' and len(head) >= 12:
+        kind = head[8:12]
+        if kind == b'WAVE':
+            return '.wav', 'WAV audio', False
+        if kind == b'AVI ':
+            return '.avi', 'AVI video', False
+
+    # ISO base media containers (MP4/MOV/M4A) - "ftyp" sits at offset 4
+    if len(head) >= 8 and head[4:8] == b'ftyp':
+        return '.mp4', 'MP4/MOV media', False
+
+    for sig, ext, label in _MAGIC_SIGNATURES:
+        if head.startswith(sig):
+            return ext, label, False
+
+    # No recognizable binary signature: see if it's plausible plain text.
+    if b'\x00' not in head:
+        try:
+            head.decode('utf-8')
+            return '.txt', 'Text', True
+        except UnicodeDecodeError:
+            pass
+
+    return None, 'Unknown binary data', False
+
+
 class ExtractWorker(QThread):
+    # success, message (error text on failure), extracted_filepath, original_filename
     progress = Signal(str)
     progress_value = Signal(int)
-    finished = Signal(bool, str, str)
-    
-    def __init__(self, stego_file, output_file, password=""):
+    finished = Signal(bool, str, str, str)
+
+    def __init__(self, stego_file, password=""):
         super().__init__()
         self.stego_file = stego_file
-        self.output_file = output_file
         self.password = password
-    
+        self._extract_dir = None
+
     def run(self):
         try:
             self.progress.emit("Starting extraction...")
@@ -37,56 +105,76 @@ class ExtractWorker(QThread):
             self.progress_value.emit(25)
             self.progress.emit("Running steghide extract...")
             self.progress_value.emit(40)
-            cmd = ["steghide", "extract", "-sf", self.stego_file, "-xf", self.output_file, "-f"]
-            if self.password:
-                cmd.extend(["-p", self.password])
-            else:
-                cmd.extend(["-p", ""])
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+
+            # Extract into an isolated temp directory and do NOT pass -xf:
+            # without it, steghide writes the file back out under the
+            # ORIGINAL embedded filename, which is what we want to preserve.
+            self._extract_dir = tempfile.mkdtemp(prefix="sokonalysis_extract_")
+            cmd = ["steghide", "extract", "-sf", os.path.abspath(self.stego_file), "-f"]
+            cmd.extend(["-p", self.password] if self.password else ["-p", ""])
+
+            r = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=300, cwd=self._extract_dir
+            )
             self.progress_value.emit(80)
+
             if r.returncode == 0:
-                self.progress.emit("Extraction completed!")
+                out_text = (r.stdout or "") + (r.stderr or "")
+                m = re.search(r'wrote extracted data to "([^"]+)"', out_text)
+                original_name = os.path.basename(m.group(1)) if m else None
+
+                extracted_path = None
+                if original_name:
+                    candidate = os.path.join(self._extract_dir, original_name)
+                    if os.path.exists(candidate):
+                        extracted_path = candidate
+                if extracted_path is None:
+                    # Fallback: steghide should have written exactly one file.
+                    files = os.listdir(self._extract_dir)
+                    if files:
+                        original_name = files[0]
+                        extracted_path = os.path.join(self._extract_dir, files[0])
+
                 self.progress_value.emit(100)
-                content = ""
-                if os.path.exists(self.output_file):
-                    try:
-                        with open(self.output_file, 'r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read()
-                    except:
-                        content = "BINARY"
-                self.finished.emit(True, content, self.output_file)
+                if extracted_path and os.path.exists(extracted_path):
+                    self.progress.emit(f"Extraction completed: {original_name}")
+                    self.finished.emit(True, "", extracted_path, original_name or "")
+                else:
+                    self.progress.emit("Extraction reported success but no file was found")
+                    self.finished.emit(False, "No data could be extracted.", "", "")
             else:
                 error = r.stderr.strip() if r.stderr else r.stdout.strip()
                 self.progress.emit(f"Extraction failed: {error}")
                 self.progress_value.emit(100)
-                self.finished.emit(False, error, "")
+                self.finished.emit(False, error, "", "")
         except subprocess.TimeoutExpired:
             self.progress.emit("Timed out")
             self.progress_value.emit(100)
-            self.finished.emit(False, "Operation timed out", "")
+            self.finished.emit(False, "Operation timed out", "", "")
         except Exception as e:
             self.progress.emit(f"Error: {str(e)}")
             self.progress_value.emit(100)
-            self.finished.emit(False, str(e), "")
+            self.finished.emit(False, str(e), "", "")
 
 
 class StegseekWorker(QThread):
     progress = Signal(str)
     progress_value = Signal(int)
+    # success, message, extracted_filepath, password_found
     finished = Signal(bool, str, str, str)
-    
+
     def __init__(self, stego_file, wordlist):
         super().__init__()
         self.stego_file = stego_file
         self.wordlist = wordlist
-    
+
     def _count_words(self, filepath):
         try:
             with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 return sum(1 for line in f if line.strip())
         except:
             return 0
-    
+
     def run(self):
         try:
             word_count = self._count_words(self.wordlist)
@@ -118,19 +206,17 @@ class StegseekWorker(QThread):
                             password_found = match.group(1).strip()
             process.wait()
             self.progress_value.emit(90)
+            # Note: stegseek's default output name is "<stegofile>.out" -
+            # unlike steghide, it does not report the original embedded
+            # filename, so we can't recover that here. The GUI falls back
+            # to sniffing the file's content to pick a sensible extension.
             stegseek_output = f"{self.stego_file}.out"
             if os.path.exists(stegseek_output):
                 self.progress_value.emit(100)
                 if password_found:
                     self.progress.emit(f"Password found: {password_found}")
-                    content = ""
-                    try:
-                        with open(stegseek_output, 'r', encoding='utf-8', errors='ignore') as f:
-                            content = f.read().strip()
-                    except:
-                        content = "BINARY"
                     self.progress.emit("Match found!")
-                    self.finished.emit(True, content, stegseek_output, password_found)
+                    self.finished.emit(True, f"Password found: {password_found}", stegseek_output, password_found)
                 else:
                     try:
                         os.remove(stegseek_output)
@@ -167,14 +253,14 @@ class DraggableModeCard(QFrame):
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         self.setCursor(Qt.CursorShape.OpenHandCursor)
         self._build(name)
-    
+
     def _apply_scaled_size(self):
         scale = layout_manager.font_scale()
         w = max(140, int(180 * scale))
         h = max(56, int(70 * scale))
         self.setMinimumSize(w, h)
         self.setMaximumSize(w + int(40 * scale), h + int(20 * scale))
-    
+
     def _build(self, name):
         t = self.colors
         scale = layout_manager.font_scale()
@@ -201,23 +287,23 @@ class DraggableModeCard(QFrame):
             f"QFrame{{background-color:{t['crust']};border:2px solid {t['border']};border-radius:8px;}} "
             f"QFrame:hover{{border-color:{t['accent']}88;background-color:{t['surface0']};}}"
         )
-    
+
     def update_theme(self, theme_colors):
         self.colors = theme_colors
         self._apply_scaled_size()
         self._build(self.mode_name)
         self.update()
         self.repaint()
-    
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
         super().mousePressEvent(event)
-    
+
     def mouseReleaseEvent(self, event):
         self.setCursor(Qt.CursorShape.OpenHandCursor)
         super().mouseReleaseEvent(event)
-    
+
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton:
             drag = QDrag(self)
@@ -242,7 +328,7 @@ class ModeDropSlot(QFrame):
         self._apply_scaled_size()
         self.setAcceptDrops(True)
         self._style_empty()
-    
+
     def _apply_scaled_size(self):
         scale = layout_manager.font_scale()
         text_w = int(len(self._placeholder) * 8 * scale) + int(40 * scale)
@@ -251,37 +337,37 @@ class ModeDropSlot(QFrame):
         h = max(72, int(90 * scale))
         self.setMinimumSize(min_w, h)
         self.setMaximumSize(max_w, h + int(20 * scale))
-    
+
     def _style_empty(self):
         t = self.colors
         self.setStyleSheet(
             f"QFrame{{background-color:{t['crust']};border:3px dashed {t['border']};border-radius:10px;}}"
         )
-    
+
     def _style_filled(self):
         t = self.colors
         self.setStyleSheet(
             f"QFrame{{background-color:{t['accent']}15;border:3px solid {t['accent']}88;border-radius:10px;}}"
         )
-    
+
     def is_filled(self):
         return self.mode_id is not None
-    
+
     def clear_slot(self):
         self.mode_id = None
         self.mode_name = None
         self._style_empty()
         self.update()
         self.repaint()
-    
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()
-    
+
     def dragMoveEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()
-    
+
     def dropEvent(self, event):
         data = event.mimeData().text()
         try:
@@ -299,14 +385,14 @@ class ModeDropSlot(QFrame):
                 p._on_mode_dropped()
         except:
             pass
-    
+
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         t = self.colors
         scale = layout_manager.font_scale()
-        
+
         if self.is_filled():
             font_size = max(11, int(13 * scale))
             painter.setPen(QColor(t['accent']))
@@ -317,14 +403,14 @@ class ModeDropSlot(QFrame):
             painter.setPen(QColor(t['text_tertiary']))
             painter.setFont(QFont("JetBrains Mono, Consolas, monospace", font_size))
             text = self._placeholder
-        
+
         inset = int(12 * scale)
         text_rect = self.rect().adjusted(inset, inset, -inset, -inset)
         fm = painter.fontMetrics()
         elided = fm.elidedText(text, Qt.TextElideMode.ElideRight, text_rect.width())
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided)
         painter.end()
-    
+
     def mouseDoubleClickEvent(self, event):
         if self.is_filled():
             self.clear_slot()
@@ -333,7 +419,7 @@ class ModeDropSlot(QFrame):
                 p = p.parent()
             if p:
                 p._on_mode_cleared()
-    
+
     def update_colors(self, tc):
         self.colors = tc
         self._apply_scaled_size()
@@ -358,25 +444,26 @@ class SteganographyExtractPage(QWidget):
         self.worker = None
         self.mode_cards = []
         self.last_output_file = ""
+        self.last_output_display_name = ""
         self._init_ui()
         self.setAcceptDrops(True)
-    
+
     def _chk(self, cmd):
         try:
             return subprocess.run([cmd, "--version"], capture_output=True, timeout=3).returncode in [0, 1]
         except:
             return False
-    
+
     def _chk_stegseek(self):
         try:
             return subprocess.run(["stegseek", "--version"], capture_output=True, timeout=3).returncode in [0, 1]
         except:
             return shutil.which("stegseek") is not None
-    
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
-    
+
     def dropEvent(self, event):
         for url in event.mimeData().urls():
             filepath = url.toLocalFile()
@@ -390,12 +477,12 @@ class SteganographyExtractPage(QWidget):
                     (self.mode_slot.mode_id != 3 or hw)
                 )
                 break
-    
+
     def _init_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 24, 40, 24)
         layout.setSpacing(12)
-        
+
         header = QHBoxLayout()
         back_btn = QPushButton("  Back")
         icons_dir = os.path.join(
@@ -410,14 +497,14 @@ class SteganographyExtractPage(QWidget):
         back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         back_btn.clicked.connect(self.back_callback)
         back_btn.setMaximumWidth(100)
-        
+
         title = QLabel("Extract Data from File")
         title.setObjectName("pageTitle")
-        
+
         header.addWidget(back_btn)
         header.addWidget(title)
         header.addStretch()
-        
+
         wl_container = QHBoxLayout()
         wl_container.setSpacing(4)
         self.wl_icon = QLabel()
@@ -428,7 +515,7 @@ class SteganographyExtractPage(QWidget):
         wl_container.addWidget(self.wl_icon)
         wl_container.addWidget(self.wordlist_badge)
         header.addLayout(wl_container)
-        
+
         tools_container = QHBoxLayout()
         tools_container.setSpacing(4)
         self.tools_icon = QLabel()
@@ -439,18 +526,18 @@ class SteganographyExtractPage(QWidget):
         tools_container.addWidget(self.tools_icon)
         tools_container.addWidget(self.tool_badge)
         header.addLayout(tools_container)
-        
+
         self.tabs = QTabWidget()
         self.tabs.addTab(self._create_setup_tab(), "Setup")
         self.tabs.addTab(self._create_status_tab(), "Status")
         self.tabs.addTab(self._create_results_tab(), "Results")
         self.tabs.addTab(self._create_requirements_tab(), "Requirements")
-        
+
         layout.addLayout(header)
         layout.addWidget(self.tabs)
-        
+
         self._apply_theme()
-    
+
     def _update_wordlist_badge(self):
         t = self.theme.current
         icons_dir = os.path.join(
@@ -470,7 +557,7 @@ class SteganographyExtractPage(QWidget):
         )
         if os.path.exists(icon_path) and hasattr(self, 'wl_icon'):
             self.wl_icon.setPixmap(QIcon(icon_path).pixmap(16, 16))
-    
+
     def _update_tool_badge(self):
         t = self.theme.current
         icons_dir = os.path.join(
@@ -491,18 +578,18 @@ class SteganographyExtractPage(QWidget):
         )
         if os.path.exists(icon_path) and hasattr(self, 'tools_icon'):
             self.tools_icon.setPixmap(QIcon(icon_path).pixmap(16, 16))
-    
+
     def _create_setup_tab(self):
         widget = QWidget()
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setStyleSheet("border: none; background: transparent;")
-        
+
         content = QWidget()
         layout = QVBoxLayout(content)
         layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(14)
-        
+
         self.stego_group = QGroupBox("1. Stego File (Image/Audio)")
         stego_layout = QVBoxLayout()
         self.stego_preview = QLabel()
@@ -525,7 +612,7 @@ class SteganographyExtractPage(QWidget):
         stego_layout.addWidget(self.stego_info)
         self.stego_group.setLayout(stego_layout)
         layout.addWidget(self.stego_group)
-        
+
         self.mode_group = QGroupBox("2. Operation Mode")
         mode_layout = QVBoxLayout()
         mode_layout.setSpacing(10)
@@ -545,14 +632,14 @@ class SteganographyExtractPage(QWidget):
         mode_layout.addLayout(drop_row)
         self.mode_group.setLayout(mode_layout)
         layout.addWidget(self.mode_group)
-        
+
         self.options_group = QGroupBox("3. Options")
         self.options_layout = QVBoxLayout()
         self.options_layout.setSpacing(10)
         self.options_group.setLayout(self.options_layout)
         self.options_group.setVisible(False)
         layout.addWidget(self.options_group)
-        
+
         self.execute_btn = QPushButton("Execute")
         self.execute_btn.setObjectName("actionButton")
         # Height will be set in _apply_theme() based on font_scale
@@ -560,15 +647,15 @@ class SteganographyExtractPage(QWidget):
         self.execute_btn.clicked.connect(self._execute)
         self.execute_btn.setEnabled(False)
         layout.addWidget(self.execute_btn)
-        
+
         layout.addStretch()
         scroll.setWidget(content)
-        
+
         outer = QVBoxLayout(widget)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.addWidget(scroll)
         return widget
-    
+
     def _create_status_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -586,17 +673,17 @@ class SteganographyExtractPage(QWidget):
         layout.addWidget(self.status_progress)
         layout.addWidget(self.status_output)
         return widget
-    
+
     def _create_results_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(12)
-        
+
         self.res_grp = QGroupBox("Result")
         rl = QVBoxLayout()
         rl.setSpacing(12)
-        
+
         rh = QHBoxLayout()
         rh.addWidget(QLabel("Output:"))
         rh.addStretch()
@@ -612,22 +699,22 @@ class SteganographyExtractPage(QWidget):
         rh.addWidget(self.export_btn)
         rh.addWidget(copy_btn)
         rl.addLayout(rh)
-        
+
         self.result_preview = QLabel()
         self.result_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.result_preview.setMinimumHeight(200)
         self.result_preview.hide()
         rl.addWidget(self.result_preview)
-        
+
         self.results_output = QTextEdit()
         self.results_output.setReadOnly(True)
         self.results_output.setPlaceholderText("Result will appear here...")
         rl.addWidget(self.results_output, 1)
-        
+
         self.res_grp.setLayout(rl)
         layout.addWidget(self.res_grp, 1)
         return widget
-    
+
     def _create_requirements_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -652,7 +739,7 @@ class SteganographyExtractPage(QWidget):
         layout.addStretch()
         self._update_requirements()
         return widget
-    
+
     def _update_requirements(self):
         t = self.theme.current
         html = ""
@@ -664,11 +751,11 @@ class SteganographyExtractPage(QWidget):
         all_ok = self.sh_ok and self.ss_ok
         self.install_btn.setEnabled(not all_ok)
         self.install_btn.setText("All Tools Installed" if all_ok else "Install Requirements")
-    
+
     def _apply_theme(self):
         t = self.theme.current
         scale = layout_manager.font_scale()
-        
+
         self.tabs.setStyleSheet(f"""
             QTabWidget::pane {{border:1px solid {t['border']};border-radius:8px;background-color:{t['base']};}}
             QTabBar::tab {{background-color:{t['crust']};color:{t['text_secondary']};border:1px solid {t['border']};
@@ -676,7 +763,7 @@ class SteganographyExtractPage(QWidget):
             font-size:{int(13 * scale)}px;font-weight:600;}}
             QTabBar::tab:selected {{background-color:{t['base']};color:{t['text']};border-bottom-color:transparent;}}
         """)
-        
+
         gs = (
             f"QGroupBox{{color:{t['text']};border:1px solid {t['border']};border-radius:8px;"
             f"margin-top:14px;padding:20px 16px 16px;font-weight:600;font-size:{int(13 * scale)}px;}} "
@@ -688,7 +775,7 @@ class SteganographyExtractPage(QWidget):
                     getattr(self, attr).setStyleSheet(gs)
                 except RuntimeError:
                     pass
-        
+
         for btn in self.findChildren(QPushButton):
             try:
                 if btn.objectName() == "actionButton":
@@ -709,11 +796,11 @@ class SteganographyExtractPage(QWidget):
                     )
             except RuntimeError:
                 pass
-        
+
         # Explicitly scale the primary action button so its text never clips
         if hasattr(self, 'execute_btn') and self.execute_btn is not None:
             self.execute_btn.setMinimumHeight(max(48, int(56 * scale)))
-        
+
         input_style = (
             f"QLineEdit{{background-color:{t['crust']};color:{t['text']};"
             f"border:1px solid {t['border']};border-radius:6px;padding:8px 10px;"
@@ -726,7 +813,7 @@ class SteganographyExtractPage(QWidget):
                 self.password_input.setStyleSheet(input_style)
             except RuntimeError:
                 pass
-        
+
         ts = (
             f"QTextEdit{{background-color:{t['crust']};color:{t['text']};"
             f"border:1px solid {t['border']};border-radius:6px;padding:10px;"
@@ -746,7 +833,7 @@ class SteganographyExtractPage(QWidget):
                 f"border:1px solid {t['border']};border-radius:6px;padding:12px;"
                 f"font-size:{int(12 * scale)}px;}}"
             )
-        
+
         if hasattr(self, 'status_progress') and self.status_progress is not None:
             self.status_progress.setStyleSheet(
                 f"QProgressBar{{background-color:{t['surface0']};border:none;border-radius:4px;"
@@ -760,7 +847,7 @@ class SteganographyExtractPage(QWidget):
             )
         if hasattr(self, 'result_preview') and self.result_preview is not None:
             self.result_preview.setStyleSheet("background:transparent;")
-        
+
         if hasattr(self, 'show_pass') and self.show_pass is not None:
             try:
                 self.show_pass.setStyleSheet(
@@ -771,16 +858,16 @@ class SteganographyExtractPage(QWidget):
                 )
             except RuntimeError:
                 pass
-        
+
         if hasattr(self, 'mode_slot') and self.mode_slot is not None:
             self.mode_slot.update_colors(t)
-        
+
         for card in self.mode_cards:
             try:
                 card.update_theme(t)
             except RuntimeError:
                 pass
-        
+
         info_style = f"color:{t['text_tertiary']};font-size:{int(11 * scale)}px;background:transparent;"
         if hasattr(self, 'stego_info') and self.stego_info is not None:
             self.stego_info.setStyleSheet(info_style)
@@ -791,12 +878,12 @@ class SteganographyExtractPage(QWidget):
                 )
             except RuntimeError:
                 pass
-        
+
         self._update_wordlist_badge()
         self._update_tool_badge()
         if hasattr(self, 'req_output'):
             self._update_requirements()
-    
+
     def _on_mode_dropped(self):
         mode_id = self.mode_slot.mode_id
         while self.options_layout.count():
@@ -817,17 +904,17 @@ class SteganographyExtractPage(QWidget):
                             if sw is not None:
                                 sw.setParent(None)
                                 sw.deleteLater()
-        
+
         if hasattr(self, 'password_input'):
             delattr(self, 'password_input')
         if hasattr(self, 'show_pass'):
             delattr(self, 'show_pass')
         if hasattr(self, 'wordlist_status_label'):
             delattr(self, 'wordlist_status_label')
-        
+
         t = self.theme.current
         scale = layout_manager.font_scale()
-        
+
         if mode_id == 1:  # No Password
             self.options_group.setVisible(True)
             info_lbl = QLabel("No password will be used for extraction.")
@@ -835,7 +922,7 @@ class SteganographyExtractPage(QWidget):
             self.options_layout.addWidget(info_lbl)
             self.execute_btn.setText("Extract (No Password)")
             self.execute_btn.setEnabled(bool(self.stego_path) and self.sh_ok)
-        
+
         elif mode_id == 2:  # Known Password
             self.options_group.setVisible(True)
             pr = QHBoxLayout()
@@ -857,7 +944,7 @@ class SteganographyExtractPage(QWidget):
             pr.addWidget(paste_btn)
             pr.addWidget(clear_btn)
             self.options_layout.addLayout(pr)
-            
+
             self.show_pass = QCheckBox("Show password")
             self.show_pass.stateChanged.connect(
                 lambda s: self.password_input.setEchoMode(
@@ -867,7 +954,7 @@ class SteganographyExtractPage(QWidget):
             self.options_layout.addWidget(self.show_pass)
             self.execute_btn.setText("Extract with Password")
             self.execute_btn.setEnabled(bool(self.stego_path) and self.sh_ok)
-        
+
         elif mode_id == 3:  # Brute Force
             self.options_group.setVisible(True)
             ws = QHBoxLayout()
@@ -885,14 +972,14 @@ class SteganographyExtractPage(QWidget):
             hw = bool(self.wordlist_path and os.path.exists(self.wordlist_path))
             self.execute_btn.setText("Start Brute Force")
             self.execute_btn.setEnabled(bool(self.stego_path) and self.sh_ok and self.ss_ok and hw)
-        
+
         self._apply_theme()
-    
+
     def _paste_to(self, widget):
         clipboard = QApplication.clipboard().text()
         if clipboard:
             widget.setText(clipboard)
-    
+
     def _on_mode_cleared(self):
         while self.options_layout.count():
             item = self.options_layout.takeAt(0)
@@ -912,18 +999,18 @@ class SteganographyExtractPage(QWidget):
                             if sw is not None:
                                 sw.setParent(None)
                                 sw.deleteLater()
-        
+
         if hasattr(self, 'password_input'):
             delattr(self, 'password_input')
         if hasattr(self, 'show_pass'):
             delattr(self, 'show_pass')
         if hasattr(self, 'wordlist_status_label'):
             delattr(self, 'wordlist_status_label')
-        
+
         self.options_group.setVisible(False)
         self.execute_btn.setText("Execute")
         self.execute_btn.setEnabled(False)
-    
+
     def _browse_file(self):
         fp, _ = QFileDialog.getOpenFileName(
             self, "Select Stego File", "",
@@ -938,7 +1025,7 @@ class SteganographyExtractPage(QWidget):
                 self.mode_slot.is_filled() and self.sh_ok and
                 (self.mode_slot.mode_id != 3 or hw)
             )
-    
+
     def _update_stego_preview(self):
         if not self.stego_path or not os.path.exists(self.stego_path):
             self.stego_preview.setText("Drag & drop or click Browse\nto select an image or audio file")
@@ -961,7 +1048,7 @@ class SteganographyExtractPage(QWidget):
         else:
             self.stego_preview.setText(f"File\n{fn}")
         self.stego_info.setText(f"Size: {ss} | Format: {ext.upper().replace('.','')}")
-    
+
     def _install_tools(self):
         if QMessageBox.question(
             self, "Install Tools",
@@ -986,7 +1073,7 @@ class SteganographyExtractPage(QWidget):
             self.mode_slot.is_filled() and self.sh_ok and bool(self.stego_path) and
             (self.mode_slot.mode_id != 3 or hw)
         )
-    
+
     def _execute(self):
         if not self.mode_slot.is_filled():
             QMessageBox.warning(self, "No Mode", "Drag an operation mode into the slot")
@@ -994,7 +1081,7 @@ class SteganographyExtractPage(QWidget):
         if not self.stego_path:
             QMessageBox.warning(self, "Missing File", "Select a stego file")
             return
-        
+
         self.tabs.setCurrentIndex(1)
         self.status_output.clear()
         self.results_output.clear()
@@ -1002,7 +1089,7 @@ class SteganographyExtractPage(QWidget):
         self.export_btn.hide()
         self.status_progress.setValue(0)
         self.execute_btn.setEnabled(False)
-        
+
         mode_id = self.mode_slot.mode_id
         if mode_id == 1:
             self._execute_extract_no_password()
@@ -1010,26 +1097,22 @@ class SteganographyExtractPage(QWidget):
             self._execute_extract()
         else:
             self._execute_bruteforce()
-    
+
     def _execute_extract_no_password(self):
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        out = f"extracted_{ts}.txt"
-        self.worker = ExtractWorker(self.stego_path, out, "")
+        self.worker = ExtractWorker(self.stego_path, "")
         self.worker.progress.connect(self._on_progress)
         self.worker.progress_value.connect(self.status_progress.setValue)
         self.worker.finished.connect(self._on_extract_finished)
         self.worker.start()
-    
+
     def _execute_extract(self):
         pw = self.password_input.text() if hasattr(self, 'password_input') else ""
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        out = f"extracted_{ts}.txt"
-        self.worker = ExtractWorker(self.stego_path, out, pw)
+        self.worker = ExtractWorker(self.stego_path, pw)
         self.worker.progress.connect(self._on_progress)
         self.worker.progress_value.connect(self.status_progress.setValue)
         self.worker.finished.connect(self._on_extract_finished)
         self.worker.start()
-    
+
     def _execute_bruteforce(self):
         if not self.wordlist_path or not os.path.exists(self.wordlist_path):
             QMessageBox.warning(self, "No Wordlist", "Configure a wordlist")
@@ -1040,71 +1123,116 @@ class SteganographyExtractPage(QWidget):
         self.worker.progress_value.connect(self.status_progress.setValue)
         self.worker.finished.connect(self._on_bruteforce_finished)
         self.worker.start()
-    
+
     def _on_progress(self, msg):
         self.status_output.append(msg)
         sb = self.status_output.verticalScrollBar()
         if sb:
             sb.setValue(sb.maximum())
-    
-    def _on_extract_finished(self, ok, msg, of):
+
+    def _on_extract_finished(self, ok, msg, path, original_name):
         self.execute_btn.setEnabled(True)
-        if ok:
-            self.status_output.append("SUCCESS!")
+        if not ok:
+            self.status_output.append(f"ERROR:\n{msg}")
             self.status_progress.setValue(100)
-            
-            if msg == "BINARY" or (of and os.path.exists(of)):
-                pm = QPixmap(of)
+            return
+        self.status_output.append("SUCCESS!")
+        self.status_progress.setValue(100)
+        self._present_extracted_file(path, original_name)
+        self.tabs.setCurrentIndex(2)
+
+    def _on_bruteforce_finished(self, ok, msg, path, pw):
+        self.execute_btn.setEnabled(True)
+        if not ok:
+            self.status_output.append(f"ERROR:\n{msg}")
+            self.status_progress.setValue(100)
+            return
+        self.status_progress.setValue(100)
+        if pw and path and os.path.exists(path):
+            self.status_output.append(f"Match found! Password: {pw}")
+            # stegseek doesn't report the original embedded filename the way
+            # steghide does, so original_name is left for sniffing to decide.
+            self._present_extracted_file(path, None)
+        elif pw:
+            self.status_output.append(f"Match found! Password: {pw}")
+            self.results_output.setText(f"Password: {pw}")
+        else:
+            self.status_output.append("No match found")
+            self.results_output.setText("No match found in wordlist")
+        self.tabs.setCurrentIndex(2)
+
+    def _derive_export_name(self, raw_name, path):
+        """Combine what the tool told us (if anything) with content sniffing
+        to settle on a sensible filename + extension for export."""
+        ext, label, is_text = sniff_file(path)
+        base = raw_name or os.path.basename(path)
+        if base.lower().endswith('.out'):
+            base = base[:-4]
+        root, cur_ext = os.path.splitext(base)
+        if ext:
+            return root + ext, label, is_text
+        return base, label, is_text
+
+    def _present_extracted_file(self, path, original_name):
+        """Show a successfully extracted file: inline text when it really is
+        text, otherwise a clear summary + an Export button with the correct
+        name and extension (never raw binary dumped into the results box)."""
+        self.result_preview.hide()
+        self.export_btn.hide()
+        self.last_output_file = ""
+        self.last_output_display_name = ""
+
+        if not path or not os.path.exists(path):
+            self.results_output.setText("No data extracted.")
+            return
+
+        export_name, label, is_text = self._derive_export_name(original_name, path)
+        size = os.path.getsize(path)
+        size_s = (
+            f"{size} B" if size < 1024 else
+            f"{size/1024:.1f} KB" if size < 1048576 else
+            f"{size/1048576:.1f} MB"
+        )
+
+        self.last_output_file = path
+        self.last_output_display_name = export_name
+
+        if is_text:
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    self.results_output.setText(f.read())
+            except Exception:
+                self.results_output.setText(f"Hidden file recovered: {export_name} ({label}, {size_s})")
+        else:
+            ext = os.path.splitext(export_name)[1].lower()
+            if ext in ('.png', '.jpg', '.jpeg', '.bmp', '.gif'):
+                pm = QPixmap(path)
                 if not pm.isNull():
                     self.result_preview.setPixmap(
                         pm.scaled(400, 300, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                     )
                     self.result_preview.show()
-                    self.last_output_file = of
-                    self.export_btn.show()
-                    self.results_output.setText(f"File extracted: {os.path.basename(of)}")
-                else:
-                    self.results_output.setText(msg)
-            else:
-                self.results_output.setText(msg)
-            
-            self.tabs.setCurrentIndex(2)
-        else:
-            self.status_output.append(f"ERROR:\n{msg}")
-            self.status_progress.setValue(100)
-    
-    def _on_bruteforce_finished(self, ok, msg, of, pw):
-        self.execute_btn.setEnabled(True)
-        if ok:
-            if pw:
-                self.status_output.append("Match found!")
-                self.status_progress.setValue(100)
-                self.results_output.setText(msg if msg else f"Password: {pw}")
-                self.tabs.setCurrentIndex(2)
-            elif msg == "No match found":
-                self.status_output.append("No match found")
-                self.results_output.setText("No match found in wordlist")
-                self.tabs.setCurrentIndex(2)
-            else:
-                self.status_output.append("SUCCESS!")
-                self.status_progress.setValue(100)
-                self.results_output.setText(msg)
-                self.tabs.setCurrentIndex(2)
-        else:
-            self.status_output.append(f"ERROR:\n{msg}")
-            self.status_progress.setValue(100)
-    
+            self.results_output.setText(
+                f"Hidden file recovered: {export_name}\n"
+                f"Type: {label}\n"
+                f"Size: {size_s}\n\n"
+                f"This isn't shown inline because it isn't plain text.\n"
+                f"Use Export to save it with its correct name and extension."
+            )
+
+        self.export_btn.show()
+
     def _copy_results(self):
         text = self.results_output.toPlainText()
         if text:
             QApplication.clipboard().setText(text)
             QMessageBox.information(self, "Copied", "Results copied!")
-    
+
     def _export_result(self):
         if not self.last_output_file or not os.path.exists(self.last_output_file):
             QMessageBox.warning(self, "No File", "Nothing to export.")
             return
-        fn = os.path.basename(self.last_output_file)
+        fn = self.last_output_display_name or os.path.basename(self.last_output_file)
         fp, _ = QFileDialog.getSaveFileName(self, "Export Extracted File", fn, "All Files (*)")
         if fp:
             try:
@@ -1112,7 +1240,7 @@ class SteganographyExtractPage(QWidget):
                 QMessageBox.information(self, "Exported", f"Saved to:\n{fp}")
             except Exception as e:
                 QMessageBox.critical(self, "Error", str(e))
-    
+
     def set_wordlist_config(self, wp, sp):
         self.wordlist_path = wp
         self.split_parts = sp
@@ -1123,6 +1251,6 @@ class SteganographyExtractPage(QWidget):
             )
             hw = bool(wp and os.path.exists(wp))
             self.execute_btn.setEnabled(bool(self.stego_path) and self.sh_ok and self.ss_ok and hw)
-    
+
     def refresh_theme(self):
         self._apply_theme()
