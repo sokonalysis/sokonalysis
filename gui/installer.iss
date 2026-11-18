@@ -1,17 +1,43 @@
 ; sokonalysis Windows Installer Script
-; Inno Setup Script for sokonalysis v3.5.0
+; Inno Setup Script (version is never hardcoded here)
 ; Place this file in your project root alongside build.bat
+;
+; Version resolution order:
+;   1. /DAppVersion=x.y.z passed on the command line (build.bat does this)
+;   2. Contents of version.txt next to this script (when compiled from the GUI)
+; Optional: /DAppName=name overrides the application name.
 
-#define MyAppName "sokonalysis"
-#define MyAppVersion "3.5.0"
+#ifdef AppName
+  #define MyAppName AppName
+#else
+  #define MyAppName "sokonalysis"
+#endif
+
+#ifdef AppVersion
+  #define MyAppVersion AppVersion
+#else
+  #define VerFile FileOpen("version.txt")
+  #define MyAppVersion Trim(FileRead(VerFile))
+  #expr FileClose(VerFile)
+#endif
+
+#if MyAppVersion == ""
+  #error version.txt is empty or missing and no /DAppVersion was given
+#endif
+
+#define MyAppExeName MyAppName + ".exe"
 #define MyAppPublisher "Kapasa Makasa University (KMU)"
-#define MyAppCopyright "2024-2026 Kapasa Makasa University (KMU)"
+#define MyAppStartYear "2024"
+#define MyAppCopyright MyAppStartYear + "-" + GetDateTimeString("yyyy", "", "") + " " + MyAppPublisher
 #define MyAppURL "https://github.com/sokonalysis/sokonalysis"
-#define MyAppExeName "sokonalysis.exe"
+#define MyAppDescription "The Cipher Toolkit Built For All Skill Levels"
+
+; Folder produced by build.bat
+#define PackageDir "dist\" + MyAppName + "-" + MyAppVersion
 
 [Setup]
-; NOTE: The value of AppId uniquely identifies this application.
-; Do not use the same AppId value in installers for other applications.
+; NOTE: AppId must stay constant across versions so upgrades replace the
+; existing install. Do not generate or change it.
 AppId={{B8F5A3D2-7E9C-4F12-9A6B-3D8E5F1C2A7B}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -23,7 +49,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 VersionInfoVersion={#MyAppVersion}
 VersionInfoCompany={#MyAppPublisher}
-VersionInfoDescription=The Cipher Toolkit Built For All Skill Levels
+VersionInfoDescription={#MyAppDescription}
 VersionInfoCopyright={#MyAppCopyright}
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
@@ -42,7 +68,7 @@ WizardStyle=modern
 WizardSizePercent=120,120
 WizardResizable=yes
 
-; Icons - Use small ICO file (must be 16x16 to 256x256)
+; Icons - ICO file (16x16 to 256x256)
 SetupIconFile=assets\logo.ico
 
 ; Privileges - NO ADMIN REQUIRED
@@ -54,7 +80,7 @@ ArchitecturesAllowed=x64compatible
 ; Require Windows 7 or later
 MinVersion=6.1sp1
 
-; Output directory
+; Output directory and name (matches what build.bat reports)
 OutputDir=dist
 OutputBaseFilename={#MyAppName}-{#MyAppVersion}-windows-installer
 
@@ -66,19 +92,24 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 
 [Files]
 ; Main executable (REQUIRED)
-Source: "dist\{#MyAppName}-{#MyAppVersion}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PackageDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
-; Assets
-Source: "dist\{#MyAppName}-{#MyAppVersion}\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Assets (icons, symbols, guide PDF)
+Source: "{#PackageDir}\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-; Documentation (skip if missing - no error)
-Source: "dist\{#MyAppName}-{#MyAppVersion}\README.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "dist\{#MyAppName}-{#MyAppVersion}\CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "dist\{#MyAppName}-{#MyAppVersion}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "dist\{#MyAppName}-{#MyAppVersion}\version.txt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+; GUI data files (AI operations, English words, AI data)
+Source: "{#PackageDir}\gui\*"; DestDir: "{app}\gui"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
-; John the Ripper files (skip if missing - no error)
-Source: "dist\{#MyAppName}-{#MyAppVersion}\JtR\*"; DestDir: "{app}\JtR"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+; Documentation and data (skip if missing - no error)
+Source: "{#PackageDir}\README.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#PackageDir}\CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#PackageDir}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#PackageDir}\version.txt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "{#PackageDir}\EN.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+
+; John the Ripper is embedded inside the exe by build.bat; this only installs
+; a loose JtR folder if one was added to the package (skipped otherwise)
+Source: "{#PackageDir}\JtR\*"; DestDir: "{app}\JtR"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Comment: "Launch {#MyAppName}"
@@ -107,7 +138,7 @@ procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
-    Log('sokonalysis v{#MyAppVersion} installation completed successfully.');
+    Log('{#MyAppName} v{#MyAppVersion} installation completed successfully.');
   end;
 end;
 
